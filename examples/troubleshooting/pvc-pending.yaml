@@ -1,0 +1,25 @@
+# FAULT: the PVC names a StorageClass that does not exist. The lab has a
+# `local-path` StorageClass (rancher.io/local-path), but this claim asks for
+# `fast-ssd-that-does-not-exist`. No provisioner answers, so the PVC stays
+# Pending and any pod that mounts it stays Pending too, waiting for the volume.
+#
+# The claim is deliberately not consumed by a pod so it is safe to leave and
+# delete. With a WaitForFirstConsumer class (local-path is one), a valid PVC
+# stays Pending *by design* until a pod schedules; that is normal, not this
+# fault. The tell here is the events: no provisioner matched the class name.
+#
+# FIX: set storageClassName to a class that exists (`kubectl get storageclass`),
+# or create the class, or leave storageClassName unset to use the default class.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-pending
+  namespace: troubleshoot
+  labels:
+    case: pvc-pending
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: fast-ssd-that-does-not-exist   # no such class in the lab
+  resources:
+    requests:
+      storage: 1Gi

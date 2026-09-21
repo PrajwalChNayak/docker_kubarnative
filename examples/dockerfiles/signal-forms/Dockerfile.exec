@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# Exec-form ENTRYPOINT: the script itself is PID 1, installs a SIGTERM
+# handler with `trap`, and exits as soon as `docker stop` signals it.
+FROM busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+
+COPY --chmod=0755 <<'EOF' /app/sleeper.sh
+#!/bin/sh
+trap 'echo "sleeper: SIGTERM received, exiting"; exit 0' TERM
+echo "sleeper: started, my PID is $$"
+# `sleep 1 & wait` instead of a bare `sleep 1`: a shell only runs a trap
+# between commands, and `wait` is interruptible, so the handler fires at once.
+while :; do
+  sleep 1 &
+  wait $!
+done
+EOF
+
+USER 65534:65534
+
+# JSON array, double quotes: no shell is involved, execve() runs the script.
+ENTRYPOINT ["/app/sleeper.sh"]

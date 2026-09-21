@@ -1,0 +1,33 @@
+# A pod that satisfies the restricted profile and is admitted into psa-demo.
+# It carries every field restricted requires: runAsNonRoot, no privilege
+# escalation, all capabilities dropped, a seccomp profile, and (because it
+# runs a paused container) a read-only root filesystem.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compliant
+  namespace: psa-demo
+  labels:
+    app.kubernetes.io/name: psa-compliant
+spec:
+  # Pod-level seccomp applies to every container unless a container overrides it.
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: pause
+      # A tiny, distroless, non-root image used purely to hold the pod open.
+      image: registry.k8s.io/pause:3.10
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

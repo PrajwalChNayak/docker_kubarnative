@@ -1,0 +1,17 @@
+# Staging runs the worker with the same shape as production, so the queue
+# behaviour under load is comparable.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasklane-worker
+spec:
+  template:
+    spec:
+      containers:
+        - name: worker
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi

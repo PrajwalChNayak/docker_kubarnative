@@ -1,0 +1,13 @@
+# Stage 1: the namespace every later stage deploys into.
+# Pod Security Admission enforces the "restricted" profile here from day one,
+# so every Tasklane pod must run as non-root with no privilege escalation.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

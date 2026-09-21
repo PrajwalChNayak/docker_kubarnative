@@ -1,0 +1,50 @@
+# Stage 7, step 1: PodDisruptionBudgets.
+#
+# A PDB constrains VOLUNTARY disruption only - `kubectl drain`, the descheduler,
+# a node pool rolling, the cluster autoscaler. It does not survive a node that
+# loses power, and it is not a scheduling constraint: two replicas pinned to one
+# node still both die if that node dies. Use topology spread for that (Part H).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # 2 replicas, so minAvailable 1 lets a drain take one pod at a time.
+  # Expressing it as minAvailable rather than maxUnavailable keeps the
+  # guarantee honest if someone scales the Deployment down to 1: the eviction
+  # is then refused instead of silently allowed.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api
+  # AlwaysAllow lets the eviction API remove pods that are running but not
+  # Ready. The default, IfHealthyBudget, protects unready pods too, which is
+  # how a broken rollout wedges a node drain forever.
+  # (unhealthyPodEvictionPolicy: GA since Kubernetes 1.31.)
+  unhealthyPodEvictionPolicy: AlwaysAllow
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # The worker is a queue consumer: losing one replica slows the queue, it does
+  # not break anything. maxUnavailable scales with the Deployment.
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-worker
+  unhealthyPodEvictionPolicy: AlwaysAllow
+---
+# No PDB for postgres on purpose. It is a single replica, so the only budget
+# that would protect it is minAvailable: 1, which blocks every drain of its
+# node forever and turns routine maintenance into a manual incident. A
+# single-replica database needs replication, not a budget.

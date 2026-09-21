@@ -1,0 +1,50 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# Same program, built the same way, but only the binary is shipped.
+# Changes that matter, in order of effect:
+#   1. multi-stage: the toolchain and sources stay in the build stage
+#   2. distroless static runtime: no shell, no package manager, no libc needed
+#   3. CGO_ENABLED=0: a fully static binary, so `scratch`-like bases work
+#   4. -ldflags="-s -w": drop the symbol table and DWARF debug info
+#   5. cache mounts: faster rebuilds, and nothing cached lands in a layer
+FROM golang:1.27-trixie@sha256:433790e515d27dc6003e847e644cc0af956985cf315c1c58a3b73ee2dd305183 AS build
+
+WORKDIR /src
+
+COPY <<'EOF' /src/go.mod
+module example.com/sizedemo
+
+go 1.27
+EOF
+
+COPY <<'EOF' /src/main.go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+)
+
+func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+		host, _ := os.Hostname()
+		fmt.Fprintf(w, "size demo on %s\n", host)
+	})
+	panic(http.ListenAndServe(":8080", nil))
+}
+EOF
+
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/sizedemo .
+
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
+
+COPY --from=build --chown=65532:65532 /out/sizedemo /sizedemo
+
+EXPOSE 8080
+# distroless :nonroot images already default to 65532, repeated here so the
+# image config is explicit and `runAsNonRoot` can verify it numerically.
+USER 65532:65532
+ENTRYPOINT ["/sizedemo"]

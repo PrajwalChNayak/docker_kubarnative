@@ -1,0 +1,76 @@
+# Base: the Tasklane background worker.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tasklane-worker
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+automountServiceAccountToken: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasklane-worker
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tasklane-worker
+        app.kubernetes.io/component: worker
+    spec:
+      serviceAccountName: tasklane-worker
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: tasklane-worker:0.1.0
+          ports:
+            - name: metrics
+              containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: tasklane-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/tasklane/db
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: tasklane-db
+            items:
+              - key: password
+                path: password

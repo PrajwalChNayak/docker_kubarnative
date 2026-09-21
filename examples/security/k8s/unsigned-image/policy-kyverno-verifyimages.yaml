@@ -1,0 +1,41 @@
+# HARDENED control. Requires Kyverno installed.
+#
+# This ClusterPolicy makes the admission controller verify a cosign signature
+# on every image matching ghcr.io/tasklane/* before a pod may run. An image
+# with no matching signature is rejected at admission. mutateDigest rewrites
+# the tag to the verified digest so the running pod is pinned to exactly the
+# bytes that were verified.
+#
+# Replace the publicKeys block with your own cosign public key
+# (cosign generate-key-pair). The key below is an illustrative placeholder.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-signed-images
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: verify-tasklane-signature
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      verifyImages:
+        - imageReferences:
+            - "ghcr.io/tasklane/*"
+          mutateDigest: true
+          verifyDigest: true
+          required: true
+          attestors:
+            - count: 1
+              entries:
+                - keys:
+                    publicKeys: |-
+                      -----BEGIN PUBLIC KEY-----
+                      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPLACEHOLDERPLACEHOLDERPLACEHO
+                      LDERPLACEHOLDERPLACEHOLDERPLACEHOLDERPLACEHOLDERPLACEHOLDER0000==
+                      -----END PUBLIC KEY-----

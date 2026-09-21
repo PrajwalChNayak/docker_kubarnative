@@ -1,0 +1,27 @@
+# expect=reject
+# The verification. This is the vulnerable pod pointed at the restricted
+# namespace escape-safe. Applying it MUST fail at admission: restricted forbids
+# privileged, hostPID and hostPath. The rejection is the proof that the control
+# closes the path. This pod is never meant to run.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape-blocked
+  namespace: escape-safe
+spec:
+  hostPID: true
+  containers:
+    # Deliberately privileged/root: expected to be rejected by restricted PSA.
+    - name: escape
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: host-root
+          mountPath: /host
+  volumes:
+    - name: host-root
+      hostPath:
+        path: /
+        type: Directory

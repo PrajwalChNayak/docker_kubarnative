@@ -1,0 +1,36 @@
+# A built-in ValidatingAdmissionPolicy that complements signature verification.
+#
+# A VAP evaluates CEL, so it cannot check a cryptographic signature (there is
+# no crypto in CEL). What it CAN do with no external controller is force every
+# image to come from an approved registry and be pinned by digest. That shrinks
+# the supply-chain surface: unknown registries and mutable tags are refused at
+# admission by the API server itself.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-approved-registry
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        object.spec.containers.all(c,
+          c.image.startsWith('ghcr.io/tasklane/') && c.image.contains('@sha256:'))
+      message: "images must come from ghcr.io/tasklane/ and be pinned by digest"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-approved-registry
+spec:
+  policyName: require-approved-registry
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: signing-demo

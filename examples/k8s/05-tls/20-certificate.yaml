@@ -1,0 +1,35 @@
+# Stage 5, step 2: the serving certificate for the Gateway listener.
+#
+# cert-manager creates a CertificateRequest, the CA issuer signs it, and the
+# result lands in the Secret named below with keys tls.crt, tls.key and ca.crt.
+# The Gateway's certificateRefs points at that Secret; cert-manager rewrites it
+# on renewal and Envoy Gateway picks the new key pair up without a restart.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tasklane-tls
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  secretName: tasklane-tls
+  # Secret metadata cert-manager should copy onto the generated Secret.
+  secretTemplate:
+    labels:
+      app.kubernetes.io/part-of: tasklane
+  dnsNames:
+    - tasklane.localhost
+  duration: 2160h    # 90d, the same order as a public ACME certificate
+  renewBefore: 360h  # 15d
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - digital signature
+    - key encipherment
+  issuerRef:
+    name: tasklane-ca
+    kind: ClusterIssuer
+    group: cert-manager.io

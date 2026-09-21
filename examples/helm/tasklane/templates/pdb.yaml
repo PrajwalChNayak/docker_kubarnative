@@ -1,0 +1,28 @@
+{{- if .Values.api.podDisruptionBudget.enabled }}
+# policy/v1. policy/v1beta1 PodDisruptionBudget was removed in 1.25.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "tasklane.api.fullname" . }}
+  labels:
+    {{- include "tasklane.api.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.api.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "tasklane.api.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if .Values.worker.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "tasklane.worker.fullname" . }}
+  labels:
+    {{- include "tasklane.worker.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.worker.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "tasklane.worker.selectorLabels" . | nindent 6 }}
+{{- end }}

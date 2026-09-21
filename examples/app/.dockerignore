@@ -1,0 +1,9 @@
+# Keep the build context small and free of secrets. Everything not needed by
+# the Dockerfile is excluded; the Dockerfile only COPYs go.mod, go.sum and Go
+# sources.
+**
+!go.mod
+!go.sum
+!cmd/
+!internal/
+**/*_test.go

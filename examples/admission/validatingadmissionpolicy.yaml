@@ -1,0 +1,82 @@
+# ValidatingAdmissionPolicy (GA in 1.30) — in-process CEL, no webhook server.
+#
+# Two rules for workloads in Tasklane namespaces:
+#   1. every Deployment and StatefulSet carries app.kubernetes.io/name
+#   2. every container image is pinned to something other than a floating tag
+#
+# The policy itself is inert. The binding below decides where it applies and
+# what a failure does.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: tasklane-workload-hygiene.tasklane.example.com
+spec:
+  # Fail means an error evaluating these expressions rejects the request.
+  # It is the default; it is written out because it is a real decision.
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments", "statefulsets"]
+  matchConditions:
+    # Control-plane controllers rewrite workloads during normal operation
+    # (for example when they add defaults on update). Blocking them turns a
+    # label policy into a cluster outage.
+    - name: exclude-kube-system-serviceaccounts
+      expression: '!request.userInfo.username.startsWith("system:serviceaccount:kube-system:")'
+  variables:
+    - name: allContainers
+      expression: >-
+        object.spec.template.spec.containers +
+        (has(object.spec.template.spec.initContainers) ? object.spec.template.spec.initContainers : [])
+    - name: images
+      expression: "variables.allContainers.map(c, c.image)"
+    # The tag or digest can only live in the last slash-separated component, so
+    # a registry host with a port (registry.example.com:5000/app) is not
+    # mistaken for a tagged image.
+    - name: imageNames
+      expression: "variables.images.map(i, i.split('/')[size(i.split('/')) - 1])"
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        'app.kubernetes.io/name' in object.metadata.labels &&
+        object.metadata.labels['app.kubernetes.io/name'] != ''
+      message: "workloads in a Tasklane namespace must set the app.kubernetes.io/name label"
+      reason: Invalid
+    - expression: "variables.imageNames.all(n, n.contains(':') || n.contains('@'))"
+      messageExpression: >-
+        "every container image must carry a tag or a digest; got " + variables.images.join(", ")
+      reason: Invalid
+    # The literal below is the whole point of the rule: a floating tag means
+    # two pods of the same Deployment can run different code. It appears here,
+    # in an example file, rather than in the prose of a page.
+    - expression: "variables.images.all(i, !i.endsWith(':latest'))"
+      messageExpression: >-
+        "the 'latest' tag is not a version; pin a release tag or a digest. Offending images: " +
+        variables.images.filter(i, i.endsWith(':latest')).join(", ")
+      reason: Invalid
+  # Audit annotations land in the audit event for the request, prefixed with
+  # the policy name. They are how you find out who would have been denied
+  # before you switch the binding to Deny.
+  auditAnnotations:
+    - key: images
+      valueExpression: '"checked: " + variables.images.join(", ")'
+---
+# The binding is the deployable half: it chooses the namespaces and the action.
+# [Warn, Audit] is how you roll a policy out — every offending write is
+# reported to the client as an HTTP warning and recorded in the audit log, but
+# nothing breaks. Swap it for [Deny] once the audit log is quiet.
+# Deny and Warn may not be combined.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: tasklane-workload-hygiene.tasklane.example.com
+spec:
+  policyName: tasklane-workload-hygiene.tasklane.example.com
+  validationActions: [Warn, Audit]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/part-of: tasklane

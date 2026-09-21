@@ -1,0 +1,38 @@
+# A Velero Schedule creates a Backup on a cron. Velero backs up Kubernetes
+# API objects (as a tarball in object storage) and, for PersistentVolumes,
+# either a CSI VolumeSnapshot or a filesystem copy via Kopia/restic.
+#
+# Requires Velero installed (namespace velero) with a configured
+# BackupStorageLocation pointing at object storage. See the README. The lab's
+# PostgreSQL uses a PVC, so volume data needs either a CSI snapshot class or
+# fs-backup enabled.
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: tasklane-daily
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # 01:00 every day. Velero names each backup tasklane-daily-<timestamp>.
+  schedule: "0 1 * * *"
+  # Do not start a new backup if the last one is still running.
+  skipImmediately: false
+  useOwnerReferencesInBackup: false
+  template:
+    includedNamespaces:
+      - tasklane
+    # Snapshot PVs through the CSI driver when a VolumeSnapshotClass exists.
+    snapshotVolumes: true
+    # Set true to fall back to Kopia file-level backup where CSI snapshots are
+    # unavailable (kind's local-path provisioner has no snapshot support).
+    defaultVolumesToFsBackup: false
+    # Keep backups for 14 days, then Velero garbage-collects them.
+    ttl: 336h0m0s
+    storageLocation: default
+    volumeSnapshotLocations:
+      - default
+    # Exclude generated, non-restorable objects to keep the backup clean.
+    excludedResources:
+      - events
+      - events.events.k8s.io

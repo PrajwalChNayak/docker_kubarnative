@@ -1,0 +1,60 @@
+# Karpenter NodePool (karpenter.sh/v1), for reference only.
+#
+# NOT FOR THE KIND LAB. Karpenter launches real machines through a cloud
+# provider; a kind cluster has no provider, so nothing here can be applied
+# to it. The NodePool API is provider-independent, but spec.template.spec
+# .nodeClassRef must point at a provider-specific NodeClass - on AWS that
+# is an EC2NodeClass (group karpenter.k8s.aws, apiVersion
+# karpenter.k8s.aws/v1), which carries the IAM role, AMI, subnet and
+# security-group selectors. Write that object from your provider's docs;
+# it is deliberately not invented here.
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: tasklane-general
+spec:
+  # Higher weight wins when several NodePools could satisfy a pod.
+  weight: 10
+  template:
+    metadata:
+      labels:
+        workload-class: general
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      # Requirements are ordinary node label selectors. Karpenter picks
+      # instance types that satisfy them and fit the pending pods.
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64", "arm64"]
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+      # Replace nodes before they get too old, so patched images land.
+      expireAfter: 720h
+      # Upper bound on how long draining may take before the node goes
+      # anyway. Unset means "wait for the pods forever".
+      terminationGracePeriod: 48h
+  disruption:
+    # WhenEmpty                 - only remove nodes with no workload pods
+    # WhenEmptyOrUnderutilized  - also replace or remove underutilised nodes
+    # Balanced                  - consolidate when the saving outweighs the
+    #                             disruption
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+    budgets:
+      # Never voluntarily disrupt more than 10% of this pool's nodes.
+      - nodes: "10%"
+      # And nothing at all during the Monday-to-Friday business day.
+      - schedule: "0 9 * * mon-fri"
+        duration: 8h
+        nodes: "0"
+  limits:
+    cpu: "200"
+    memory: 400Gi

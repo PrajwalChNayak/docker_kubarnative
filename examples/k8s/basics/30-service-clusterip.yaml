@@ -1,0 +1,23 @@
+# ClusterIP: the default type. A virtual IP inside the cluster, implemented by
+# kube-proxy rules on every node, plus a DNS A record
+# hello-api.tasklane-basics.svc.cluster.local.
+#
+# port 80 is what clients call; targetPort "http" is the *name* of the
+# container port, so the pod can move to another port without editing this.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-api
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hello-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

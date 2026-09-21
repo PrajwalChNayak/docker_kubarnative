@@ -1,0 +1,41 @@
+# Deliberately unschedulable pod.
+#
+# The lab has no node in zone-c, so this pod stays Pending and the scheduler
+# records a FailedScheduling event that names the predicate that rejected
+# every node. Use it to practise reading scheduler events, then delete it:
+#
+#   kubectl delete -f examples/scheduling/unschedulable-demo.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sched-unschedulable
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: sched-unschedulable
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  automountServiceAccountToken: false
+  nodeSelector:
+    topology.kubernetes.io/zone: zone-c
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: sleep
+      image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+      command: ["sleep", "3600"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

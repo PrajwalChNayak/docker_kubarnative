@@ -1,0 +1,56 @@
+# Stage 7, step 3: a CSI volume snapshot.
+#
+# REQUIRES a CSI driver with snapshot support, plus the external-snapshotter
+# CRDs and snapshot-controller. kind's default storage is local-path, which is
+# a host directory and cannot snapshot anything, so these two objects are
+# reference material for a real cluster, not something the lab can run. See the
+# README for what to install if you want to try it.
+#
+# The API is snapshot.storage.k8s.io/v1. These are CRDs shipped by the CSI
+# external-snapshotter project, not core Kubernetes types.
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: tasklane-snapshots
+  labels:
+    app.kubernetes.io/part-of: tasklane
+# The driver name must match the CSI driver that provisioned the PVC being
+# snapshotted. hostpath.csi.k8s.io is the reference driver; on a cloud cluster
+# this is ebs.csi.aws.com, pd.csi.storage.gke.io, disk.csi.azure.com and so on.
+driver: hostpath.csi.k8s.io
+# Delete removes the underlying storage snapshot when the VolumeSnapshot object
+# is deleted. Retain keeps it, and you then own the cleanup - and the bill.
+deletionPolicy: Delete
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: postgres-data-manual
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: tasklane
+spec:
+  volumeSnapshotClassName: tasklane-snapshots
+  source:
+    # The PVC created by the StatefulSet's volumeClaimTemplate in stage 2.
+    persistentVolumeClaimName: data-postgres-0
+---
+# Restoring: create a PVC whose dataSource is the snapshot. The new PVC must be
+# at least as large as the snapshot and use a StorageClass on the same driver.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-restored
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+  dataSource:
+    name: postgres-data-manual
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io

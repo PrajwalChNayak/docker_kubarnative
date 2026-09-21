@@ -1,0 +1,63 @@
+# Helm values for the prometheus-community/kube-prometheus-stack chart, tuned
+# for the single-node-ish kind lab. These are deliberately small; do not carry
+# them into production unmodified.
+#
+# The chart bundles the Prometheus Operator, a Prometheus, Alertmanager,
+# node-exporter, kube-state-metrics and Grafana. It pins component images
+# derived from the kube-prometheus project (v0.18.0), whose compatibility
+# matrix lists Kubernetes 1.33-1.36 only. The lab runs 1.37, so the stack may
+# print a version-skew warning. It still works for teaching; see the README.
+
+# Let Prometheus adopt ServiceMonitors/PrometheusRules from ALL namespaces,
+# not just ones the Helm release created. Without this the operator ignores
+# the tasklane/ rules unless they carry the release label AND live in the
+# release namespace.
+prometheus:
+  prometheusSpec:
+    # Adopt any ServiceMonitor/PodMonitor/PrometheusRule regardless of labels.
+    # Convenient for a lab; in production prefer explicit label selectors.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    # Keep 24h of data on an emptyDir-backed TSDB for the lab. Give it a real
+    # PersistentVolume and a longer retention for anything you care about.
+    retention: 24h
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+    # Native histograms are Beta and on by default in Kubernetes 1.37; enable
+    # Prometheus 3.x ingestion so dual-exposition histograms are stored native.
+    enableFeatures:
+      - native-histograms
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+
+grafana:
+  # Grafana is AGPLv3. Running it internally is fine; redistributing a modified
+  # Grafana obliges you to share source. See the grafana-dashboards page.
+  adminPassword: change-me-in-the-lab-only
+  # Provision the Tasklane dashboard from a ConfigMap that carries this label.
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+# node-exporter and kube-state-metrics stay on with chart defaults; they give
+# node and object metrics that the capacity-planning and cost pages rely on.

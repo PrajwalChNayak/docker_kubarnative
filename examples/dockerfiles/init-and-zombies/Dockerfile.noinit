@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# No init process: the application script is PID 1 and inherits the duty of
+# reaping orphaned children. It does not, so zombies pile up.
+FROM alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+
+COPY --chmod=0755 <<'EOF' /app/spawner.sh
+#!/bin/sh
+# Every second, start a grandchild and abandon it. The intermediate subshell
+# exits immediately, so `sleep` is re-parented to PID 1. When it finishes,
+# its exit status stays in the process table until someone calls wait().
+trap 'echo "spawner: SIGTERM received, exiting"; exit 0' TERM
+echo "spawner: started, my PID is $$"
+while :; do
+  ( sleep 0.2 & )
+  sleep 1 &
+  wait $!
+done
+EOF
+
+USER 65534:65534
+ENTRYPOINT ["/app/spawner.sh"]

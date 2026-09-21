@@ -1,0 +1,35 @@
+# Rejected by the LimitRange in 20-limitrange.yaml: 8 CPU and 16Gi exceed
+# the per-container max of 2 CPU / 4Gi and the per-pod max of 4 CPU / 8Gi.
+# Apply it with --dry-run=server to see the admission error without creating
+# anything. It is PSA-restricted-compliant on purpose, so the only reason it
+# can fail is the LimitRange.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oversized
+  namespace: team-a
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: sleep
+      image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+      command: ["sleep", "600"]
+      resources:
+        requests:
+          cpu: "8"
+          memory: 16Gi
+        limits:
+          cpu: "8"
+          memory: 16Gi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

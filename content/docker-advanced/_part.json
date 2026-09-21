@@ -1,0 +1,24 @@
+{
+  "title": "Part D: Docker, advanced",
+  "pages": [
+    "buildkit-and-buildx",
+    "cache-and-secret-mounts",
+    "remote-build-cache",
+    "multi-platform-builds",
+    "build-args-vs-env",
+    "reproducible-builds",
+    "registries",
+    "image-signing-cosign",
+    "sboms-and-provenance",
+    "vulnerability-scanning",
+    "rootless-docker",
+    "resource-limits",
+    "logging-drivers",
+    "daemon-configuration",
+    "docker-contexts",
+    "docker-in-ci",
+    "dind-vs-socket-mounting",
+    "podman-and-alternatives",
+    "labs"
+  ]
+}

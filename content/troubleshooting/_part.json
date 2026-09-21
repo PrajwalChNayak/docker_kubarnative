@@ -1,0 +1,23 @@
+{
+  "title": "Part L: Troubleshooting",
+  "pages": [
+    "method",
+    "crashloopbackoff",
+    "imagepullbackoff",
+    "pending-pods",
+    "oomkilled",
+    "createcontainerconfigerror",
+    "evicted-pods",
+    "failing-probes",
+    "service-no-endpoints",
+    "dns-failures",
+    "networkpolicy-blocking",
+    "pvc-pending",
+    "node-notready",
+    "stuck-terminating-namespace",
+    "certificate-expiry",
+    "docker-disk-exhaustion",
+    "architecture-mismatch",
+    "labs"
+  ]
+}

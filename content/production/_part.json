@@ -1,0 +1,17 @@
+{
+  "title": "Part K: Production and managed Kubernetes",
+  "pages": [
+    "managed-kubernetes-compared",
+    "eks",
+    "gke",
+    "aks",
+    "kubeadm",
+    "k3s-and-lightweight",
+    "production-readiness-checklist",
+    "cost-of-kubernetes",
+    "when-not-to-use-kubernetes",
+    "alternatives",
+    "tasklane-in-production",
+    "labs"
+  ]
+}

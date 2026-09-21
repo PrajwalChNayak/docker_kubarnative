@@ -1,0 +1,12 @@
+{
+  "site": { "title": "Containers & Kubernetes Handbook", "repo": "https://github.com/PrajwalChNayak/docker_kubarnative", "branch": "main" },
+  "top": ["index", "learning-path"],
+  "sections": [
+    { "id": "foundations", "title": "Foundations", "parts": ["foundations"] },
+    { "id": "docker", "title": "Docker", "parts": ["docker-beginner", "docker-intermediate", "docker-advanced"] },
+    { "id": "kubernetes", "title": "Kubernetes", "parts": ["k8s-beginner", "k8s-intermediate", "k8s-advanced"] },
+    { "id": "security", "title": "Security", "parts": ["docker-security", "k8s-security"] },
+    { "id": "operations", "title": "Operations", "parts": ["operations", "production", "troubleshooting"] },
+    { "id": "reference", "title": "Reference", "parts": ["migration", "reference"] }
+  ]
+}

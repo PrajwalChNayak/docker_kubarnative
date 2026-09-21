@@ -1,0 +1,18 @@
+# Namespace for the Part F teaching manifests. It is separate from "tasklane"
+# so you can break things here (bad rollouts, deleted pods) without touching
+# the running example.
+#
+# Pod Security Admission enforces the "restricted" profile, exactly like the
+# tasklane namespace, so every pod below must run non-root, drop all
+# capabilities, forbid privilege escalation and use the RuntimeDefault
+# seccomp profile.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasklane-basics
+  labels:
+    app.kubernetes.io/part-of: tasklane
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

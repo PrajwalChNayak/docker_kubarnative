@@ -1,0 +1,40 @@
+# A pod for testing the policies of this stage. It is NOT part of Tasklane.
+#
+# It uses the PostgreSQL image only because that image carries pg_isready,
+# which opens a TCP connection to 5432 and needs no password, so a blocked
+# connection is easy to tell apart from a rejected login.
+#
+# It deliberately carries no app.kubernetes.io/component label, so no policy in
+# this stage selects it: every connection except DNS should fail.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netcheck
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  automountServiceAccountToken: false
+  terminationGracePeriodSeconds: 1
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: netcheck
+      image: postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+      command: ["sleep", "infinity"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

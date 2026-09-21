@@ -1,0 +1,24 @@
+# Stage 6, step 1: default deny for the whole namespace.
+#
+# An empty podSelector selects every pod in the namespace. Naming both
+# policyTypes with no rules underneath means "no ingress is allowed and no
+# egress is allowed", because NetworkPolicy is allow-listing only: once any
+# policy selects a pod for a direction, only traffic matched by some policy in
+# that direction is permitted.
+#
+# Apply this first and the namespace goes dark, including DNS. The files that
+# follow add back exactly what Tasklane needs. That order is deliberate: it is
+# far easier to reason about a closed namespace with four holes in it than
+# about an open one with four walls.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

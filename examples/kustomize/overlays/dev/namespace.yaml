@@ -1,0 +1,14 @@
+# The overlay owns its namespace, so `kubectl apply -k` creates it.
+# Pod Security Admission enforces "restricted" from the first apply.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasklane-dev
+  labels:
+    app.kubernetes.io/part-of: tasklane
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+    # Selected by the lab Gateway's listener; see the README.
+    tasklane.example.com/gateway: tasklane

@@ -1,0 +1,121 @@
+# Stage 7, step 2: nightly cleanup of finished tasks.
+#
+# The Tasklane binaries have no "cleanup" subcommand, so this runs one SQL
+# statement with psql from the same PostgreSQL image the database uses. That is
+# the honest version of a maintenance job: a tiny, idempotent statement, not a
+# second copy of the application.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tasklane-cleanup
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-cleanup
+    app.kubernetes.io/part-of: tasklane
+automountServiceAccountToken: false
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tasklane-cleanup
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-cleanup
+    app.kubernetes.io/component: maintenance
+    app.kubernetes.io/part-of: tasklane
+spec:
+  schedule: "30 2 * * *"
+  # Without timeZone the schedule follows the kube-controller-manager's time
+  # zone, which is UTC on most clusters and is not a property you control.
+  # (CronJob timeZone: GA since Kubernetes 1.27.)
+  timeZone: "Etc/UTC"
+  # Forbid: if last night's run is somehow still going, skip tonight rather
+  # than run two DELETEs at once. Allow (the default) would overlap them;
+  # Replace would kill the running Job first.
+  concurrencyPolicy: Forbid
+  # If the controller was down at 02:30, still start the run when it comes back
+  # within 10 minutes. Without this a missed window is simply lost.
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tasklane-cleanup
+        app.kubernetes.io/component: maintenance
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      backoffLimit: 3
+      # Hard stop, counted from the moment the Job starts. A statement blocked
+      # on a lock will not hold a pod all day.
+      activeDeadlineSeconds: 900
+      # Delete the Job object (and its pods) 24h after it finishes, so the
+      # namespace does not accumulate one Job per night.
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: tasklane-cleanup
+            app.kubernetes.io/component: maintenance
+            app.kubernetes.io/part-of: tasklane
+        spec:
+          # Never: a failed container makes the Job create a NEW pod, counted
+          # against backoffLimit. With OnFailure the kubelet restarts the
+          # container in place and the Job controller sees less of what
+          # happened.
+          restartPolicy: Never
+          serviceAccountName: tasklane-cleanup
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: cleanup
+              image: postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+              # libpq reads PGHOST, PGUSER, PGDATABASE and PGSSLMODE from the
+              # environment, but it has no PGPASSWORD_FILE - that is Tasklane's
+              # own convention, and PGPASSFILE expects a different, five-field
+              # format. So the shell reads the mounted file and exports
+              # PGPASSWORD for this one short-lived process. The password never
+              # reaches the Pod spec, a ConfigMap or the image.
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  PGPASSWORD="$(cat "$PGPASSWORD_FILE")"
+                  export PGPASSWORD
+                  exec psql -v ON_ERROR_STOP=1 -X -q -c \
+                    "DELETE FROM tasks WHERE status = 'done' AND done_at < now() - interval '30 days'"
+              envFrom:
+                - configMapRef:
+                    name: tasklane-config
+              volumeMounts:
+                - name: db-secret
+                  mountPath: /etc/tasklane/db
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+          volumes:
+            - name: db-secret
+              secret:
+                secretName: tasklane-db
+                items:
+                  - key: password
+                    path: password
+            - name: tmp
+              emptyDir: {}

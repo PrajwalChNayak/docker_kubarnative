@@ -1,0 +1,14 @@
+# metrics-server v0.9.0 for kind. kind's kubelets serve self-signed
+# certificates, so the lab (and only the lab) skips kubelet TLS verification.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://github.com/kubernetes-sigs/metrics-server/manifests/base?ref=v0.9.0
+patches:
+  - target:
+      kind: Deployment
+      name: metrics-server
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --kubelet-insecure-tls

@@ -1,0 +1,54 @@
+# The same chart, consumed as an OCI artifact instead of from Git. This is
+# the shape to use once CI publishes the chart with `helm push`: the release
+# is pinned to an immutable digest, and the signature can be verified before
+# the helm-controller ever sees the chart.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: tasklane-chart
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: oci://ghcr.io/prajwalchnayak/charts/tasklane
+  ref:
+    semver: ">=0.1.0 <0.2.0"
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  # Refuse to produce an artifact unless the chart carries a valid cosign
+  # signature from the CI identity that built it.
+  # verify:
+  #   provider: cosign
+  #   secretRef:
+  #     name: cosign-public-key
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tasklane-oci
+  namespace: flux-system
+spec:
+  interval: 10m
+  # chartRef points at a source object directly; there is no chart.spec block
+  # and therefore no intermediate HelmChart to configure.
+  chartRef:
+    kind: OCIRepository
+    name: tasklane-chart
+    namespace: flux-system
+  releaseName: tasklane
+  targetNamespace: tasklane-oci
+  storageNamespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      strategy: rollback
+  driftDetection:
+    mode: enabled
+  values:
+    database:
+      existingSecret: tasklane-db
+      existingSecretKey: password

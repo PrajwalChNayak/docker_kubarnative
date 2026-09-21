@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# The naive image: build and run in the same stage. The result ships the Go
+# toolchain, the module cache, the source tree and a full Debian userland to
+# run one static binary.
+FROM golang:1.27-trixie@sha256:433790e515d27dc6003e847e644cc0af956985cf315c1c58a3b73ee2dd305183
+
+WORKDIR /src
+
+COPY <<'EOF' /src/go.mod
+module example.com/sizedemo
+
+go 1.27
+EOF
+
+COPY <<'EOF' /src/main.go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+)
+
+func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+		host, _ := os.Hostname()
+		fmt.Fprintf(w, "size demo on %s\n", host)
+	})
+	panic(http.ListenAndServe(":8080", nil))
+}
+EOF
+
+RUN go build -o /src/sizedemo .
+
+EXPOSE 8080
+# The golang image has no unprivileged account of its own, so use the
+# numeric "nobody" UID that is present in every Debian-based image.
+USER 65534:65534
+ENTRYPOINT ["/src/sizedemo"]

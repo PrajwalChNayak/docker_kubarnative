@@ -1,0 +1,73 @@
+# A Deployment for the rolling-update and rollback exercises.
+#
+# There is no database in this namespace. Readiness therefore checks /healthz
+# (process up) instead of /readyz (database reachable). That is a teaching
+# shortcut; the real Tasklane Deployment in examples/k8s/03-app/api.yaml
+# checks /readyz.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-api
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+  annotations:
+    # "kubectl rollout history" prints this in the CHANGE-CAUSE column.
+    # The Deployment controller copies it onto the ReplicaSet it creates.
+    kubernetes.io/change-cause: "initial release: tasklane-api:0.1.0"
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5          # old ReplicaSets kept for "rollout undo"
+  progressDeadlineSeconds: 60      # short so a stuck rollout is reported quickly in the lab
+  minReadySeconds: 5               # a new pod must stay Ready this long to count as available
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hello-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1                  # at most replicas+1 pods exist during a rollout
+      maxUnavailable: 0            # never fewer than 3 available pods
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hello-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: tasklane-api:0.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SHUTDOWN_DELAY_SECONDS
+              value: "2"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

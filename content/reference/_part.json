@@ -1,0 +1,14 @@
+{
+  "title": "Part M: Reference",
+  "pages": [
+    "kubectl-cheat-sheet",
+    "docker-cli-cheat-sheet",
+    "dockerfile-reference",
+    "compose-file-reference",
+    "manifest-field-reference",
+    "glossary",
+    "certification-map",
+    "version-matrix",
+    "coverage-map"
+  ]
+}

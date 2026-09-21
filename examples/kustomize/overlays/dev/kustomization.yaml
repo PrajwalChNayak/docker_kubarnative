@@ -1,0 +1,65 @@
+# Dev overlay: one replica of everything, cheap resources, a generated
+# database password, and the fastest possible feedback loop.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+# Sets metadata.namespace on every namespaced resource, including the ones the
+# base never named. It does not touch spec fields such as an HTTPRoute
+# parentRef namespace.
+namespace: tasklane-dev
+
+# Metadata-only labels again: includeSelectors stays false so the immutable
+# Deployment selectors keep matching the pods that already exist.
+labels:
+  - pairs:
+      app.kubernetes.io/instance: tasklane-dev
+      tasklane.example.com/environment: dev
+    includeSelectors: false
+    includeTemplates: true
+
+images:
+  - name: tasklane-api
+    newTag: 0.1.0-dev
+  - name: tasklane-worker
+    newTag: 0.1.0-dev
+
+replicas:
+  - name: tasklane-api
+    count: 1
+  - name: tasklane-worker
+    count: 1
+
+# behavior: merge edits the ConfigMap the base generated, keeping every key it
+# did not mention. The hash changes, so the Deployments roll.
+configMapGenerator:
+  - name: tasklane-config
+    behavior: merge
+    literals:
+      - SHUTDOWN_DELAY_SECONDS=1
+      - WORK_DURATION_MS=500
+
+# Dev only. A generated Secret keeps the value in git, which is exactly what
+# you must not do anywhere else — staging and prod consume an externally
+# managed Secret named tasklane-db instead.
+secretGenerator:
+  - name: tasklane-db
+    literals:
+      - password=dev-only-not-a-real-password
+
+patches:
+  # Strategic merge, from a file.
+  - path: patches/api-dev.yaml
+  # JSON 6902, inline, selected by label rather than by name.
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      labelSelector: app.kubernetes.io/part-of=tasklane
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/terminationGracePeriodSeconds
+        value: 5

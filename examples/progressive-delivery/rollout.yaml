@@ -1,0 +1,135 @@
+# Argo Rollouts canary for the Tasklane API.
+#
+# A Rollout replaces the Deployment: it owns ReplicaSets directly and adds
+# the step machine (setWeight / pause / analysis) that a Deployment has no
+# concept of. Delete the stage-3 Deployment before applying this, or two
+# controllers will manage the same pods.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 4
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api
+  strategy:
+    canary:
+      # Rollouts rewrites these two Services' selectors on every step so that
+      # each one resolves to exactly one ReplicaSet.
+      canaryService: tasklane-api-canary
+      stableService: tasklane-api
+      # Traffic splitting is done by rewriting the HTTPRoute's backendRef
+      # weights. The plugin must be registered in the argo-rollouts-config
+      # ConfigMap first - see argo-rollouts-config.yaml.
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            httpRoute: tasklane-api
+            namespace: tasklane
+      maxSurge: '25%'
+      maxUnavailable: 0
+      steps:
+        # 5% for two minutes: enough to catch an image that will not start
+        # or a migration that broke every request, cheap if it fails.
+        - setWeight: 5
+        - pause: { duration: 2m }
+        # Now let data decide. The analysis runs to completion before the
+        # next step; a failed run aborts the rollout and shifts 100% back
+        # to the stable ReplicaSet.
+        - setWeight: 20
+        - analysis:
+            templates:
+              - templateName: tasklane-api-success-rate
+            args:
+              - name: namespace
+                value: tasklane
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+        - setWeight: 50
+        - analysis:
+            templates:
+              - templateName: tasklane-api-success-rate
+            args:
+              - name: namespace
+                value: tasklane
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+        # An indefinite pause: the last 50% needs a human. Remove this step
+        # once you trust the analysis.
+        - pause: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tasklane-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      serviceAccountName: tasklane-api
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: tasklane-api:0.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: tasklane-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/tasklane/db
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: tasklane-db
+            items:
+              - key: password
+                path: password

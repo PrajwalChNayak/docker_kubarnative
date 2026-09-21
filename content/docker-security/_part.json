@@ -1,0 +1,17 @@
+{
+  "title": "Part E: Docker security",
+  "pages": [
+    "container-threat-model",
+    "docker-socket-is-root",
+    "dropping-capabilities",
+    "read-only-root-filesystem",
+    "no-new-privileges",
+    "seccomp-and-apparmor-profiles",
+    "user-namespaces-docker",
+    "secrets-in-images",
+    "supply-chain-security",
+    "base-image-patching",
+    "cis-docker-benchmark",
+    "labs"
+  ]
+}

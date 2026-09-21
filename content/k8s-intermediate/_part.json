@@ -1,0 +1,29 @@
+{
+  "title": "Part G: Kubernetes, intermediate",
+  "pages": [
+    "probes",
+    "resources-requests-limits",
+    "qos-classes",
+    "limitrange-and-resourcequota",
+    "statefulsets",
+    "daemonsets",
+    "jobs-and-cronjobs",
+    "init-and-sidecar-containers",
+    "pod-lifecycle-and-termination",
+    "pod-disruption-budgets",
+    "volumes",
+    "persistent-volumes-and-claims",
+    "storage-classes-and-csi",
+    "volume-snapshots",
+    "network-model-and-cni",
+    "kube-proxy-and-endpointslices",
+    "dns-and-coredns",
+    "gateway-api",
+    "gateway-api-tls-and-traffic",
+    "ingress-legacy",
+    "network-policy",
+    "cert-manager",
+    "external-dns",
+    "labs"
+  ]
+}

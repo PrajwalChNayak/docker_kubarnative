@@ -1,0 +1,36 @@
+# Stage 5, step 4: pin the HTTPS NodePort so kind can map it.
+#
+# This REPLACES examples/k8s/04-gateway/gateway.yaml's EnvoyProxy. kind-config
+# maps container port 30443 to 127.0.0.1:8443 on the host, so the lab reaches
+# the HTTPS listener at https://tasklane.localhost:8443/.
+#
+# Two lessons the lab taught, both still true here:
+#   1. Strategic merge matches Service ports by "port". Only patch a port that
+#      a Gateway listener creates. Patching 443 while the Gateway has only the
+#      HTTP listener adds a port with no name, and the API server rejects the
+#      whole Service, so the data plane keeps serving the last good config and
+#      new listeners never appear. Apply 30-gateway.yaml first.
+#   2. externalTrafficPolicy must stay Cluster. With Local, only the node that
+#      runs the Envoy pod answers, and kind maps host ports on the
+#      control-plane node only.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: kind-nodeport
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: NodePort
+        externalTrafficPolicy: Cluster
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ports:
+                - port: 80
+                  nodePort: 30080
+                - port: 443
+                  nodePort: 30443

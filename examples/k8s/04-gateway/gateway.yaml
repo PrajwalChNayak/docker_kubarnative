@@ -1,0 +1,82 @@
+# Stage 4: expose the API with Gateway API (standard channel, v1).
+#
+# Roles, as Gateway API intends them:
+#   GatewayClass + EnvoyProxy  -> infrastructure provider / platform team
+#   Gateway                    -> cluster operator (listeners, ports, TLS)
+#   HTTPRoute                  -> application team (paths, backends)
+#
+# Implementation: Envoy Gateway v1.9.1, installed by examples/lab/up.sh.
+
+# Envoy Gateway-specific settings for the data plane it creates. In kind the
+# Envoy Service is a NodePort pinned to 30080, which kind-config.yaml maps to
+# http://localhost:8080 on the host.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: kind-nodeport
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: NodePort
+        # Envoy Gateway defaults to Local, which only answers on the node running
+        # the Envoy pod. kind maps host port 8080 to the control-plane node only,
+        # so the lab needs Cluster (kube-proxy forwards to whichever node has it).
+        externalTrafficPolicy: Cluster
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              # Strategic merge matches Service ports by "port". Only patch ports
+              # that a listener creates: patching 443 before an HTTPS listener
+              # exists adds a nameless port and the Service is rejected.
+              ports:
+                - port: 80
+                  nodePort: 30080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: eg
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: kind-nodeport
+    namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: tasklane
+  namespace: tasklane
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: tasklane-api
+          port: 80

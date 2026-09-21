@@ -1,0 +1,55 @@
+# LEGACY. Kept for comparison with examples/k8s/04-gateway and 05-tls only.
+#
+# The Ingress API (networking.k8s.io/v1) is GA, frozen and still served by
+# Kubernetes 1.37. It is not deprecated and nothing here will stop working -
+# but it receives no new features, and the upstream project points new work at
+# Gateway API. Do not start here.
+#
+# The ingressClassName below selects Traefik, a maintained controller. It is
+# deliberately NOT ingress-nginx: that project was retired and archived on
+# 2026-03-24 and receives no further releases, bug fixes or CVE patches.
+# Other maintained choices: F5 NGINX Ingress Controller, HAProxy, Contour,
+# Kong, Envoy Gateway.
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: traefik
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # The controller string is the controller's own identifier; every
+  # implementation publishes its own. Traefik watches this one.
+  controller: traefik.io/ingress-controller
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+  annotations:
+    # cert-manager watches Ingresses too, and creates the Certificate that
+    # fills the Secret named under tls: below.
+    cert-manager.io/cluster-issuer: tasklane-ca
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - tasklane.localhost
+      secretName: tasklane-tls-ingress
+  rules:
+    - host: tasklane.localhost
+      http:
+        paths:
+          - path: /
+            # Prefix matches on path SEGMENTS: /api matches /api and /api/v1,
+            # but not /apifoo. The other values are Exact and
+            # ImplementationSpecific, which means "ask the controller".
+            pathType: Prefix
+            backend:
+              service:
+                name: tasklane-api
+                port:
+                  number: 80

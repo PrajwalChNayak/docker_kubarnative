@@ -1,0 +1,21 @@
+# Part E (docker-security) capture requests.
+# Format: <id> | <command run from repo root in bash>
+# Builds are allowed on the maintainer's Docker 29.2.1 Desktop. Commands tagged
+# LAB below perform a container escape and must be run ONLY in the disposable
+# Docker Desktop VM, never on a host with real data. Fake credentials only.
+
+docker-security/proc-caps-default | docker run --rm alpine:3.22 grep Cap /proc/1/status
+docker-security/proc-caps-dropped | docker run --rm --cap-drop ALL alpine:3.22 grep Cap /proc/1/status
+docker-security/cap-drop-eperm | docker run --rm --cap-drop ALL alpine:3.22 chown nobody /etc/hostname; echo "exit=$?"
+docker-security/read-only-write-fail | docker run --rm --read-only alpine:3.22 sh -c 'echo x > /root/x'; echo "exit=$?"
+docker-security/read-only-tmpfs-ok | docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m alpine:3.22 sh -c 'echo ok > /tmp/ok && cat /tmp/ok'
+docker-security/no-new-priv-off | docker run --rm alpine:3.22 grep NoNewPrivs /proc/1/status
+docker-security/no-new-priv-on | docker run --rm --security-opt no-new-privileges:true alpine:3.22 grep NoNewPrivs /proc/1/status
+docker-security/security-options | docker info --format '{{.SecurityOptions}}'
+docker-security/uid-map-default | docker run --rm alpine:3.22 cat /proc/self/uid_map
+docker-security/secret-history | docker build -f examples/security/docker/secret-in-image/vulnerable/Dockerfile.arg --build-arg FAKE_API_KEY=demo-not-real-passed-at-build -t secret-arg:vuln examples/security/docker/secret-in-image/vulnerable && docker history --no-trunc secret-arg:vuln && docker inspect --format '{{json .Config.Env}}' secret-arg:vuln
+docker-security/secret-layer-find | docker build -f examples/security/docker/secret-in-image/vulnerable/Dockerfile -t secret-copy:vuln examples/security/docker/secret-in-image/vulnerable && rm -rf /tmp/secdig && mkdir -p /tmp/secdig && docker save secret-copy:vuln -o /tmp/secdig/img.tar && tar -xf /tmp/secdig/img.tar -C /tmp/secdig && find /tmp/secdig -name '*.tar' -exec tar -xf {} -C /tmp/secdig \; 2>/dev/null; grep -rn 'FAKE_API_KEY' /tmp/secdig
+docker-security/secret-fixed-verify | docker build --secret id=api_key,src=examples/security/docker/secret-in-image/vulnerable/fake-credentials.env -f examples/security/docker/secret-in-image/fixed/Dockerfile -t secret:fixed examples/security/docker/secret-in-image/fixed && docker history --no-trunc secret:fixed && docker inspect --format '{{json .Config.Env}}' secret:fixed && rm -rf /tmp/fixdig && mkdir -p /tmp/fixdig && docker save secret:fixed -o /tmp/fixdig/img.tar && tar -xf /tmp/fixdig/img.tar -C /tmp/fixdig && find /tmp/fixdig -name '*.tar' -exec tar -xf {} -C /tmp/fixdig \; 2>/dev/null; grep -rn 'FAKE_API_KEY\|demo-not-real' /tmp/fixdig || echo "clean: nothing found"
+docker-security/imagetools-inspect | docker buildx imagetools inspect gcr.io/distroless/static-debian13:nonroot
+docker-security/base-image-digest | docker buildx imagetools inspect golang:1.27-trixie
+docker-security/socket-escape-id | # LAB (disposable Docker Desktop VM only): docker compose -f examples/security/docker/socket-escape/vulnerable/compose.yaml up -d && docker compose -f examples/security/docker/socket-escape/vulnerable/compose.yaml exec -T ci-runner docker run --rm -v /:/host --privileged alpine:3.22 chroot /host sh -c 'id; head -n 3 /etc/shadow'; docker compose -f examples/security/docker/socket-escape/vulnerable/compose.yaml down

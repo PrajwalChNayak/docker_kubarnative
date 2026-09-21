@@ -1,0 +1,74 @@
+# Pod topology spread demo.
+#
+# Two constraints, ANDed:
+#   1. hard spread across the two lab zones, with minDomains: 2 so that the
+#      global minimum is treated as 0 while only one zone is available
+#      (minDomains is GA since 1.30 and may only be used with DoNotSchedule);
+#   2. soft spread across nodes, which only influences scoring.
+#
+# nodeAffinityPolicy defaults to Honor and nodeTaintsPolicy defaults to
+# Ignore; both are spelled out here because the defaults differ
+# (NodeInclusionPolicyInPodTopologySpread is GA since 1.33).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sched-spread
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: sched-spread
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sched-spread
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sched-spread
+        app.kubernetes.io/component: demo
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      automountServiceAccountToken: false
+      topologySpreadConstraints:
+        - maxSkew: 1
+          minDomains: 2
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          nodeAffinityPolicy: Honor
+          nodeTaintsPolicy: Honor
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: sched-spread
+          # Count only pods from this Deployment revision, so a rolling
+          # update is not blocked by the pods it is replacing.
+          matchLabelKeys:
+            - pod-template-hash
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: sched-spread
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+          command: ["sleep", "3600"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

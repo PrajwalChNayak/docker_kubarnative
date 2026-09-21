@@ -1,0 +1,179 @@
+# Tasklane local development stack (Docker Compose v5).
+#
+#   docker compose up --build --watch        # api + worker + db, rebuild on change
+#   docker compose --profile load up -d      # also start the load generator
+#   docker compose --profile observability up -d   # also start Prometheus
+#
+# There is deliberately no top-level `version:` key: the Compose
+# Specification made it obsolete and Compose ignores it.
+
+name: tasklane
+
+x-app-security: &app-security
+  # The images already run as UID 65532. These settings remove what an
+  # attacker could otherwise use after compromising the process.
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+x-db-env: &db-env
+  PGHOST: db
+  PGPORT: "5432"
+  PGUSER: tasklane
+  PGDATABASE: tasklane
+  PGSSLMODE: disable            # local only; production uses TLS to the database
+  PGPASSWORD_FILE: /run/secrets/db_password
+
+services:
+  db:
+    image: postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+    environment:
+      POSTGRES_USER: tasklane
+      POSTGRES_DB: tasklane
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes:
+      # Postgres 18 images keep data in /var/lib/postgresql/18/docker, so the
+      # volume is mounted one level up at /var/lib/postgresql.
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasklane -d tasklane"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks: [backend]
+
+  # One-shot schema migration. api and worker wait for it to exit 0.
+  migrate:
+    build:
+      context: ../app
+      target: api
+    image: tasklane-api:dev
+    command: ["migrate"]
+    environment: *db-env
+    secrets: [db_password]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    <<: *app-security
+    networks: [backend]
+
+  api:
+    build:
+      context: ../app
+      target: api
+      args:
+        VERSION: ${TASKLANE_VERSION:-dev}
+    image: tasklane-api:dev
+    env_file:
+      - path: ./app.env
+        required: true
+    environment: *db-env
+    secrets: [db_password]
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+    <<: *app-security
+    networks: [frontend, backend]
+    develop:
+      watch:
+        # Go is compiled, so a source change means a new image. Compose
+        # rebuilds and recreates only the affected services.
+        - action: rebuild
+          path: ../app/cmd
+        - action: rebuild
+          path: ../app/internal
+        - action: rebuild
+          path: ../app/go.mod
+
+  worker:
+    build:
+      context: ../app
+      target: worker
+    image: tasklane-worker:dev
+    env_file:
+      - path: ./app.env
+        required: true
+    environment: *db-env
+    secrets: [db_password]
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+    <<: *app-security
+    networks: [backend]
+    develop:
+      watch:
+        - action: rebuild
+          path: ../app/cmd
+        - action: rebuild
+          path: ../app/internal
+
+  # --profile load: creates a task every second through the public API.
+  loadgen:
+    image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+    profiles: [load]
+    user: "65534:65534"
+    command:
+      - sh
+      - -c
+      - |
+        i=0
+        while true; do
+          i=$$((i+1))
+          wget -q -O /dev/null --header 'Content-Type: application/json' \
+            --post-data "{\"title\":\"load-$$i\"}" http://api:8080/tasks || echo "post failed"
+          sleep 1
+        done
+    depends_on:
+      api:
+        condition: service_healthy
+    <<: *app-security
+    networks: [frontend]
+
+  # --profile observability: Prometheus scraping api and worker.
+  prometheus:
+    image: prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
+    profiles: [observability]
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    networks: [frontend, backend]
+
+networks:
+  frontend: {}
+  backend:
+    # No route out of this network: the database is reachable only from
+    # containers attached to it.
+    internal: true
+
+volumes:
+  db-data: {}
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt   # dev-only value; see README
+
+configs:
+  prometheus_config:
+    file: ./prometheus.yml

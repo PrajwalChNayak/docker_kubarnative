@@ -1,0 +1,51 @@
+# One Application = one Kustomize overlay = one namespace.
+# The overlay at examples/kustomize/overlays/staging renders into namespace
+# tasklane-staging and includes that Namespace object itself, so
+# CreateNamespace=true is deliberately NOT set: the namespace must come from
+# Git complete with its Pod Security Admission labels.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tasklane-staging
+  namespace: argocd
+  finalizers:
+    # Foreground cascading deletion: deleting the Application deletes the
+    # workloads it created. Without this, deletion orphans them.
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: tasklane
+  source:
+    repoURL: https://github.com/PrajwalChNayak/docker_kubarnative
+    targetRevision: main
+    path: examples/kustomize/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tasklane-staging
+  syncPolicy:
+    automated:
+      enabled: true      # defaults to true; set false to pause auto-sync
+      prune: true        # delete objects removed from Git (default false)
+      selfHeal: true     # revert manual in-cluster edits (default false)
+      allowEmpty: false  # refuse a sync that would delete every object
+    syncOptions:
+      # Apply with `kubectl apply --server-side --force-conflicts`, so field
+      # ownership is tracked by the API server instead of the last-applied
+      # annotation. Required for large CRDs and shared objects.
+      - ServerSideApply=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  # The HorizontalPodAutoscaler owns replica counts at runtime. Without this,
+  # selfHeal fights the autoscaler every reconciliation.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+  revisionHistoryLimit: 10

@@ -1,0 +1,88 @@
+# Default deny, both directions. An empty podSelector selects every pod in
+# the namespace; listing a policyType with no rules below it denies that
+# direction entirely. NetworkPolicy is additive, so the three policies that
+# follow punch the necessary holes back through.
+#
+# This only works if the CNI plugin implements NetworkPolicy. Applying these
+# objects to a cluster whose CNI ignores them succeeds silently and isolates
+# nothing - verify, do not assume.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: team-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# DNS must be allowed back or every name lookup in the namespace fails, and
+# the symptom looks like an application bug rather than a policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: team-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Traffic within the tenant's own namespace, in both directions.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace
+  namespace: team-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+---
+# Egress to the internet, with the cluster's own address ranges cut out.
+# Without the `except` blocks, "allow egress to 0.0.0.0/0" also allows the
+# tenant to reach every other namespace's pods, the API server and the
+# cloud metadata endpoint - which is the usual way a namespace boundary is
+# escaped.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-egress
+  namespace: team-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.169.254/32
+      ports:
+        - protocol: TCP
+          port: 443

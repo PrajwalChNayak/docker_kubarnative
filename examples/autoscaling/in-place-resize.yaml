@@ -1,0 +1,54 @@
+# In-place Pod resize demo (container-level resize is GA in Kubernetes 1.35).
+#
+# The pod sleeps; all that matters is its resources and resizePolicy.
+# Resize it without restarting it:
+#
+#   kubectl -n tasklane patch pod tasklane-resize-demo --subresource resize \
+#     -p '{"spec":{"containers":[{"name":"demo","resources":{"requests":{"cpu":"200m"}}}]}}'
+#
+# Then compare spec (desired) with status.containerStatuses[].resources
+# (what the kubelet actually configured):
+#
+#   kubectl -n tasklane get pod tasklane-resize-demo \
+#     -o jsonpath='{.status.containerStatuses[0].resources}'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tasklane-resize-demo
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-resize-demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 1
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: demo
+      image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+      command: ["sleep", "600"]
+      # One entry per resource. NotRequired is the default; memory is spelled
+      # out here because shrinking a memory limit often cannot be done to a
+      # live process, and RestartContainer makes that explicit and safe.
+      resizePolicy:
+        - resourceName: cpu
+          restartPolicy: NotRequired
+        - resourceName: memory
+          restartPolicy: RestartContainer
+      resources:
+        requests:
+          cpu: 100m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

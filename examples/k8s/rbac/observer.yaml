@@ -1,0 +1,36 @@
+# A read-only observer for the tasklane namespace.
+#
+# Instead of writing a custom Role, this reuses the built-in "view"
+# ClusterRole through a namespace-scoped RoleBinding. "view" is one of the
+# default user-facing ClusterRoles Kubernetes ships and aggregates.
+#
+# IMPORTANT: "view" deliberately EXCLUDES Secrets. Reading a Secret is
+# equivalent to reading its contents, so the built-in read-only role does not
+# grant get/list on secrets. An observer bound to "view" can list pods,
+# deployments, services and configmaps in tasklane but cannot read the
+# tasklane-db password. If you need someone to read Secrets, that is a
+# deliberate, separately-audited grant, not part of "read-only".
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tasklane-observer
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tasklane-observer
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view          # built-in, aggregated, user-facing read-only role
+subjects:
+  - kind: ServiceAccount
+    name: tasklane-observer
+    namespace: tasklane

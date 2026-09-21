@@ -1,0 +1,18 @@
+# Stage 3: non-secret configuration shared by api and worker.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tasklane-config
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+data:
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGUSER: tasklane
+  PGDATABASE: tasklane
+  PGSSLMODE: disable          # in-cluster lab only; use TLS to a real database
+  PGPASSWORD_FILE: /etc/tasklane/db/password
+  SHUTDOWN_DELAY_SECONDS: "5"
+  WORK_DURATION_MS: "2000"
+  POLL_INTERVAL_MS: "1000"

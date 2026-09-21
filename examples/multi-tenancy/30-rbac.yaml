@@ -1,0 +1,87 @@
+# The tenant's own identity. It gets a namespaced Role, never a ClusterRole
+# binding, and never the built-in `admin` ClusterRole - `admin` includes
+# the power to create RoleBindings, which lets a tenant grant itself
+# everything the platform ServiceAccount can do in that namespace.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-a-deployer
+  namespace: team-a
+  labels:
+    tenancy.example.com/tenant: team-a
+# This SA is impersonated by CI from outside the cluster; no pod mounts it.
+automountServiceAccountToken: false
+---
+# An explicit allow-list. Everything the tenant needs to ship an app, and
+# nothing that would let it redefine its own boundary: no resourcequotas,
+# no limitranges, no networkpolicies, no roles or rolebindings.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-a-deploy
+  namespace: team-a
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets", "persistentvolumeclaims", "serviceaccounts"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log", "pods/exec", "pods/portforward", "events"]
+    verbs: ["get", "list", "create"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes", "grpcroutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Read-only on the objects that define the boundary, so the tenant can see
+  # why a pod was rejected without being able to raise its own ceiling.
+  - apiGroups: [""]
+    resources: ["resourcequotas", "limitranges"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-deploy
+  namespace: team-a
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: team-a-deploy
+subjects:
+  - kind: ServiceAccount
+    name: team-a-deployer
+    namespace: team-a
+  # The humans on the team, as delivered by the cluster's OIDC provider.
+  - kind: Group
+    name: team-a
+    apiGroup: rbac.authorization.k8s.io
+---
+# Namespace-scoped read for everyone on the team, including the objects the
+# deploy Role deliberately omits. `view` is a built-in ClusterRole; binding
+# it with a RoleBinding scopes it to this namespace only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-view
+  namespace: team-a
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: Group
+    name: team-a
+    apiGroup: rbac.authorization.k8s.io

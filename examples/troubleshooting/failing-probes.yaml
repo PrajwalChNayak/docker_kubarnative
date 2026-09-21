@@ -1,0 +1,57 @@
+# FAULT: the readiness probe points at a path the app does not serve. The
+# Tasklane API serves /healthz (liveness) and /readyz (readiness); this probe
+# asks for /not-ready, which returns 404. The container runs fine and liveness
+# passes, so it is never restarted, but readiness never succeeds, so the pod
+# stays 0/1 Ready and is kept out of every Service's EndpointSlices.
+#
+# No database is configured here on purpose: the point is the probe path, not
+# the app. The API starts, /healthz answers 200, and only readiness is broken.
+#
+# A mirror-image bug is a wrong *liveness* path, which restarts a healthy
+# container forever (a crash loop with no crash in the logs). See failing-probes.md.
+#
+# FIX: point the readiness probe at /readyz. Match the probe path, port and
+# scheme to what the app actually serves.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: failing-probes
+  namespace: troubleshoot
+  labels:
+    case: failing-probes
+spec:
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: api
+      image: tasklane-api:0.1.0
+      ports:
+        - name: http
+          containerPort: 8080
+      livenessProbe:
+        httpGet:
+          path: /healthz     # correct: the process is alive
+          port: http
+        periodSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /not-ready   # WRONG: returns 404, so the pod never goes Ready
+          port: http
+        periodSeconds: 5
+        failureThreshold: 2
+      resources:
+        requests:
+          cpu: 50m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

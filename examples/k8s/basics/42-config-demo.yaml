@@ -1,0 +1,84 @@
+# One pod that consumes configuration three ways, so you can compare them:
+#   1. ConfigMap keys as environment variables (envFrom / valueFrom)
+#   2. the same ConfigMap as files under /etc/hello
+#   3. a Secret as a file under /etc/hello-secret
+#
+# It also doubles as the lab toolbox: busybox has wget, nslookup and cat,
+# which the distroless tasklane images deliberately do not.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: config-demo
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: config-demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  restartPolicy: Always
+  automountServiceAccountToken: false
+  securityContext:
+    # busybox images default to UID 0. The restricted Pod Security profile
+    # rejects that, so the pod pins a non-root UID here.
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: demo
+      image: busybox:1.37
+      command: ["sh", "-c"]
+      args:
+        - |
+          echo "env GREETING=$GREETING LOG_LEVEL=$LOG_LEVEL GREETING_UPPER=$GREETING_ALIAS"
+          echo "--- /etc/hello ---"; ls -l /etc/hello; cat /etc/hello/app.properties
+          echo "--- /etc/hello-secret ---"; ls -l /etc/hello-secret
+          exec sleep 86400
+      envFrom:
+        # Every key becomes an environment variable. Keys that are not valid
+        # variable names (app.properties here) are skipped and reported in an
+        # event on the pod.
+        - configMapRef:
+            name: hello-config
+      env:
+        # One key, under a different name. This is the explicit form.
+        - name: GREETING_ALIAS
+          valueFrom:
+            configMapKeyRef:
+              name: hello-config
+              key: GREETING
+      volumeMounts:
+        - name: config
+          mountPath: /etc/hello
+          readOnly: true
+        - name: secret
+          mountPath: /etc/hello-secret
+          readOnly: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+  volumes:
+    - name: config
+      configMap:
+        name: hello-config
+        # Without "items" every key becomes a file. Listing items selects
+        # keys and renames them.
+        items:
+          - key: app.properties
+            path: app.properties
+          - key: GREETING
+            path: greeting.txt
+    - name: secret
+      secret:
+        secretName: hello-secret
+        # 0400: readable only by the pod's UID. Secret volumes are tmpfs
+        # (memory), so they never touch the node's disk.
+        defaultMode: 0400

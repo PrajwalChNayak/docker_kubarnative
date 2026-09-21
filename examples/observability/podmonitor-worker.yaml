@@ -1,0 +1,28 @@
+# Alternative to the worker ServiceMonitor: a PodMonitor scrapes pods
+# directly, without needing a Service in front of them. Use one or the other,
+# not both, or every worker replica is scraped twice.
+#
+# PodMonitor is the right tool when a workload has no Service (for example a
+# Deployment whose pods only expose metrics), or when you want scrape targets
+# that do not depend on Service/EndpointSlice health.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/part-of: tasklane
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-worker
+  namespaceSelector:
+    matchNames:
+      - tasklane
+  podMetricsEndpoints:
+    # Named container port from the worker Deployment (containerPort 9090).
+    - port: metrics
+      path: /metrics
+      interval: 15s

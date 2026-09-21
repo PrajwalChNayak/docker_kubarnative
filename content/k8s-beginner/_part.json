@@ -1,0 +1,23 @@
+{
+  "title": "Part F: Kubernetes, beginner",
+  "pages": [
+    "why-orchestration",
+    "architecture",
+    "declarative-model-and-reconciliation",
+    "local-clusters",
+    "kubectl-fundamentals",
+    "kubeconfig-and-contexts",
+    "manifest-anatomy",
+    "namespaces",
+    "labels-selectors-annotations",
+    "pods",
+    "deployments-and-replicasets",
+    "rolling-updates-and-rollbacks",
+    "services",
+    "configmaps",
+    "secrets",
+    "debugging-basics",
+    "tasklane-on-kubernetes",
+    "labs"
+  ]
+}

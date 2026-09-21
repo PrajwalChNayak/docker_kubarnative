@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "tasklane.fullname" . }}-config
+  labels:
+    {{- include "tasklane.labels" . | nindent 4 }}
+data:
+  PGHOST: {{ include "tasklane.dbHost" . | quote }}
+  PGPORT: {{ .Values.database.port | quote }}
+  PGUSER: {{ .Values.database.user | quote }}
+  PGDATABASE: {{ .Values.database.name | quote }}
+  PGSSLMODE: {{ .Values.database.sslMode | quote }}
+  PGPASSWORD_FILE: /etc/tasklane/db/password
+  {{- range $key, $value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

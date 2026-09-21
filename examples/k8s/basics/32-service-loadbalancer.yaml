@@ -1,0 +1,27 @@
+# LoadBalancer: a NodePort Service that additionally asks a load-balancer
+# controller for an external address. Kubernetes itself implements nothing
+# here: a cloud-controller-manager (EKS, GKE, AKS) or an on-premises
+# controller (MetalLB, cloud-provider-kind) watches the Service and writes
+# .status.loadBalancer.ingress.
+#
+# A plain kind cluster has no such controller, so EXTERNAL-IP stays <pending>
+# for ever. That is the correct, expected result in this lab, not a bug.
+# sigs.k8s.io/cloud-provider-kind runs a load balancer for kind on your host
+# if you want a real address; the handbook does not install it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-api-lb
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: hello-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

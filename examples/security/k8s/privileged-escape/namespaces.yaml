@@ -1,0 +1,24 @@
+# Two disposable namespaces for the privileged-escape demo.
+#
+# escape-vuln is labelled enforce=privileged. Needing that label at all is the
+# warning sign: the "privileged" profile is unrestricted and exists mainly for
+# trusted, system-level workloads. A normal application namespace should never
+# carry it.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: escape-vuln
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: v1.37
+---
+# escape-safe is the hardened target: restricted, version-pinned.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: escape-safe
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

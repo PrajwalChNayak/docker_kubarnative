@@ -1,0 +1,18 @@
+# ExternalName: no selector, no endpoints, no proxying. CoreDNS answers with
+# a CNAME to the name below, so this is a DNS alias and nothing else. TLS
+# certificates and Host headers still see the target name.
+#
+# Here it aliases the database Service that lives in the tasklane namespace,
+# so a pod in tasklane-basics can use the short name "tasklane-db".
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklane-db
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: ExternalName
+  externalName: postgres.tasklane.svc.cluster.local

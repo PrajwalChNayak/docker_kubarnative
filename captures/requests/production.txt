@@ -1,0 +1,5 @@
+production/version | kubectl version
+production/cluster-info | kubectl cluster-info
+production/readyz | kubectl get --raw='/readyz?verbose' | head -40
+production/livez | kubectl get --raw='/livez?verbose' | head
+production/apiservices | kubectl get apiservices | grep -v Local | head

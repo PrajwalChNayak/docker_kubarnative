@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+# DELIBERATELY VULNERABLE (ARG variant). Build this only in a disposable lab.
+# A secret passed with --build-arg is not "temporary". Here it is promoted to
+# an ENV, which is written into the image config: `docker inspect` and
+# `docker history` both reveal it. A --build-arg value can also surface in the
+# created-by metadata of the layers that reference it.
+FROM alpine:3.22
+
+# The default is fake; the point is the value you pass at build time.
+# hadolint ignore=DL3064  # deliberate: DL3064 flags the exact anti-pattern demonstrated here
+ARG FAKE_API_KEY=demo-not-real-default
+
+# The vulnerability: baking the build arg into the persisted image config.
+# hadolint ignore=DL3064  # deliberate: this ENV bake is the vulnerability under test
+ENV FAKE_API_KEY=${FAKE_API_KEY}
+
+RUN printf 'app configured\n' > /app-config
+
+CMD ["sh"]

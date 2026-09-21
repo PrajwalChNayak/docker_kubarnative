@@ -1,0 +1,13 @@
+# Same object as config/samples/taskqueue.yaml, with deploymentName changed.
+# The CRD carries a CEL transition rule (rule: self == oldSelf), so the API
+# server rejects this as an UPDATE while accepting the identical field on
+# CREATE. It only fails if the sample was applied first:
+#   kubectl apply -f ../samples/ && kubectl apply --dry-run=server -f this-file.yaml
+apiVersion: tasklane.example.com/v1alpha1
+kind: TaskQueue
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+spec:
+  workers: 2
+  deploymentName: tasklane-api

@@ -1,0 +1,25 @@
+{
+  "title": "Part I: Kubernetes security",
+  "pages": [
+    "4c-model",
+    "authentication-and-authorisation",
+    "rbac",
+    "service-accounts-and-tokens",
+    "pod-security-standards",
+    "security-context",
+    "user-namespaces",
+    "policy-engines",
+    "secrets-management",
+    "network-segmentation",
+    "supply-chain-admission",
+    "runtime-security-falco",
+    "audit-logging",
+    "cis-benchmark-kube-bench",
+    "attack-privileged-pod-escape",
+    "attack-rbac-token-abuse",
+    "attack-lateral-movement",
+    "attack-unsigned-image",
+    "common-attack-paths",
+    "labs"
+  ]
+}

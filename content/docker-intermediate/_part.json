@@ -1,0 +1,25 @@
+{
+  "title": "Part C: Docker, intermediate",
+  "pages": [
+    "dockerfile-instructions",
+    "build-context-and-dockerignore",
+    "layer-caching",
+    "multi-stage-builds",
+    "choosing-base-images",
+    "entrypoint-vs-cmd",
+    "pid1-signals-graceful-shutdown",
+    "healthchecks",
+    "running-as-non-root",
+    "image-size-optimisation",
+    "volumes-bind-mounts-tmpfs",
+    "docker-networking",
+    "overlay-and-macvlan-networks",
+    "compose-fundamentals",
+    "compose-dependencies-and-healthchecks",
+    "compose-profiles-overrides-env",
+    "compose-watch",
+    "compose-secrets-configs-scaling",
+    "tasklane-with-compose",
+    "labs"
+  ]
+}

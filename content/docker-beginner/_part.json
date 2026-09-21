@@ -1,0 +1,18 @@
+{
+  "title": "Part B: Docker, beginner",
+  "pages": [
+    "install-docker",
+    "docker-cli-basics",
+    "running-containers",
+    "container-lifecycle",
+    "images-tags-digests",
+    "pulling-and-pushing",
+    "inspect-logs-exec",
+    "publishing-ports",
+    "environment-variables",
+    "volumes-and-bind-mounts-basics",
+    "cleanup-and-disk-usage",
+    "tasklane-with-docker-run",
+    "labs"
+  ]
+}

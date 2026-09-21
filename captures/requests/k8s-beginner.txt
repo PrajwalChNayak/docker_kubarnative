@@ -1,0 +1,116 @@
+# Part F (Kubernetes, beginner) capture requests.
+# Format: <id> | <command, run from the repo root, lab cluster up, stages 1-4 applied>
+# Pipes inside commands are written without a leading space so the first " | "
+# is always the id separator.
+#
+# Order matters for the rollout sequences (rollout-*) and for anything in the
+# tasklane-basics namespace: run the file top to bottom.
+
+k8s-beginner/kubectl-version | kubectl version
+k8s-beginner/cluster-info | kubectl cluster-info
+k8s-beginner/get-nodes-wide | kubectl get nodes -o wide
+k8s-beginner/node-labels | kubectl get nodes --show-labels
+k8s-beginner/kube-system-pods | kubectl get pods -n kube-system -o wide
+k8s-beginner/control-plane-pods | kubectl -n kube-system get pods -l tier=control-plane -o wide
+k8s-beginner/livez-verbose | kubectl get --raw '/livez?verbose'
+k8s-beginner/readyz-verbose | kubectl get --raw '/readyz?verbose'
+k8s-beginner/kube-proxy-log | kubectl -n kube-system logs ds/kube-proxy --tail=25
+k8s-beginner/kube-proxy-mode | kubectl -n kube-system get configmap kube-proxy -o jsonpath='{.data.config\.conf}' |grep -E '^mode|^    masqueradeAll|^nftables|^iptables' -A2
+k8s-beginner/node-runtime | kubectl get nodes -o custom-columns=NAME:.metadata.name,RUNTIME:.status.nodeInfo.containerRuntimeVersion,KUBELET:.status.nodeInfo.kubeletVersion,OS:.status.nodeInfo.osImage,KERNEL:.status.nodeInfo.kernelVersion
+k8s-beginner/api-versions | kubectl api-versions
+k8s-beginner/api-resources | kubectl api-resources --sort-by=name
+k8s-beginner/api-resources-wide | kubectl api-resources --namespaced=true -o wide --sort-by=name |head -25
+k8s-beginner/auth-whoami | kubectl auth whoami
+k8s-beginner/auth-can-i | kubectl auth can-i create deployments -n tasklane
+
+k8s-beginner/config-get-contexts | kubectl config get-contexts
+k8s-beginner/config-current-context | kubectl config current-context
+k8s-beginner/config-view-minify | kubectl config view --minify
+
+k8s-beginner/get-namespaces | kubectl get namespaces --show-labels
+k8s-beginner/describe-namespace | kubectl describe namespace tasklane
+
+k8s-beginner/tasklane-get-all | kubectl -n tasklane get deploy,rs,pods,svc,statefulset -o wide
+k8s-beginner/tasklane-pods-labels | kubectl -n tasklane get pods --show-labels
+k8s-beginner/tasklane-pods-selector | kubectl -n tasklane get pods -l 'app.kubernetes.io/component in (api,worker)' -o wide
+k8s-beginner/tasklane-pods-label-columns | kubectl -n tasklane get pods -L app.kubernetes.io/component,pod-template-hash
+k8s-beginner/jsonpath-images | kubectl -n tasklane get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].image}{"\n"}{end}'
+k8s-beginner/custom-columns-phase | kubectl -n tasklane get pods -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,NODE:.spec.nodeName,IP:.status.podIP,RESTARTS:.status.containerStatuses[0].restartCount
+k8s-beginner/pod-conditions | kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[0].status.conditions[*]}{.type}{"\t"}{.status}{"\n"}{end}'
+k8s-beginner/get-svc-kyaml | kubectl -n tasklane get svc tasklane-api -o kyaml
+k8s-beginner/describe-api-pod | kubectl -n tasklane describe pod -l app.kubernetes.io/name=tasklane-api
+k8s-beginner/explain-deployment-strategy | kubectl explain deployment.spec.strategy
+k8s-beginner/explain-securitycontext-recursive | kubectl explain pod.spec.securityContext --recursive
+k8s-beginner/dry-run-client | kubectl create deployment demo --image=tasklane-api:0.1.0 --dry-run=client -o yaml
+k8s-beginner/generation-observedgeneration | kubectl -n tasklane get deploy tasklane-api -o jsonpath='generation={.metadata.generation} observedGeneration={.status.observedGeneration}{"\n"}'
+k8s-beginner/owner-references | kubectl -n tasklane get rs -l app.kubernetes.io/name=tasklane-api -o custom-columns=RS:.metadata.name,OWNER_KIND:.metadata.ownerReferences[0].kind,OWNER:.metadata.ownerReferences[0].name,CONTROLLER:.metadata.ownerReferences[0].controller,BLOCK_DELETION:.metadata.ownerReferences[0].blockOwnerDeletion
+k8s-beginner/field-managers | kubectl -n tasklane get deploy tasklane-api -o jsonpath='{range .metadata.managedFields[*]}{.manager}{"\t"}{.operation}{"\t"}{.apiVersion}{"\n"}{end}'
+k8s-beginner/server-side-apply-dry-run | kubectl apply --server-side --dry-run=server --field-manager=handbook-demo -f examples/k8s/03-app/config.yaml
+
+k8s-beginner/basics-apply | kubectl apply -f examples/k8s/basics/
+k8s-beginner/basics-rollout-status | kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=180s
+k8s-beginner/basics-get-all | kubectl -n tasklane-basics get pods,rs,deploy,svc -o wide
+k8s-beginner/basics-rs-hash | kubectl -n tasklane-basics get rs,pods -l app.kubernetes.io/name=hello-api --show-labels
+k8s-beginner/psa-reject-server-dry-run | kubectl -n tasklane-basics run psa-test --image=busybox:1.37 --dry-run=server -- sleep 1; echo "exit: $?"
+k8s-beginner/basics-describe-pod | kubectl -n tasklane-basics describe pod hello-pod
+
+k8s-beginner/rollout-1-history | kubectl -n tasklane-basics rollout history deploy/hello-api
+k8s-beginner/rollout-2-update | kubectl -n tasklane-basics patch deploy/hello-api --type=strategic -p '{"metadata":{"annotations":{"kubernetes.io/change-cause":"set RELEASE=2"}},"spec":{"template":{"spec":{"containers":[{"name":"api","env":[{"name":"RELEASE","value":"2"}]}]}}}}' && kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=180s
+k8s-beginner/rollout-3-rs-after-update | kubectl -n tasklane-basics get rs -l app.kubernetes.io/name=hello-api -o wide
+k8s-beginner/rollout-4-history | kubectl -n tasklane-basics rollout history deploy/hello-api
+k8s-beginner/rollout-5-history-revision | kubectl -n tasklane-basics rollout history deploy/hello-api --revision=2
+k8s-beginner/rollout-6-diff | kubectl diff -f examples/k8s/basics/20-deployment.yaml; echo "exit: $?"
+k8s-beginner/rollout-7-bad-image | kubectl -n tasklane-basics set image deploy/hello-api api=tasklane-api:0.9.9-does-not-exist; sleep 90; kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=5s; echo "exit: $?"
+k8s-beginner/rollout-8-stuck-state | kubectl -n tasklane-basics get deploy hello-api -o wide; kubectl -n tasklane-basics get rs,pods -l app.kubernetes.io/name=hello-api
+k8s-beginner/rollout-9-progressing-condition | kubectl -n tasklane-basics describe deploy hello-api
+k8s-beginner/rollout-10-undo | kubectl -n tasklane-basics rollout undo deploy/hello-api && kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=180s
+k8s-beginner/rollout-11-history-after-undo | kubectl -n tasklane-basics rollout history deploy/hello-api
+k8s-beginner/rollout-12-pause-resume | kubectl -n tasklane-basics rollout pause deploy/hello-api && kubectl -n tasklane-basics set env deploy/hello-api RELEASE=3 && kubectl -n tasklane-basics get rs -l app.kubernetes.io/name=hello-api && kubectl -n tasklane-basics rollout resume deploy/hello-api && kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=180s
+k8s-beginner/tasklane-rollout-restart | kubectl -n tasklane rollout restart deploy/tasklane-api && kubectl -n tasklane rollout status deploy/tasklane-api --timeout=180s
+
+k8s-beginner/basics-services | kubectl -n tasklane-basics get svc -o wide
+k8s-beginner/basics-lb-pending | kubectl -n tasklane-basics get svc hello-api-lb -o wide; kubectl -n tasklane-basics describe svc hello-api-lb
+k8s-beginner/basics-endpointslices | kubectl -n tasklane-basics get endpointslices -o wide
+k8s-beginner/tasklane-endpointslices | kubectl -n tasklane get endpointslices -o wide
+k8s-beginner/tasklane-endpointslice-describe | kubectl -n tasklane describe endpointslice -l kubernetes.io/service-name=tasklane-api
+k8s-beginner/endpoints-deprecation-warning | kubectl -n tasklane get endpoints
+k8s-beginner/dns-clusterip | kubectl -n tasklane-basics exec config-demo -- nslookup hello-api.tasklane-basics.svc.cluster.local
+k8s-beginner/dns-headless | kubectl -n tasklane-basics exec config-demo -- nslookup hello-api-headless.tasklane-basics.svc.cluster.local
+k8s-beginner/dns-externalname | kubectl -n tasklane-basics exec config-demo -- nslookup tasklane-db.tasklane-basics.svc.cluster.local
+k8s-beginner/service-load-balancing | kubectl -n tasklane-basics exec config-demo -- sh -c 'for i in 1 2 3 4 5 6; do wget -qO- http://hello-api/; echo; done'
+
+k8s-beginner/configmap-yaml | kubectl -n tasklane-basics get configmap hello-config -o yaml
+k8s-beginner/config-demo-logs | kubectl -n tasklane-basics logs config-demo
+k8s-beginner/configmap-volume-listing | kubectl -n tasklane-basics exec config-demo -- ls -l /etc/hello /etc/hello/..data/
+k8s-beginner/configmap-volume-content | kubectl -n tasklane-basics exec config-demo -- cat /etc/hello/greeting.txt /etc/hello/app.properties
+k8s-beginner/configmap-invalid-env-event | kubectl -n tasklane-basics get events --field-selector involvedObject.name=config-demo --sort-by=.lastTimestamp
+k8s-beginner/configmap-update-propagation | kubectl -n tasklane-basics patch configmap hello-config --type=merge -p '{"data":{"GREETING":"hello again from a ConfigMap"}}'; sleep 90; kubectl -n tasklane-basics exec config-demo -- cat /etc/hello/greeting.txt; kubectl -n tasklane-basics exec config-demo -- printenv GREETING
+
+k8s-beginner/secret-yaml | kubectl -n tasklane-basics get secret hello-secret -o yaml
+k8s-beginner/secret-decode | kubectl -n tasklane-basics get secret hello-secret -o jsonpath='{.data.api-token}' |base64 -d; echo
+k8s-beginner/secret-describe | kubectl -n tasklane describe secret tasklane-db
+k8s-beginner/secret-volume-tmpfs | kubectl -n tasklane-basics exec config-demo -- ls -l /etc/hello-secret; kubectl -n tasklane-basics exec config-demo -- sh -c 'mount |grep hello-secret'
+k8s-beginner/apiserver-encryption-flag | kubectl -n kube-system get pod -l component=kube-apiserver -o jsonpath='{.items[0].spec.containers[0].command}' |tr ',' '\n' |grep -i encryption; echo "exit: $?"
+
+k8s-beginner/logs-api | kubectl -n tasklane logs -l app.kubernetes.io/name=tasklane-api --tail=20 --prefix --timestamps
+k8s-beginner/logs-previous | kubectl -n tasklane logs deploy/tasklane-api --previous --tail=5; echo "exit: $?"
+k8s-beginner/logs-worker | kubectl -n tasklane logs deploy/tasklane-worker --tail=15
+k8s-beginner/exec-distroless-no-shell | kubectl -n tasklane exec deploy/tasklane-api -- /bin/sh -c 'echo hello'; echo "exit: $?"
+k8s-beginner/port-forward | kubectl -n tasklane port-forward svc/tasklane-api 18080:80 & PF=$!; sleep 4; curl -s http://127.0.0.1:18080/; echo; curl -s http://127.0.0.1:18080/readyz; kill $PF
+k8s-beginner/events-sorted | kubectl -n tasklane get events --sort-by=.lastTimestamp |tail -25
+k8s-beginner/events-for-deployment | kubectl -n tasklane events --for deploy/tasklane-api --types=Normal,Warning
+k8s-beginner/top-nodes | kubectl top nodes
+k8s-beginner/top-pods | kubectl -n tasklane top pods --containers
+k8s-beginner/debug-profile-help | kubectl debug --help |grep -A2 -- '--profile'
+k8s-beginner/debug-ephemeral-restricted | POD=$(kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{.items[0].metadata.name}'); C=dbg-$(date +%s); kubectl -n tasklane debug "$POD" --image=busybox:1.37 --profile=restricted --target=api -c "$C" -- sh -c 'ps -o pid,user,args; ls -l /proc/1/root/ 2>/dev/null; echo done'; sleep 15; kubectl -n tasklane logs "$POD" -c "$C"
+k8s-beginner/debug-ephemeral-spec | kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[0].spec.ephemeralContainers[*]}{.name}{"\t"}{.image}{"\t"}{.securityContext}{"\n"}{end}'
+k8s-beginner/debug-node | kubectl debug node/tasklane-worker --image=busybox:1.37 -- sh -c 'ls /host/etc/kubernetes; head -3 /host/etc/os-release; ls /host/var/log/containers |head -5'; sleep 15; POD=$(kubectl get pods --sort-by=.metadata.creationTimestamp -o name |grep node-debugger |tail -1); kubectl logs "$POD"; kubectl delete "$POD"
+
+k8s-beginner/gateway-status | kubectl -n tasklane get gateway,httproute -o wide
+k8s-beginner/gateway-describe | kubectl -n tasklane describe gateway tasklane
+k8s-beginner/tasklane-curl-root | curl -s http://localhost:8080/
+k8s-beginner/tasklane-curl-post-task | curl -s -X POST -H 'Content-Type: application/json' -d '{"title":"written from the handbook"}' http://localhost:8080/tasks; echo; sleep 4; curl -s http://localhost:8080/tasks
+k8s-beginner/tasklane-statefulset-pvc | kubectl -n tasklane get statefulset,pvc,pv -o wide
+k8s-beginner/tasklane-describe-deployment | kubectl -n tasklane describe deployment tasklane-api
+
+k8s-beginner/basics-cleanup | kubectl delete namespace tasklane-basics

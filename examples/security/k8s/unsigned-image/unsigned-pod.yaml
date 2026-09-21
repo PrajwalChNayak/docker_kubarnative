@@ -1,0 +1,35 @@
+# The test workload. It references an image under ghcr.io/tasklane/ that has
+# NO cosign signature. With no admission policy (the vulnerable state) it runs.
+# With require-signed-images installed (the fixed state) it is rejected because
+# no signature can be verified.
+#
+# Not marked expect=reject: whether it is rejected depends on Kyverno being
+# installed, so the server-side dry-run harness (which does not assume Kyverno)
+# would otherwise flag a false failure. See README for the verification.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: unsigned
+  namespace: signing-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      # An unsigned image under the protected prefix.
+      image: ghcr.io/tasklane/demo-unsigned:0.1.0
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

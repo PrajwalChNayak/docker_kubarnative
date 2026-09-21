@@ -1,0 +1,40 @@
+# A bare Pod: no controller owns it, so if it is deleted or its node dies,
+# nothing recreates it. Use it to learn the Pod object, never to run an app.
+#
+# The API starts without a database: its connection pool is lazy, so /healthz
+# and GET / answer while /readyz reports "database unavailable".
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-pod
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-pod
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  restartPolicy: Always          # the default; the kubelet restarts the container in place
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: api
+      image: tasklane-api:0.1.0     # loaded into kind with "kind load docker-image"
+      ports:
+        - name: http
+          containerPort: 8080
+      resources:
+        requests:
+          cpu: 50m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

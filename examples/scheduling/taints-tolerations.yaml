@@ -1,0 +1,72 @@
+# Tolerations demo.
+#
+# Taint one worker first (and remove the taint when you are done):
+#
+#   kubectl taint nodes tasklane-worker maintenance=true:NoSchedule
+#   kubectl taint nodes tasklane-worker maintenance=true:NoSchedule-
+#
+# This Deployment tolerates that taint, so its replicas may still land on the
+# tainted worker while every other workload is pushed to the other node.
+# It also replaces the two NoExecute tolerations that the
+# DefaultTolerationSeconds admission plugin would otherwise add with
+# tolerationSeconds: 300, so a node that stops reporting sheds these pods
+# after 60 seconds instead of 5 minutes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sched-toleration
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: sched-toleration
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sched-toleration
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sched-toleration
+        app.kubernetes.io/component: demo
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      automountServiceAccountToken: false
+      tolerations:
+        # Tolerating a taint only permits scheduling; it does not attract the
+        # pod. Pair it with nodeAffinity or nodeSelector if you want the pod
+        # to land *only* on the tainted nodes.
+        - key: maintenance
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 60
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+          command: ["sleep", "3600"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

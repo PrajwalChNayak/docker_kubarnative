@@ -1,0 +1,26 @@
+# Stage 6, step 6: the nightly maintenance job of stage 7.
+#
+# Kept in its own file and its own policy so the CronJob's access can be
+# revoked by deleting one object. Its ingress is never opened: nothing should
+# ever connect *to* a batch pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: maintenance-egress-postgres
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: maintenance
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: database
+      ports:
+        - protocol: TCP
+          port: 5432

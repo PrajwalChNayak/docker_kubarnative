@@ -1,0 +1,18 @@
+rbac-deployer-can-i-list | kubectl apply -f examples/k8s/rbac/deployer.yaml && kubectl auth can-i --list --as=system:serviceaccount:tasklane:tasklane-deployer -n tasklane
+rbac-deployer-secrets-no | kubectl apply -f examples/k8s/rbac/deployer.yaml && kubectl auth can-i get secrets --as=system:serviceaccount:tasklane:tasklane-deployer -n tasklane
+rbac-deployer-exec-no | kubectl apply -f examples/k8s/rbac/deployer.yaml && kubectl auth can-i create pods/exec --as=system:serviceaccount:tasklane:tasklane-deployer -n tasklane
+rbac-deployer-rolebindings-no | kubectl apply -f examples/k8s/rbac/deployer.yaml && kubectl auth can-i create rolebindings --as=system:serviceaccount:tasklane:tasklane-deployer -n tasklane
+rbac-observer-secrets-no | kubectl apply -f examples/k8s/rbac/observer.yaml && kubectl auth can-i get secrets --as=system:serviceaccount:tasklane:tasklane-observer -n tasklane
+rbac-api-can-i-list | kubectl auth can-i --list --as=system:serviceaccount:tasklane:tasklane-api -n tasklane
+sa-api-get-yaml | kubectl -n tasklane get sa tasklane-api -o yaml
+sa-api-create-token | kubectl create token tasklane-api -n tasklane --duration=10m | cut -c1-20
+psa-noncompliant-reject | kubectl apply -f examples/k8s/pod-security/namespace.yaml && kubectl apply -f examples/k8s/pod-security/noncompliant-pod.yaml
+psa-compliant-admit | kubectl apply -f examples/k8s/pod-security/namespace.yaml && kubectl apply -f examples/k8s/pod-security/compliant-pod.yaml
+psa-server-dryrun-audit | kubectl label --dry-run=server --overwrite ns tasklane pod-security.kubernetes.io/enforce=restricted
+priv-escape-reject | kubectl apply -f examples/security/k8s/privileged-escape/namespaces.yaml && kubectl apply -f examples/security/k8s/privileged-escape/reject-check.yaml
+priv-escape-fixed-admit | kubectl apply -f examples/security/k8s/privileged-escape/namespaces.yaml && kubectl apply -f examples/security/k8s/privileged-escape/fixed-pod.yaml
+rbac-overperm-scoped-secrets-no | kubectl apply -f examples/security/k8s/rbac-over-permission/namespace.yaml && kubectl apply -f examples/security/k8s/rbac-over-permission/fixed.yaml && kubectl auth can-i get secrets --as=system:serviceaccount:rbac-demo:app -n rbac-demo
+netpol-denied-probe | kubectl apply -f examples/security/k8s/missing-networkpolicy/namespace.yaml && kubectl apply -f examples/security/k8s/missing-networkpolicy/workloads.yaml && kubectl apply -f examples/security/k8s/missing-networkpolicy/fixed-networkpolicy.yaml && kubectl -n netpol-demo wait --for=condition=Ready pod/client-denied --timeout=90s && kubectl -n netpol-demo exec client-denied -- wget -qO- --timeout=3 http://server:8080/ ; echo "exit=$?"
+vap-list | kubectl get validatingadmissionpolicy
+psa-restricted-labels | kubectl get ns tasklane -o jsonpath='{.metadata.labels}' | tr ',' '\n'
+whoami-api-token-review | kubectl auth whoami --as=system:serviceaccount:tasklane:tasklane-api

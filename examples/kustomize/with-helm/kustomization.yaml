@@ -1,0 +1,42 @@
+# Kustomize as the outer layer, Helm as the inner one.
+#
+# The helmCharts generator shells out to `helm template` and feeds the result
+# into the normal kustomize pipeline, so every transformer below applies to the
+# chart's output. Render it with:
+#
+#   kubectl kustomize --enable-helm --load-restrictor=LoadRestrictionsNone \
+#     examples/kustomize/with-helm
+#
+# --enable-helm is required (the generator is off by default) and
+# --load-restrictor=LoadRestrictionsNone is required here only because the
+# chart lives outside this kustomization's root. Copy or vendor the chart under
+# this directory and the default restriction is fine again.
+#
+# Caveat: the output is plain YAML. Hook annotations such as
+# helm.sh/hook: pre-install survive into the manifest but mean nothing to
+# `kubectl apply` — the migration Job below would be applied like any other
+# resource. skipTests keeps the `helm test` Pod out of the output entirely.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: tasklane-helm
+
+helmGlobals:
+  chartHome: ../../helm
+
+helmCharts:
+  - name: tasklane
+    releaseName: t
+    skipTests: true
+    valuesInline:
+      postgresql:
+        enabled: false
+      database:
+        host: postgres
+      api:
+        replicaCount: 3
+
+labels:
+  - pairs:
+      tasklane.example.com/rendered-by: kustomize
+    includeSelectors: false

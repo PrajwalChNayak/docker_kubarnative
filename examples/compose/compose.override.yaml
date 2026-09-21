@@ -1,0 +1,8 @@
+# Loaded automatically after compose.yaml by `docker compose` when no -f flag
+# is given. Use it for developer-only conveniences that must never reach
+# shared environments. Here: expose Postgres on localhost for a GUI client.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks: [backend, frontend]

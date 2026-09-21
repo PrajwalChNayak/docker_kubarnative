@@ -1,0 +1,2 @@
+migration/pluto-detect-files | docker run --rm -v "$PWD:/w" -w /w us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5.24.4 detect-files -d examples/migration/removed-apis --target-versions k8s=v1.37.0
+migration/pluto-detect-live | kubectl get deployments,ingresses,cronjobs,horizontalpodautoscalers -A -o yaml | docker run --rm -i us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5.24.4 detect - --target-versions k8s=v1.37.0

@@ -1,0 +1,32 @@
+{
+  "title": "Part H: Kubernetes, advanced",
+  "pages": [
+    "node-selection-and-affinity",
+    "pod-affinity-and-anti-affinity",
+    "taints-and-tolerations",
+    "topology-spread-constraints",
+    "priority-and-preemption",
+    "scheduler-internals",
+    "horizontal-pod-autoscaler",
+    "vertical-pod-autoscaler",
+    "in-place-pod-resize",
+    "keda",
+    "cluster-autoscaler-and-karpenter",
+    "helm",
+    "helm-chart-development",
+    "kustomize",
+    "helm-vs-kustomize",
+    "gitops-argo-cd",
+    "gitops-flux",
+    "cicd-for-kubernetes",
+    "progressive-delivery",
+    "multi-tenancy",
+    "custom-resource-definitions",
+    "controllers-and-operators",
+    "admission-webhooks",
+    "admission-policies-cel",
+    "aggregated-apis",
+    "dynamic-resource-allocation",
+    "labs"
+  ]
+}

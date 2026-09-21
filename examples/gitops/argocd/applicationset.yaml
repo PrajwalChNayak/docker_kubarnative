@@ -1,0 +1,57 @@
+# One ApplicationSet replaces three near-identical Application manifests.
+# The applicationset-controller renders the template once per element and
+# owns the resulting Applications: delete an element and its Application is
+# deleted too.
+#
+# The list generator is the right one here because the environment list is
+# short, explicit and reviewed in a pull request. Use the git-directory or
+# cluster generators when the list should be discovered instead of declared.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tasklane
+  namespace: argocd
+spec:
+  # goTemplate: true switches from the legacy {{param}} syntax to Go
+  # templates ({{.param}}); missingkey=error turns a typo into a hard
+  # failure instead of an empty string silently rendering into a field.
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - env: dev
+          - env: staging
+          - env: prod
+  template:
+    metadata:
+      name: 'tasklane-{{.env}}'
+      labels:
+        app.kubernetes.io/part-of: tasklane
+        tasklane.example.com/env: '{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: tasklane
+      source:
+        repoURL: https://github.com/PrajwalChNayak/docker_kubarnative
+        targetRevision: main
+        path: 'examples/kustomize/overlays/{{.env}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'tasklane-{{.env}}'
+      syncPolicy:
+        automated:
+          enabled: true
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+          - ServerSideApply=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas

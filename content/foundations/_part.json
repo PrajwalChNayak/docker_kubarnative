@@ -1,0 +1,18 @@
+{
+  "title": "Part A: Foundations",
+  "pages": [
+    "what-containers-solve",
+    "containers-vs-vms",
+    "history-of-containers",
+    "linux-namespaces",
+    "cgroups-v2",
+    "capabilities",
+    "seccomp",
+    "apparmor-and-selinux",
+    "overlay-filesystems",
+    "oci-specifications",
+    "runtime-stack",
+    "container-from-scratch",
+    "labs"
+  ]
+}

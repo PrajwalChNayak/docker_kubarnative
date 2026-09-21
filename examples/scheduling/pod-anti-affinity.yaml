@@ -1,0 +1,71 @@
+# Inter-pod affinity demo.
+#
+#   * required anti-affinity on kubernetes.io/hostname: at most one replica
+#     per node. With two schedulable workers the third replica stays Pending,
+#     which is the point of the demo.
+#   * matchLabelKeys: pod-template-hash keeps the rule scoped to one
+#     Deployment revision, so a rolling update is not blocked by its own
+#     old pods (GA in 1.33).
+#   * preferred affinity towards the Tasklane API, evaluated per zone.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sched-anti-affinity
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: sched-anti-affinity
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sched-anti-affinity
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sched-anti-affinity
+        app.kubernetes.io/component: demo
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      automountServiceAccountToken: false
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: sched-anti-affinity
+              matchLabelKeys:
+                - pod-template-hash
+              topologyKey: kubernetes.io/hostname
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values: ["tasklane-api"]
+                topologyKey: topology.kubernetes.io/zone
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+          command: ["sleep", "3600"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

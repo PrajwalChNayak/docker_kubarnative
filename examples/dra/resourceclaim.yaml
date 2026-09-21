@@ -1,0 +1,30 @@
+# A ResourceClaim that several pods can share.
+#
+# REQUIRES A DRA DRIVER (see README.md). The claim is namespaced and must
+# live in the same namespace as the pods that reference it. Its lifetime is
+# yours to manage: nothing deletes it when the pods go away, and the device
+# stays allocated while the claim is reserved.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaim
+metadata:
+  name: shared-gpu
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  devices:
+    requests:
+      - name: gpu
+        exactly:
+          deviceClassName: example-gpu
+          # ExactCount with count: 1 is the default shape of a request.
+          # The alternative is allocationMode: All, which takes every
+          # matching device on one node.
+          allocationMode: ExactCount
+          count: 1
+          # Selectors are evaluated per candidate device, after the
+          # DeviceClass selectors. Attribute and capacity names are
+          # qualified by the driver's domain.
+          selectors:
+            - cel:
+                expression: device.attributes["gpu.example.com"].model == "LATEST-GPU-MODEL"

@@ -1,0 +1,85 @@
+# HARDENED. A default-deny baseline plus the minimum explicit allows.
+#
+# Without any NetworkPolicy (the vulnerable state), every pod in the namespace
+# can reach every other pod on every port. These policies flip that to
+# deny-by-default and then open only the one path the app needs.
+#
+# NetworkPolicy is enforced by the CNI plugin, not the API server. The lab
+# CNI must support it (kind's default kindnetd does; so do Calico and Cilium).
+---
+# 1. Default deny all ingress AND egress for every pod in the namespace.
+#    An empty podSelector selects all pods; listing both policyTypes with no
+#    rules denies both directions.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: netpol-demo
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# 2. Allow DNS egress so pods can still resolve names (UDP+TCP 53 to kube-dns).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: netpol-demo
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# 3. Allow ONLY client-allowed to reach server on 8080 (ingress side).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-client-to-server
+  namespace: netpol-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: server
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: client-allowed
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# 4. Allow client-allowed the matching egress to server (egress side).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-client-egress-to-server
+  namespace: netpol-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: client-allowed
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: server
+      ports:
+        - protocol: TCP
+          port: 8080

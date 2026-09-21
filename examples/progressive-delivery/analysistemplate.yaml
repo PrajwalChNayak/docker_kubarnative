@@ -1,0 +1,62 @@
+# Success-rate analysis against Prometheus.
+#
+# tasklane_http_requests_total is a counter the API exports itself, labelled
+# `method` and `code` (see examples/app/cmd/api/main.go). The `namespace` and
+# `rollouts_pod_template_hash` labels are NOT exported by the app: they come
+# from the scrape config. With kube-prometheus, add them in the PodMonitor
+# with a relabeling that copies the pod label
+# `rollouts-pod-template-hash` into the series. Without that label the query
+# cannot tell canary pods from stable ones and the analysis is meaningless.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: tasklane-api-success-rate
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  args:
+    - name: namespace
+    - name: canary-hash
+  metrics:
+    - name: success-rate
+      # Give the canary pods time to accumulate requests before the first
+      # sample; otherwise the first measurement is taken on ~zero traffic.
+      initialDelay: 60s
+      interval: 60s
+      count: 5
+      # Fraction of non-5xx responses served by the canary ReplicaSet.
+      successCondition: result[0] >= 0.99
+      # Two bad samples in a row would be noise; three is a trend.
+      failureLimit: 2
+      # An empty result (no traffic at all) is inconclusive, not a pass.
+      failureCondition: len(result) == 0
+      provider:
+        prometheus:
+          address: http://prometheus-operated.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(tasklane_http_requests_total{
+              namespace="{{args.namespace}}",
+              rollouts_pod_template_hash="{{args.canary-hash}}",
+              code!~"5.."}[2m]))
+            /
+            sum(rate(tasklane_http_requests_total{
+              namespace="{{args.namespace}}",
+              rollouts_pod_template_hash="{{args.canary-hash}}"}[2m]))
+    - name: error-rate
+      initialDelay: 60s
+      interval: 60s
+      count: 5
+      # Absolute rate of 5xx per second, as a second opinion: a service with
+      # very little traffic can look fine as a ratio and still be broken.
+      successCondition: result[0] < 0.1
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus-operated.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(tasklane_http_requests_total{
+              namespace="{{args.namespace}}",
+              rollouts_pod_template_hash="{{args.canary-hash}}",
+              code=~"5.."}[2m])) or vector(0)

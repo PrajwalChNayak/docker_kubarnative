@@ -1,0 +1,20 @@
+ops-top-pods | kubectl -n tasklane top pods
+ops-top-nodes | kubectl top nodes
+ops-metrics-raw | kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/tasklane/pods | head -c 2000
+ops-metrics-apiservice | kubectl get apiservice v1beta1.metrics.k8s.io
+ops-api-metrics | kubectl -n tasklane port-forward svc/tasklane-api 18080:80 >/tmp/pf-api.log 2>&1 & sleep 4 && curl -s localhost:18080/metrics | grep -E '^tasklane_' | head -30 ; kill %1
+ops-worker-metrics | kubectl -n tasklane port-forward svc/tasklane-worker-metrics 19090:9090 >/tmp/pf-worker.log 2>&1 & sleep 4 && curl -s localhost:19090/metrics | grep -E '^tasklane_' | head -30 ; kill %1
+ops-events-recent | kubectl get events -A --sort-by=.lastTimestamp | tail -25
+ops-events-ns | kubectl -n tasklane get events --sort-by=.lastTimestamp | tail -25
+ops-event-ttl | kubectl -n kube-system get pod -l component=kube-apiserver -o yaml | grep -i event-ttl
+ops-deprecated-apis-metric | kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis | head
+ops-pluto-files | pluto detect-files -d examples/ -o wide
+ops-nodes-wide | kubectl get nodes -o wide
+ops-node-capacity | kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU:.status.capacity.cpu,MEM:.status.capacity.memory,PODS:.status.capacity.pods
+ops-requests-vs-alloc | kubectl -n tasklane describe resourcequota 2>/dev/null; kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.cpu}{"\t"}{.status.allocatable.memory}{"\n"}{end}'
+ops-pdb | kubectl -n tasklane get pdb
+ops-etcd-endpoint-status | kubectl -n kube-system exec etcd-tasklane-control-plane -- etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key endpoint status --write-out=table
+ops-etcd-member-list | kubectl -n kube-system exec etcd-tasklane-control-plane -- etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key member list --write-out=table
+ops-cert-expiration | docker exec tasklane-control-plane kubeadm certs check-expiration
+ops-cordon-drain-dryrun | kubectl drain tasklane-worker --ignore-daemonsets --delete-emptydir-data --dry-run=client
+ops-metrics-server-pod | kubectl -n kube-system get deploy metrics-server -o wide

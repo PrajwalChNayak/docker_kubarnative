@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: tasklane-api
+    static_configs:
+      - targets: ["api:8080"]
+  # Compose DNS returns one address per replica for a service name, so the
+  # dns_sd discovery finds every worker replica.
+  - job_name: tasklane-worker
+    dns_sd_configs:
+      - names: ["worker"]
+        type: A
+        port: 9090

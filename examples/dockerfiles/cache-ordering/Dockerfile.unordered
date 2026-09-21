@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# Wrong order: the whole context is copied before the expensive step, so any
+# source edit changes the COPY layer's checksum and everything after it is
+# rebuilt.
+FROM python:3.14-slim@sha256:caaf356f40667c496d405780745b9ac25771c189a51dfcc42430d531ea09f8a2
+
+WORKDIR /app
+
+COPY . .
+
+# Stands in for `pip install -r requirements.txt`. Simulated so the demo is
+# deterministic and needs no network; a real install has the same cache
+# behaviour and takes longer.
+RUN sleep 10 && cp requirements.txt /app/.deps-installed
+
+USER 65534:65534
+CMD ["python", "app.py"]

@@ -1,0 +1,5 @@
+# Stand-in dependency manifest. The demo never installs these; the expensive
+# step is simulated so the demo needs no network and always takes the same
+# time. Change this file to see the dependency layer rebuild.
+flask
+gunicorn

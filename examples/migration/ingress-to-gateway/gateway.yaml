@@ -1,0 +1,86 @@
+# AFTER: the same behaviour as ./ingress.yaml, expressed in Gateway API v1
+# (standard channel, Gateway API 1.6.2, served by Kubernetes 1.37).
+#
+# The single Ingress splits into typed resources owned by different roles:
+#   Gateway    - cluster operator: listeners, ports, TLS.
+#   HTTPRoute  - application team: hostnames, paths, filters, backends.
+#
+# gatewayClassName "eg" is Envoy Gateway, the implementation used in the lab.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: tasklane
+  namespace: tasklane
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: tasklane.localhost
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: tasklane.localhost
+      tls:
+        mode: Terminate
+        # Was Ingress spec.tls[].secretName. Same Secret, typed reference.
+        certificateRefs:
+          - kind: Secret
+            group: ""
+            name: tasklane-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+# Replaces nginx.ingress.kubernetes.io/ssl-redirect: "true".
+# A RequestRedirect filter is terminal: the rule has no backendRefs.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-https-redirect
+  namespace: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: http
+  hostnames:
+    - tasklane.localhost
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+# The application route, attached to the HTTPS listener.
+# Replaces the rule + rewrite-target annotation from the Ingress.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: https
+  hostnames:
+    - tasklane.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      filters:
+        # Replaces rewrite-target: /$2 (strip the /api prefix).
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: tasklane-api
+          port: 80

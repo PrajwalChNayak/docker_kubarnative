@@ -1,0 +1,43 @@
+# Stage 5, step 3: the Gateway from stage 4, plus an HTTPS listener.
+#
+# This file REPLACES examples/k8s/04-gateway/gateway.yaml's Gateway. The name
+# and namespace are identical, so applying it updates the object in place and
+# Envoy Gateway adds a second listener to the same data plane.
+#
+# Apply this BEFORE 40-envoyproxy.yaml: Envoy Gateway only creates a Service
+# port for a port a listener asks for, and the strategic-merge patch in that
+# file would otherwise add a nameless port 443 that the API server rejects.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: tasklane
+  namespace: tasklane
+spec:
+  gatewayClassName: eg
+  listeners:
+    # Kept so that plain HTTP still terminates somewhere: the redirect route in
+    # 60-routes.yaml answers it for tasklane.localhost.
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      # SNI and Host must match this name, which is also the certificate's
+      # only dnsName. Omitting it would accept every hostname on this listener.
+      hostname: tasklane.localhost
+      tls:
+        # Terminate: the Gateway decrypts and routes on HTTP data, so HTTPRoute
+        # matching on paths and headers works. Passthrough (TLSRoute) would hand
+        # the encrypted stream to the backend and give up L7 routing.
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            group: ""
+            name: tasklane-tls
+      allowedRoutes:
+        namespaces:
+          from: Same

@@ -1,0 +1,56 @@
+# Part G: Kubernetes, intermediate. Capture requests.
+# Each line: <id> | <command, run from the repo root with the kind lab up and
+# examples/k8s stages 1-4 applied>.
+# Commands are idempotent; a few apply stage 5, 6 or 7 first, in that order.
+
+k8s-intermediate/api-pod-describe | kubectl -n tasklane describe pod -l app.kubernetes.io/name=tasklane-api
+k8s-intermediate/init-containers | kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[*]}{.metadata.name}{"\tinit: "}{.spec.initContainers[*].name}{"\tmain: "}{.spec.containers[*].name}{"\n"}{end}'
+k8s-intermediate/qos-classes | kubectl -n tasklane get pods -o custom-columns='NAME:.metadata.name,QOS:.status.qosClass,NODE:.spec.nodeName,CPU_REQ:.spec.containers[0].resources.requests.cpu,MEM_LIM:.spec.containers[0].resources.limits.memory'
+k8s-intermediate/top-pods | kubectl -n tasklane top pods
+k8s-intermediate/node-allocatable | kubectl describe node tasklane-worker | sed -n '/Capacity:/,/Events:/p'
+k8s-intermediate/rollout-restart-logs | kubectl -n tasklane rollout restart deployment/tasklane-api && kubectl -n tasklane rollout status deployment/tasklane-api --timeout=180s && kubectl -n tasklane logs deployment/tasklane-api --tail=20
+k8s-intermediate/events | kubectl -n tasklane get events --sort-by=.lastTimestamp | tail -25
+
+k8s-intermediate/statefulset-describe | kubectl -n tasklane describe statefulset postgres
+k8s-intermediate/statefulset-pods | kubectl -n tasklane get pods -l app.kubernetes.io/name=postgres -o wide
+k8s-intermediate/pvc | kubectl -n tasklane get pvc -o wide && kubectl get pv -o wide
+k8s-intermediate/pv-describe | kubectl get pv -o jsonpath='{.items[0].metadata.name}' | xargs -r kubectl describe pv
+k8s-intermediate/storageclass | kubectl get storageclass -o wide
+k8s-intermediate/csidrivers | kubectl get csidrivers -o wide 2>&1 | head -10 && kubectl get csinodes -o wide 2>&1 | head -10
+k8s-intermediate/volumesnapshotclass-missing | kubectl get volumesnapshotclass 2>&1 | head -5
+k8s-intermediate/daemonsets | kubectl -n kube-system get daemonset -o wide
+
+k8s-intermediate/pdb | kubectl apply -f examples/k8s/07-reliability/10-pdb.yaml && kubectl -n tasklane get poddisruptionbudget
+k8s-intermediate/cronjob | kubectl apply -f examples/k8s/07-reliability/20-cronjob.yaml && kubectl -n tasklane get cronjob -o wide
+k8s-intermediate/cronjob-run | kubectl -n tasklane delete job cleanup-manual --ignore-not-found && kubectl -n tasklane create job --from=cronjob/tasklane-cleanup cleanup-manual && kubectl -n tasklane wait --for=condition=Complete job/cleanup-manual --timeout=180s && kubectl -n tasklane get job cleanup-manual -o wide && kubectl -n tasklane logs job/cleanup-manual
+
+k8s-intermediate/kube-proxy-config | kubectl -n kube-system get configmap kube-proxy -o yaml 2>&1 | head -45
+k8s-intermediate/endpointslices | kubectl -n tasklane get endpointslices -o wide
+k8s-intermediate/endpointslice-yaml | kubectl -n tasklane get endpointslices -l kubernetes.io/service-name=tasklane-api -o yaml
+k8s-intermediate/endpoints-raw-deprecation | kubectl get --raw /api/v1/namespaces/tasklane/endpoints 2>&1 | head -c 600
+k8s-intermediate/endpoints-kubectl-deprecation | kubectl -n tasklane get endpoints 2>&1 | head -6
+k8s-intermediate/coredns-configmap | kubectl -n kube-system get configmap coredns -o yaml
+k8s-intermediate/resolv-conf | kubectl apply -f examples/k8s/06-network-policy/debug-pod.yaml && kubectl -n tasklane wait --for=condition=Ready pod/netcheck --timeout=120s && kubectl -n tasklane exec netcheck -- cat /etc/resolv.conf
+k8s-intermediate/dns-names | kubectl -n tasklane exec netcheck -- getent hosts postgres tasklane-api postgres.tasklane.svc.cluster.local postgres-0.postgres.tasklane.svc.cluster.local
+
+k8s-intermediate/gatewayclass | kubectl get gatewayclass,gateway -A
+k8s-intermediate/tls-apply | kubectl apply -f examples/k8s/05-tls/10-issuers.yaml && kubectl -n cert-manager wait --for=condition=Ready certificate/tasklane-ca --timeout=180s && kubectl apply -f examples/k8s/05-tls/20-certificate.yaml && kubectl -n tasklane wait --for=condition=Ready certificate/tasklane-tls --timeout=180s && kubectl apply -f examples/k8s/05-tls/30-gateway.yaml && kubectl -n tasklane wait --for=condition=Programmed gateway/tasklane --timeout=180s && kubectl apply -f examples/k8s/05-tls/40-envoyproxy.yaml && kubectl apply -f examples/k8s/05-tls/50-canary.yaml && kubectl -n tasklane rollout status deployment/tasklane-api-canary --timeout=180s && kubectl apply -f examples/k8s/05-tls/60-routes.yaml && sleep 15 && kubectl -n tasklane get certificate,gateway
+k8s-intermediate/gateway-describe | kubectl -n tasklane describe gateway tasklane
+k8s-intermediate/httproutes | kubectl -n tasklane get httproute -o wide && kubectl -n tasklane describe httproute tasklane-api
+k8s-intermediate/envoy-service | kubectl -n envoy-gateway-system get svc -o wide
+k8s-intermediate/cert-manager-objects | kubectl -n cert-manager get pods && kubectl get clusterissuer && kubectl -n tasklane get certificate,certificaterequest,secret tasklane-tls
+k8s-intermediate/certificate-describe | kubectl -n tasklane describe certificate tasklane-tls
+k8s-intermediate/curl-https | kubectl -n tasklane get secret tasklane-tls -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/tasklane-ca.crt && curl -sS -i --cacert /tmp/tasklane-ca.crt --resolve tasklane.localhost:8443:127.0.0.1 https://tasklane.localhost:8443/
+k8s-intermediate/curl-redirect | curl -sS -o /dev/null -D - --resolve tasklane.localhost:8080:127.0.0.1 http://tasklane.localhost:8080/
+k8s-intermediate/curl-split | for i in $(seq 1 20); do curl -s --cacert /tmp/tasklane-ca.crt --resolve tasklane.localhost:8443:127.0.0.1 https://tasklane.localhost:8443/; echo; done | sort | uniq -c
+k8s-intermediate/curl-canary-header | curl -sS -i -H 'x-tasklane-track: canary' --cacert /tmp/tasklane-ca.crt --resolve tasklane.localhost:8443:127.0.0.1 https://tasklane.localhost:8443/
+k8s-intermediate/openssl-cert | openssl s_client -connect 127.0.0.1:8443 -servername tasklane.localhost -CAfile /tmp/tasklane-ca.crt </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName
+
+k8s-intermediate/netpol-apply | kubectl apply -f examples/k8s/06-network-policy/00-default-deny.yaml -f examples/k8s/06-network-policy/10-allow-dns.yaml -f examples/k8s/06-network-policy/20-postgres.yaml -f examples/k8s/06-network-policy/30-api.yaml -f examples/k8s/06-network-policy/40-worker.yaml -f examples/k8s/06-network-policy/50-maintenance.yaml && kubectl -n tasklane get networkpolicy
+k8s-intermediate/netpol-describe | kubectl -n tasklane describe networkpolicy api-ingress
+k8s-intermediate/netpol-blocked | kubectl -n tasklane label pod netcheck app.kubernetes.io/component=netcheck --overwrite && kubectl -n tasklane exec netcheck -- getent hosts postgres; kubectl -n tasklane exec netcheck -- pg_isready -h postgres -t 5; echo "pg_isready exit code: $?"
+k8s-intermediate/netpol-allowed | kubectl -n tasklane label pod netcheck app.kubernetes.io/component=api --overwrite && kubectl -n tasklane exec netcheck -- pg_isready -h postgres -t 5; echo "pg_isready exit code: $?"
+k8s-intermediate/netpol-gateway-still-works | curl -sS -o /dev/null -w 'gateway->api HTTP %{http_code}\n' http://localhost:8080/
+
+# Cleanup after the captures above (not referenced by any page):
+k8s-intermediate/zz-cleanup | kubectl -n tasklane delete pod netcheck --ignore-not-found && kubectl -n tasklane delete job cleanup-manual --ignore-not-found

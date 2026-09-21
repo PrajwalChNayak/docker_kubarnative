@@ -1,0 +1,89 @@
+# The operator runs in its own namespace, away from the workloads it manages.
+# Pod Security Admission enforces "restricted" here exactly as it does in the
+# tasklane namespace: an operator is a privileged actor by virtue of its RBAC,
+# so it must not also be a privileged process.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasklane-system
+  labels:
+    app.kubernetes.io/name: tasklane-operator
+    app.kubernetes.io/part-of: tasklane
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasklane-operator
+  namespace: tasklane-system
+  labels:
+    app.kubernetes.io/name: tasklane-operator
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # Two replicas, one leader. The standby keeps a warm informer cache, so a
+  # failover costs a lease renewal (seconds), not a full relist.
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tasklane-operator
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      serviceAccountName: tasklane-operator
+      # Unlike every other pod in this handbook, the operator DOES need a
+      # ServiceAccount token: its entire job is to talk to the API server.
+      # This is the one place where mounting the token is correct.
+      automountServiceAccountToken: true
+      terminationGracePeriodSeconds: 20
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: manager
+          image: tasklane-operator:0.1.0
+          args:
+            - --leader-elect=true
+            - --metrics-bind-address=:8080
+            - --health-probe-bind-address=:8081
+          ports:
+            - name: metrics
+              containerPort: 8080
+            - name: probes
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: probes
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: probes
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              # No CPU limit: throttling a controller only makes its work queue
+              # longer. Memory is limited because an informer cache that grows
+              # without bound should be killed, not swapped.
+              memory: 192Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

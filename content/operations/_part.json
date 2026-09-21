@@ -1,0 +1,25 @@
+{
+  "title": "Part J: Observability and operations",
+  "pages": [
+    "metrics-server-and-metrics-api",
+    "prometheus-and-kube-prometheus",
+    "grafana-dashboards",
+    "actionable-alerting",
+    "logging-architectures",
+    "distributed-tracing-opentelemetry",
+    "kubernetes-events",
+    "slos-and-error-budgets",
+    "cost-visibility",
+    "cluster-upgrades",
+    "version-skew-policy",
+    "deprecated-api-detection",
+    "etcd-backup-and-restore",
+    "certificate-rotation",
+    "node-maintenance",
+    "velero-backup-and-restore",
+    "capacity-planning",
+    "high-availability-control-plane",
+    "multi-cluster",
+    "labs"
+  ]
+}

@@ -1,0 +1,58 @@
+# An AppProject is Argo CD's own tenancy boundary. It constrains *where*
+# manifests may come from, *where* they may be applied, and *what* kinds may
+# be created, independently of Kubernetes RBAC. Every Tasklane Application
+# below references `project: tasklane`, so none of them can be edited into
+# deploying something else somewhere else.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tasklane
+  namespace: argocd
+  finalizers:
+    # Blocks deletion of the project while Applications still reference it.
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Tasklane environments (dev, staging, prod)
+
+  # Only this repository. A pull request that changes an Application's
+  # repoURL to an attacker-controlled fork is rejected at sync time.
+  sourceRepos:
+    - https://github.com/PrajwalChNayak/docker_kubarnative
+
+  # Only the in-cluster API server, and only namespaces named tasklane-*.
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: tasklane-*
+
+  # The overlays ship their own PSA-labelled Namespace, which is cluster
+  # scoped, so it has to be allowed explicitly. Nothing else cluster scoped is.
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+      name: 'tasklane-*'
+
+  # Quotas and limit ranges belong to the platform team, not to the app repo.
+  namespaceResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: LimitRange
+
+  # A project role scoped to CI: it may sync, and read, nothing else.
+  # Generate a token for it with `argocd proj role create-token tasklane ci`.
+  roles:
+    - name: ci
+      description: Sync privileges for the Tasklane pipeline
+      policies:
+        - p, proj:tasklane:ci, applications, get, tasklane/*, allow
+        - p, proj:tasklane:ci, applications, sync, tasklane/tasklane-*, allow
+
+  # No automated production syncs over the weekend. manualSync: true keeps
+  # the "break glass" path open for a human with the right RBAC.
+  syncWindows:
+    - kind: deny
+      schedule: '0 17 * * 5'
+      duration: 60h
+      applications:
+        - tasklane-prod
+      manualSync: true

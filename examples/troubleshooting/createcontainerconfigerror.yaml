@@ -1,0 +1,60 @@
+# FAULT: the container's environment references a ConfigMap key that does not
+# exist. The ConfigMap `cce-config` below has key GREETING but the container
+# asks for the key MISSING_KEY. The kubelet cannot assemble the container's
+# config, so the container never starts and its Waiting reason is
+# CreateContainerConfigError. The pod's Ready is 0/1 and Phase is Pending.
+#
+# The same reason appears for a missing ConfigMap or Secret, a missing Secret
+# key, or a secret/configMap volume whose source object is absent. It is a
+# *config assembly* failure, so `logs` shows nothing (no process ran yet); the
+# signal is in `describe pod` events.
+#
+# FIX: create the referenced key/object, or point the reference at a key that
+# exists. Setting optional: true tolerates a missing key but then the variable
+# is simply unset, which may not be what you want.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cce-config
+  namespace: troubleshoot
+  labels:
+    case: cce
+data:
+  GREETING: "hello"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cce
+  namespace: troubleshoot
+  labels:
+    case: cce
+spec:
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "echo \"$GREETING\"; sleep 3600"]
+      env:
+        - name: GREETING
+          valueFrom:
+            configMapKeyRef:
+              name: cce-config
+              key: MISSING_KEY      # this key does not exist in cce-config
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

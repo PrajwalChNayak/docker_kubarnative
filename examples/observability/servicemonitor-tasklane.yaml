@@ -1,0 +1,64 @@
+# ServiceMonitors tell the Prometheus Operator which Services to scrape.
+# The Operator turns each ServiceMonitor into scrape config for the
+# Prometheus it manages, then reloads Prometheus. It never edits
+# prometheus.yml by hand.
+#
+# The `release: kube-prometheus-stack` label matters: the stack installs its
+# Prometheus with serviceMonitorSelectorNilUsesHelmValues=true, so Prometheus
+# only adopts ServiceMonitors carrying its release label. Change the value to
+# match your Helm release name.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+    release: kube-prometheus-stack
+spec:
+  # Select the tasklane-api Service. Prometheus scrapes each pod behind it.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api
+  namespaceSelector:
+    matchNames:
+      - tasklane
+  endpoints:
+    # The API serves /metrics on its main http port (8080 -> Service port 80).
+    - port: http
+      path: /metrics
+      interval: 15s
+      scheme: http
+      # Keep the pod name as an instance label so per-replica series stay
+      # distinguishable without exploding cardinality.
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/part-of: tasklane
+    release: kube-prometheus-stack
+spec:
+  # tasklane-worker-metrics is a headless-style discovery Service that exists
+  # only so Prometheus can find every worker replica's :9090 endpoint.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-worker
+  namespaceSelector:
+    matchNames:
+      - tasklane
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+      scheme: http
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod

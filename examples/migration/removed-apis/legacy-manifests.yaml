@@ -1,0 +1,92 @@
+# DO NOT APPLY. These manifests use API versions that were REMOVED years ago;
+# a 1.37 API server rejects every one of them. They exist only as a corpus for
+# Pluto to detect. See ./README.md for the old -> new mapping and ./detect.sh.
+#
+# Each block is annotated with the release that removed its apiVersion.
+---
+# extensions/v1beta1 Deployment -> apps/v1 (removed in 1.16)
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: legacy-api
+  namespace: tasklane
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: legacy-api
+    spec:
+      containers:
+        - name: api
+          image: tasklane-api:0.1.0
+---
+# extensions/v1beta1 Ingress -> networking.k8s.io/v1 (removed in 1.22)
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: legacy-ingress
+  namespace: tasklane
+spec:
+  backend:
+    serviceName: tasklane-api
+    servicePort: 80
+---
+# batch/v1beta1 CronJob -> batch/v1 (removed in 1.25)
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: legacy-report
+  namespace: tasklane
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: report
+              image: tasklane-api:0.1.0
+              args: ["migrate"]
+---
+# autoscaling/v2beta1 HorizontalPodAutoscaler -> autoscaling/v2 (removed in 1.25)
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: legacy-api
+  namespace: tasklane
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: legacy-api
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 70
+---
+# policy/v1beta1 PodSecurityPolicy -> removed with no replacement API (removed
+# in 1.25). Use Pod Security Admission or a policy engine. See
+# content/migration/psp-to-pod-security-admission.md.
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: legacy-restricted
+spec:
+  privileged: false
+  seLinux:
+    rule: RunAsAny
+  runAsUser:
+    rule: MustRunAsNonRoot
+  fsGroup:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+    - configMap
+    - secret
+    - emptyDir
