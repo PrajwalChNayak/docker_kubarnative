@@ -1,0 +1,9 @@
+$ cd examples/compose && API_PORT=18080 docker compose up -d --wait 2>&1 | tail -8; API_PORT=18080 docker compose down >/dev/null 2>&1
+ Container tasklane-db-1 Waiting 
+ Container tasklane-migrate-1 Waiting 
+ Container tasklane-api-1 Waiting 
+ Container tasklane-migrate-1 Exited 
+ Container tasklane-db-1 Healthy 
+ Container tasklane-api-1 Healthy 
+ Container tasklane-worker-1 Healthy 
+ Container tasklane-worker-2 Healthy

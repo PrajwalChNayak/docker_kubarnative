@@ -1,0 +1,4 @@
+$ kubectl apply -f examples/operator/config/crd && kubectl get crd taskqueues.tasklane.example.com -o jsonpath='{"served/storage: "}{range .spec.versions[*]}{.name}{" served="}{.served}{" storage="}{.storage}{" "}{end}{"\nstoredVersions: "}{.status.storedVersions}{"\n"}'
+customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com unchanged
+served/storage: v1alpha1 served=true storage=true 
+storedVersions: ["v1alpha1"]

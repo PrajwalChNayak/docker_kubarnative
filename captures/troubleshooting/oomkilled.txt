@@ -1,0 +1,34 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/oomkilled.yaml && sleep 30 && kubectl -n troubleshoot get pod oomkilled && echo "--- last state ---" && kubectl -n troubleshoot get pod oomkilled -o jsonpath='{range .status.containerStatuses[*]}{.name}{": restartCount="}{.restartCount}{" lastState="}{.lastState}{"\n"}{end}' && echo && echo "--- describe ---" && kubectl -n troubleshoot describe pod oomkilled | tail -25; kubectl delete -f examples/troubleshooting/oomkilled.yaml
+pod/oomkilled created
+NAME        READY   STATUS      RESTARTS      AGE
+oomkilled   0/1     OOMKilled   2 (30s ago)   32s
+--- last state ---
+hog: restartCount=2 lastState={"terminated":{"containerID":"containerd://a3918a719c4390ec1e12df83722fe2395aa3b440b70b46ecf3fcad6a9bd6f846","exitCode":137,"finishedAt":"2026-09-22T07:33:43Z","reason":"OOMKilled","startedAt":"2026-09-22T07:33:43Z"}}
+
+--- describe ---
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-ghrkq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  33s                default-scheduler  Successfully assigned troubleshoot/oomkilled to tasklane-worker2
+  Warning  BackOff    20s (x2 over 31s)  kubelet            spec.containers{hog}: Back-off restarting failed container hog in pod oomkilled_troubleshoot(99af6cd3-ad9a-4cbe-97a4-448f21081fb1)
+  Normal   Pulled     0s (x4 over 33s)   kubelet            spec.containers{hog}: Container image "busybox:1.37" already present on machine and can be accessed by the pod
+  Normal   Created    0s (x4 over 33s)   kubelet            spec.containers{hog}: Container created
+  Normal   Started    0s (x4 over 33s)   kubelet            spec.containers{hog}: Container started
+pod "oomkilled" deleted from troubleshoot namespace

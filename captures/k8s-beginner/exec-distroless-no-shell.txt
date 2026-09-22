@@ -1,0 +1,2 @@
+$ kubectl -n tasklane exec deploy/tasklane-api -- /bin/sh -c 'echo hello'; echo "exit: $?"
+exit: 1

@@ -1,0 +1,30 @@
+# HARDENED. The same workload, doing legitimate work, with none of the host
+# access. It runs as an unprivileged user, drops all capabilities, cannot gain
+# new privileges, mounts a read-only root filesystem, and touches no hostPath
+# or host namespace. It is admitted by the restricted profile in escape-safe.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker
+  namespace: escape-safe
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: worker
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

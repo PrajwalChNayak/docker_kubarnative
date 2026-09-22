@@ -1,0 +1,9 @@
+$ docker rm -f prune-demo-1 prune-demo-2 >/dev/null 2>&1; docker run --name prune-demo-1 --label handbook.demo=prune alpine:3.22 true >/dev/null 2>&1; docker run --name prune-demo-2 --label handbook.demo=prune alpine:3.22 true >/dev/null 2>&1; docker ps -a --filter label=handbook.demo=prune --format 'table {{.Names}}\t{{.Status}}'; docker container prune -f --filter label=handbook.demo=prune
+NAMES          STATUS
+prune-demo-2   Exited (0) 1 second ago
+prune-demo-1   Exited (0) 2 seconds ago
+Deleted Containers:
+df421360f22202b2139856518b749cae65780f726b93467d708fd27e46058b45
+e855bc2cfc7c840e8ff37e3e509d59c4ed8516b7f1c30697ccd8c2c3f1f7fd6b
+
+Total reclaimed space: 8.192kB

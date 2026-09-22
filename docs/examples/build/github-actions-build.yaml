@@ -1,0 +1,134 @@
+# Reference CI pipeline for the Tasklane images: multi-platform Bake build,
+# registry cache, SBOM + provenance attestations, keyless cosign signature.
+#
+# Copy this file to .github/workflows/build.yaml in a real repository. It is
+# kept under examples/ here so the handbook can include it verbatim.
+#
+# Every action input used below appears in that action's documented input
+# list. Anything not documented is done in a `run:` step instead.
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+# Least privilege. id-token is what makes keyless signing work: cosign
+# exchanges this OIDC token for a short-lived Fulcio certificate.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      REGISTRY: ghcr.io/${{ github.repository_owner }}/tasklane
+      CACHE_REF: ghcr.io/${{ github.repository_owner }}/tasklane/buildcache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # Bake needs the commit timestamp for reproducible builds.
+          fetch-depth: 0
+
+      - name: Compute version and SOURCE_DATE_EPOCH
+        id: meta
+        run: |
+          version="$(git describe --tags --always --dirty)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> "$GITHUB_ENV"
+
+      # The default `docker` driver on a runner cannot export a registry
+      # cache or build a manifest list, so a docker-container builder is set
+      # up instead. No QEMU step: examples/app/Dockerfile cross-compiles.
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: docker-container
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Pull requests build both platforms and write no cache and no images:
+      # a fork must never be able to poison the shared cache.
+      - name: Build
+        id: bake
+        uses: docker/bake-action@v7
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          CACHE_REF: ${{ env.CACHE_REF }}
+        with:
+          files: examples/build/docker-bake.hcl
+          targets: default
+          push: ${{ github.event_name != 'pull_request' }}
+          set: |
+            ${{ github.event_name == 'pull_request' && '*.cache-to=' || '' }}
+
+      # bake-action returns the build metadata as JSON, keyed by target name.
+      # containerimage.digest is the digest of the pushed manifest list: sign
+      # that, never a mutable tag.
+      - name: Extract digests
+        if: github.event_name != 'pull_request'
+        id: digests
+        run: |
+          echo '${{ steps.bake.outputs.metadata }}' > metadata.json
+          for target in api worker; do
+            digest="$(jq -r --arg t "$target" '.[$t]["containerimage.digest"]' metadata.json)"
+            echo "${target}=${digest}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v4
+        with:
+          cosign-release: v3.1.3
+
+      # Keyless: no private key exists anywhere. cosign presents the job's
+      # OIDC identity to Fulcio, gets a certificate valid for ten minutes,
+      # signs, and records the entry in the Rekor transparency log.
+      - name: Sign images
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign sign --yes \
+            "${REGISTRY}/tasklane-api@${{ steps.digests.outputs.api }}"
+          cosign sign --yes \
+            "${REGISTRY}/tasklane-worker@${{ steps.digests.outputs.worker }}"
+
+      # The SBOM is already attached by BuildKit (attest in the Bake file).
+      # This step proves it is there and fails the job if it is not.
+      - name: Verify the SBOM attestation is present
+        if: github.event_name != 'pull_request'
+        run: |
+          docker buildx imagetools inspect \
+            "${REGISTRY}/tasklane-api@${{ steps.digests.outputs.api }}" \
+            --format '{{ json .SBOM.SPDX }}' > sbom.spdx.json
+          test -s sbom.spdx.json
+
+      # Signing the BuildKit SBOM as an in-toto attestation as well gives
+      # verifiers one Sigstore-rooted path to both the image and its SBOM.
+      - name: Attest the SBOM with cosign
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign attest --yes --type spdxjson --predicate sbom.spdx.json \
+            "${REGISTRY}/tasklane-api@${{ steps.digests.outputs.api }}"
+
+      # Verification belongs in the same pipeline that signs: a signature
+      # nobody checks is decoration. The identity is this workflow file.
+      - name: Verify the signature
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "^https://github.com/${{ github.repository }}/.github/workflows/" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${REGISTRY}/tasklane-api@${{ steps.digests.outputs.api }}" > /dev/null

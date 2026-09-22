@@ -1,0 +1,50 @@
+# A HelmRelease whose chart lives in the same Git repository as everything
+# else. The helm-controller asks the source-controller for a HelmChart
+# artifact built from examples/helm/tasklane, then runs the Helm install or
+# upgrade itself - there is no `helm` CLI and no Tiller anywhere.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tasklane
+  namespace: flux-system
+spec:
+  interval: 10m
+  chart:
+    spec:
+      # For a GitRepository source, `chart` is a path from the repo root.
+      chart: ./examples/helm/tasklane
+      sourceRef:
+        kind: GitRepository
+        name: tasklane
+        namespace: flux-system
+      interval: 1m
+      # Revision: rebuild the chart whenever the Git commit changes, even if
+      # the version in Chart.yaml has not been bumped. ChartVersion (the
+      # default) only reacts to a version bump.
+      reconcileStrategy: Revision
+  releaseName: tasklane
+  targetNamespace: tasklane-helm
+  storageNamespace: flux-system
+  install:
+    # Convenient, but the namespace it creates has no Pod Security Admission
+    # labels. For anything beyond a demo, ship the Namespace from Git through
+    # a Flux Kustomization and leave this false.
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      strategy: rollback
+  # Detect and correct changes made to released objects outside Helm. Without
+  # it, Helm only re-applies when the chart or values change.
+  driftDetection:
+    mode: enabled
+  test:
+    enable: false
+  values:
+    # The chart reads the database password from an existing Secret rather
+    # than templating it, so no credential is ever rendered into the release.
+    database:
+      existingSecret: tasklane-db
+      existingSecretKey: password

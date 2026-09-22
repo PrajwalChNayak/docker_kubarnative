@@ -1,0 +1,5 @@
+$ kubectl -n tasklane label pod netcheck app.kubernetes.io/component=netcheck --overwrite && kubectl -n tasklane exec netcheck -- getent hosts postgres; kubectl -n tasklane exec netcheck -- pg_isready -h postgres -t 5; echo "pg_isready exit code: $?"
+pod/netcheck labeled
+10.244.2.3      postgres.tasklane.svc.cluster.local
+postgres:5432 - no response
+pg_isready exit code: 2

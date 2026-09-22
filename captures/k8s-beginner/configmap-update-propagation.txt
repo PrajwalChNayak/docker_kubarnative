@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl -n tasklane-basics patch configmap hello-config --type=merge -p '{"data":{"GREETING":"hello again from a ConfigMap"}}'; sleep 90; kubectl -n tasklane-basics exec config-demo -- cat /etc/hello/greeting.txt; kubectl -n tasklane-basics exec config-demo -- printenv GREETING
+# reason: configmap/hello-config patched

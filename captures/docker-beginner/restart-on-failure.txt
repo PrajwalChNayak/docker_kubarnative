@@ -1,0 +1,6 @@
+$ docker rm -f restart-demo >/dev/null 2>&1; docker run -d --name restart-demo --restart on-failure:3 alpine:3.22 sh -c 'echo attempt; exit 1' >/dev/null; sleep 12; docker inspect --format 'status={{.State.Status}} restartcount={{.RestartCount}} exitcode={{.State.ExitCode}} policy={{.HostConfig.RestartPolicy.Name}}:{{.HostConfig.RestartPolicy.MaximumRetryCount}}' restart-demo; docker logs restart-demo; docker rm -f restart-demo >/dev/null
+status=exited restartcount=3 exitcode=1 policy=on-failure:3
+attempt
+attempt
+attempt
+attempt

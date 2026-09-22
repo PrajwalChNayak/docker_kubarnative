@@ -1,0 +1,1 @@
+$ kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis | head

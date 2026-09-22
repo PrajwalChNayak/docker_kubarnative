@@ -1,0 +1,55 @@
+# MutatingAdmissionPolicy (GA in 1.36, enabled by default) — the in-process
+# CEL answer to mutating admission webhooks.
+#
+# This one stamps an ownership label on Tasklane workloads that arrive without
+# one, so every object in the namespace can be traced to a team.
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: tasklane-default-team.tasklane.example.com
+spec:
+  failurePolicy: Fail
+  # IfNeeded asks the API server to call this policy a second time if a later
+  # mutating plugin, policy or webhook changed the object after it ran. A
+  # mutation must therefore be idempotent, which this one is: it always writes
+  # the same value.
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["deployments", "statefulsets"]
+  matchConditions:
+    # Only mutate objects that do not already carry the label. Doing this in a
+    # match condition rather than inside the mutation keeps the object out of
+    # the mutating path entirely when there is nothing to do.
+    - name: team-label-absent
+      expression: >-
+        !has(object.metadata.labels) ||
+        !("tasklane.example.com/team" in object.metadata.labels)
+  mutations:
+    # ApplyConfiguration merges with server-side apply semantics, so writing
+    # one key into metadata.labels leaves every other label alone. A JSONPatch
+    # would need the path to exist first; this does not.
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            metadata: Object.metadata{
+              labels: {"tasklane.example.com/team": "unknown"}
+            }
+          }
+---
+# Without a binding the policy does nothing at all.
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: tasklane-default-team.tasklane.example.com
+spec:
+  policyName: tasklane-default-team.tasklane.example.com
+  # There is no validationActions here: a mutation has nothing to warn about.
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/part-of: tasklane

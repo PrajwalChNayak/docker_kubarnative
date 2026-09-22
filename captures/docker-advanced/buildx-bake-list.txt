@@ -1,0 +1,7 @@
+$ docker buildx bake -f examples/build/docker-bake.hcl --list targets
+TARGET		DESCRIPTION
+api		
+default		api, worker
+dev		
+secret-demo	
+worker

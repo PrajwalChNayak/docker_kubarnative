@@ -1,0 +1,6 @@
+$ docker exec tasklane-control-plane lsns -t net
+        NS TYPE NPROCS   PID USER     NETNSID NSFS                                                COMMAND
+4026532840 net      26     1 root  unassigned                                                     /sbin/init
+4026533153 net       2  1042 65535          1 /run/netns/cni-81257874-9981-9056-264a-13eb96c7a6f8 /pause
+4026533364 net       2  1022 65535          2 /run/netns/cni-28c19ec9-9c42-bace-9b0e-0cd238eb9b6d /pause
+4026533503 net       2  1054 65535          3 /run/netns/cni-cd43c170-d07d-9742-bf21-be3fd0de34f3 /pause

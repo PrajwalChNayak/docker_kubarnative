@@ -1,0 +1,36 @@
+# Stage 6, step 3: who may talk to the database.
+#
+# Ingress to the database pod, from the api, the worker and the maintenance
+# CronJob of stage 7, on 5432 only. Every other pod in the namespace - a debug
+# shell, a compromised sidecar, next quarter's new service - is refused.
+#
+# The port is the port on the DESTINATION pod (the container port), not the
+# Service port. NetworkPolicy never sees Services: kube-proxy has already
+# rewritten the destination address by the time the policy is evaluated.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-allow-app-ingress
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: database
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values: [api, worker, maintenance]
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# The database is a leaf: it needs DNS (granted in 10-allow-dns.yaml) and
+# nothing else. No egress rule is added here, so the default deny stands and a
+# compromised database cannot call out.

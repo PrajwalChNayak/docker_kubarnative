@@ -1,0 +1,2 @@
+$ docker network create di-backend --internal >/dev/null 2>&1; docker network inspect di-backend --format '{{.Name}} internal={{.Internal}} driver={{.Driver}} subnet={{range .IPAM.Config}}{{.Subnet}}{{end}}'; docker network rm di-backend >/dev/null 2>&1
+di-backend internal=true driver=bridge subnet=172.20.0.0/16

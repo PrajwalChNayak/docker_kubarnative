@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: N=$(kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{.items[0].spec.nodeName}') && C=$(docker exec "$N" crictl ps --name api --state Running -q | head -n 1) && P=$(docker exec "$N" crictl inspect -o go-template --template '{{.info.pid}}' "$C") && docker exec "$N" sh -c "awk '\$5 ~ \"^/proc\" || \$5 ~ \"^/sys\" {print \$5, \$6, \$NF}' /proc/$P/mountinfo"
+# reason: Error response from daemon: No such container: tasklane-worker Error response from daemon: No such container: tasklane-worker

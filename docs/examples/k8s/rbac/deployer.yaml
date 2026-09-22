@@ -1,0 +1,55 @@
+# A least-privilege deployer identity for the tasklane namespace.
+#
+# This ServiceAccount is meant for a CI/CD pipeline that rolls out the
+# Tasklane workloads. It can create and update the resources a deployment
+# touches, and NOTHING else. In particular it cannot:
+#   - read Secrets (so a leaked token does not hand over the DB password),
+#   - exec into pods or read pod logs,
+#   - create RoleBindings or use escalate/bind/impersonate (so it cannot
+#     grant itself more power).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tasklane-deployer
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+# A pipeline reads this token out-of-band; no pod should auto-mount it.
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tasklane-deployer
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+rules:
+  # Workload objects the rollout manages.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  # Core objects the rollout manages. Note: NO "secrets" here.
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  # The HTTPRoute that exposes the API.
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tasklane-deployer
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tasklane-deployer
+subjects:
+  - kind: ServiceAccount
+    name: tasklane-deployer
+    namespace: tasklane

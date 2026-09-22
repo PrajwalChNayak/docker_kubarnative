@@ -1,0 +1,35 @@
+# VULNERABLE. Do not deploy anything like this.
+#
+# This pod requests privileged mode, shares the host PID namespace, and
+# bind-mounts the node root filesystem. A privileged container runs with all
+# capabilities and effectively no isolation from the node: it is node-level
+# root. From there an attacker can reach the kubelet's credentials, read every
+# other pod's mounted Secrets and volumes on that node, and use the node's
+# identity against the API server. hostPID lets it see and signal every
+# process on the node; the hostPath mount of "/" exposes the whole node disk.
+#
+# It only lives in escape-vuln because that namespace is labelled
+# enforce=privileged. In any restricted namespace it is rejected (see
+# reject-check.yaml).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape
+  namespace: escape-vuln
+spec:
+  hostPID: true
+  containers:
+    # Deliberately privileged/root: this is the misconfiguration being shown.
+    - name: escape
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: host-root
+          mountPath: /host
+  volumes:
+    - name: host-root
+      hostPath:
+        path: /
+        type: Directory

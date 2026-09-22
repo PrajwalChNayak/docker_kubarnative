@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl apply -f examples/scheduling/topology-spread.yaml && kubectl -n tasklane rollout status deployment/sched-spread --timeout=120s && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-spread
+# reason: deployment.apps/sched-spread created Waiting for deployment "sched-spread" rollout to finish: 1 of 4 updated replicas are available...

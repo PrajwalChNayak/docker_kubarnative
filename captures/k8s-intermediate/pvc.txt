@@ -1,0 +1,5 @@
+$ kubectl -n tasklane get pvc -o wide && kubectl get pv -o wide
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+data-postgres-0   Bound    pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565   1Gi        RWO            standard       <unset>                 23h   Filesystem
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                      STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE   VOLUMEMODE
+pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565   1Gi        RWO            Delete           Bound    tasklane/data-postgres-0   standard       <unset>                          23h   Filesystem

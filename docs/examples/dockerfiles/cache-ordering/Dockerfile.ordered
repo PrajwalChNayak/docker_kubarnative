@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
+# Right order: copy only the dependency manifest, install, then copy the
+# source. Editing app.py invalidates nothing above the last COPY.
+FROM python:3.14-slim@sha256:caaf356f40667c496d405780745b9ac25771c189a51dfcc42430d531ea09f8a2
+
+WORKDIR /app
+
+COPY requirements.txt ./
+
+# Same simulated 10-second install as Dockerfile.unordered.
+RUN sleep 10 && cp requirements.txt /app/.deps-installed
+
+COPY app.py ./
+
+USER 65534:65534
+CMD ["python", "app.py"]

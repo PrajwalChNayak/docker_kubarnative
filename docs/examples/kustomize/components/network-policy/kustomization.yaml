@@ -1,0 +1,8 @@
+# A Component is a reusable slice of configuration that an overlay opts into
+# with `components:`. Unlike a base it is not rendered on its own, and it may
+# patch resources it does not own.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - networkpolicy.yaml

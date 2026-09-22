@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl apply -f examples/k8s/rbac/deployer.yaml && kubectl auth can-i create rolebindings --as=system:serviceaccount:tasklane:tasklane-deployer -n tasklane
+# reason: serviceaccount/tasklane-deployer unchanged role.rbac.authorization.k8s.io/tasklane-deployer unchanged rolebinding.rbac.authorization.k8s.io/tasklane-deployer unchanged

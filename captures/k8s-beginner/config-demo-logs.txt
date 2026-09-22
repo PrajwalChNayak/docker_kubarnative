@@ -1,0 +1,11 @@
+$ kubectl -n tasklane-basics logs config-demo
+env GREETING=hello from a ConfigMap LOG_LEVEL=info GREETING_UPPER=hello from a ConfigMap
+--- /etc/hello ---
+total 0
+lrwxrwxrwx    1 root     root            21 Sep 22 07:20 app.properties -> ..data/app.properties
+lrwxrwxrwx    1 root     root            19 Sep 22 07:20 greeting.txt -> ..data/greeting.txt
+poll.interval.ms=1000
+work.duration.ms=2000
+--- /etc/hello-secret ---
+total 0
+lrwxrwxrwx    1 root     root            16 Sep 22 07:20 api-token -> ..data/api-token

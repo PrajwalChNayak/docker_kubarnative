@@ -1,0 +1,15 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/service-no-endpoints.yaml && sleep 15 && echo "--- pods (healthy) ---" && kubectl -n troubleshoot get pods -l case=service-no-endpoints && echo "--- service ---" && kubectl -n troubleshoot get svc sample-app && echo "--- endpointslices (empty) ---" && kubectl -n troubleshoot get endpointslices -l kubernetes.io/service-name=sample-app -o wide; kubectl delete -f examples/troubleshooting/service-no-endpoints.yaml
+deployment.apps/sample-app created
+service/sample-app created
+--- pods (healthy) ---
+NAME                         READY   STATUS    RESTARTS   AGE
+sample-app-c68857f8f-9gqcx   1/1     Running   0          16s
+sample-app-c68857f8f-jrbq4   1/1     Running   0          16s
+--- service ---
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+sample-app   ClusterIP   10.96.7.93   <none>        80/TCP    17s
+--- endpointslices (empty) ---
+NAME               ADDRESSTYPE   PORTS     ENDPOINTS   AGE
+sample-app-gzlvd   IPv4          <unset>   <unset>     19s
+deployment.apps "sample-app" deleted from troubleshoot namespace
+service "sample-app" deleted from troubleshoot namespace

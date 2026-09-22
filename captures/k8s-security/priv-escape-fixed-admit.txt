@@ -1,0 +1,4 @@
+$ kubectl apply -f examples/security/k8s/privileged-escape/namespaces.yaml && kubectl apply -f examples/security/k8s/privileged-escape/fixed-pod.yaml
+namespace/escape-vuln unchanged
+namespace/escape-safe unchanged
+pod/worker unchanged

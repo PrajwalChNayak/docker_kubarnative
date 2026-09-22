@@ -1,0 +1,53 @@
+# Stage 5, step 1: a private CA, built by cert-manager v1.21.2.
+#
+# Chain: self-signed ClusterIssuer -> CA Certificate -> CA ClusterIssuer.
+# A self-signed issuer can sign anything, but every leaf it signs has its own
+# key, so clients would have to trust each leaf separately. Signing one CA
+# certificate first means readers trust a single ca.crt for every Tasklane
+# certificate, which is how a real internal PKI behaves.
+#
+# For a public name you would use an ACME issuer instead (Let's Encrypt with
+# an HTTP-01 or DNS-01 solver). tasklane.localhost is not publicly resolvable,
+# so ACME cannot validate it and a private CA is the honest choice.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: tasklane-selfsigned
+spec:
+  selfSigned: {}
+---
+# The CA key pair. It lives in cert-manager's "cluster resource namespace",
+# which is the namespace cert-manager runs in (default: cert-manager), because
+# a ClusterIssuer can only read secrets from that namespace.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tasklane-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: Tasklane lab root CA
+  secretName: tasklane-ca-key-pair
+  duration: 8760h    # 365d
+  renewBefore: 720h  # 30d
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - cert sign
+    - crl sign
+    - digital signature
+  issuerRef:
+    name: tasklane-selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+# The issuer every Tasklane certificate actually uses.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: tasklane-ca
+spec:
+  ca:
+    secretName: tasklane-ca-key-pair

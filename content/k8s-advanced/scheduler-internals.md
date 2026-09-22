@@ -211,7 +211,10 @@ of pod by pod.
 Both behaviours are controlled by the `GenericWorkload` feature gate, which
 is **Beta in 1.37 and off by default** (the separate `GangScheduling` and
 `WorkloadAwarePreemption` gates were removed in 1.37 and folded into it).
-The `scheduling.k8s.io/v1beta1` API group must also be enabled. Hierarchical
+The `scheduling.k8s.io/v1beta1` API group must also be enabled. (This is the
+same group/version string that once held the `PriorityClass` beta removed in
+1.22; in 1.37 it was re-promoted to host the new `Workload` and `PodGroup`
+kinds. `PriorityClass` itself is served at `scheduling.k8s.io/v1`.) Hierarchical
 groups via `CompositePodGroup` are alpha, off by default and not for
 production. Until these are on by default, gang scheduling in production
 means Kueue, Volcano or the scheduler-plugins coscheduling plugin.

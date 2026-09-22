@@ -1,0 +1,33 @@
+# Cluster-wide permissions, because the manager's informers list and watch
+# TaskQueues and Deployments in every namespace. Each verb here is one the
+# reconciler actually calls; nothing is granted "just in case".
+#
+#   taskqueues            get/list/watch  - the informer cache, plus Get in Reconcile
+#   taskqueues/status     get/update      - the status subresource, a separate endpoint
+#   deployments           get/list/watch  - the informer cache and the Get in Reconcile
+#   deployments/patch     patch           - the single field this operator writes
+#   events                create/patch    - Recorder.Eventf
+#
+# Note what is missing: no create or delete on Deployments, and no write access
+# to taskqueues themselves. A compromised operator cannot delete a workload or
+# rewrite a user's spec.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tasklane-operator-manager
+  labels:
+    app.kubernetes.io/name: tasklane-operator
+    app.kubernetes.io/part-of: tasklane
+rules:
+  - apiGroups: ["tasklane.example.com"]
+    resources: ["taskqueues"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["tasklane.example.com"]
+    resources: ["taskqueues/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]

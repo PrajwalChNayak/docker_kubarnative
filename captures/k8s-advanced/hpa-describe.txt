@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl apply -f examples/autoscaling/hpa.yaml && sleep 90 && kubectl -n tasklane describe hpa tasklane-api
+# reason: horizontalpodautoscaler.autoscaling/tasklane-api configured

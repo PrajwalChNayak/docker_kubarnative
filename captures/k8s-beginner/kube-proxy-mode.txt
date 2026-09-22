@@ -1,0 +1,9 @@
+$ kubectl -n kube-system get configmap kube-proxy -o jsonpath='{.data.config\.conf}' |grep -E '^mode|^    masqueradeAll|^nftables|^iptables' -A2
+iptables:
+  localhostNodePorts: null
+  masqueradeAll: false
+--
+mode: iptables
+nftables:
+  masqueradeAll: false
+  masqueradeBit: null

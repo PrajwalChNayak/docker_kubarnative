@@ -1,0 +1,21 @@
+$ kubectl apply -f examples/k8s/05-tls/10-issuers.yaml && kubectl -n cert-manager wait --for=condition=Ready certificate/tasklane-ca --timeout=180s && kubectl apply -f examples/k8s/05-tls/20-certificate.yaml && kubectl -n tasklane wait --for=condition=Ready certificate/tasklane-tls --timeout=180s && kubectl apply -f examples/k8s/05-tls/30-gateway.yaml && kubectl -n tasklane wait --for=condition=Programmed gateway/tasklane --timeout=180s && kubectl apply -f examples/k8s/05-tls/40-envoyproxy.yaml && kubectl apply -f examples/k8s/05-tls/50-canary.yaml && kubectl -n tasklane rollout status deployment/tasklane-api-canary --timeout=180s && kubectl apply -f examples/k8s/05-tls/60-routes.yaml && sleep 15 && kubectl -n tasklane get certificate,gateway
+clusterissuer.cert-manager.io/tasklane-selfsigned created
+certificate.cert-manager.io/tasklane-ca created
+clusterissuer.cert-manager.io/tasklane-ca created
+certificate.cert-manager.io/tasklane-ca condition met
+certificate.cert-manager.io/tasklane-tls created
+certificate.cert-manager.io/tasklane-tls condition met
+gateway.gateway.networking.k8s.io/tasklane configured
+gateway.gateway.networking.k8s.io/tasklane condition met
+envoyproxy.gateway.envoyproxy.io/kind-nodeport configured
+deployment.apps/tasklane-api-canary created
+service/tasklane-api-canary created
+Waiting for deployment "tasklane-api-canary" rollout to finish: 0 of 1 updated replicas are available...
+deployment "tasklane-api-canary" successfully rolled out
+httproute.gateway.networking.k8s.io/tasklane-https-redirect created
+httproute.gateway.networking.k8s.io/tasklane-api configured
+NAME                                       READY   SECRET         AGE
+certificate.cert-manager.io/tasklane-tls   True    tasklane-tls   27s
+
+NAME                                         CLASS   ADDRESS      PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/tasklane   eg      172.19.0.3   True         23h

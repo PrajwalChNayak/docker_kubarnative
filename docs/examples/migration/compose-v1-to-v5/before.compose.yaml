@@ -1,0 +1,49 @@
+# BEFORE: an old-style Compose file, the kind docker-compose (v1, Python) ran.
+#
+# Everything flagged below is legacy. This file is kept only to be modernised;
+# see ./after.compose.yaml. It still PARSES under Compose v5 (with warnings),
+# which is what makes an incremental migration possible.
+#
+#   Legacy commands (Compose v1, the `docker-compose` binary):
+#     docker-compose up -d
+#     docker-compose build
+#     docker-compose ps
+#     docker-compose logs -f api
+#     docker-compose down
+version: "3.8"                 # OBSOLETE: the top-level version key is ignored.
+
+services:
+  db:
+    image: postgres:18-trixie
+    environment:
+      # v1 idiom: interpolation of host env, long form.
+      POSTGRES_USER: tasklane
+      POSTGRES_DB: tasklane
+      POSTGRES_PASSWORD: devpassword    # secret inlined; move to a secret.
+    volumes:
+      - db-data:/var/lib/postgresql
+    # v2-era resource key that only worked under `docker stack deploy`.
+    mem_limit: 256m
+
+  api:
+    build:
+      context: ../../app
+      target: api
+    image: tasklane-api:dev
+    # Legacy container links: removed behaviour. Use networks + DNS instead.
+    links:
+      - db
+    environment:
+      PGHOST: db
+      PGUSER: tasklane
+      PGDATABASE: tasklane
+      PGPASSWORD: devpassword
+    ports:
+      - "8080:8080"
+    # String-form dependency: no condition, so it does not wait for readiness.
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  db-data: {}

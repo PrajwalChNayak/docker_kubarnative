@@ -1,0 +1,11 @@
+$ docker exec tasklane-control-plane sh -c 'containerd --version; runc --version; crictl version'
+containerd github.com/containerd/containerd/v2 v2.3.4 db8809540e1a7a9da5d518876894933ff55692ab
+runc version 1.4.3
+commit: v1.4.3-0-gbb14dab
+spec: 1.3.0
+go: go1.26.7
+libseccomp: 2.6.0
+Version:  0.1.0
+RuntimeName:  containerd
+RuntimeVersion:  v2.3.4
+RuntimeApiVersion:  v1

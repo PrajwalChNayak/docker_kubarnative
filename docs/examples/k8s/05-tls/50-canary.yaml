@@ -1,0 +1,109 @@
+# Stage 5, step 5: a second backend, so traffic splitting has somewhere to go.
+#
+# In a real canary this Deployment would run a NEW image tag. Here it runs the
+# same tasklane-api:0.1.0, because GET / reports the pod's hostname: that is
+# enough to see which backend served a request, and the lab never has to build
+# a second image.
+#
+# Its label app.kubernetes.io/name is tasklane-api-canary, so the stable
+# Service (selector app.kubernetes.io/name=tasklane-api) does NOT pick these
+# pods up. Only the weighted HTTPRoute sends traffic here.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasklane-api-canary
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api-canary
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api-canary
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tasklane-api-canary
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      serviceAccountName: tasklane-api
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: tasklane-api:0.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: tasklane-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/tasklane/db
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: tasklane-db
+            items:
+              - key: password
+                path: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklane-api-canary
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api-canary
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tasklane-api-canary
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,3 @@
+$ kubectl -n tasklane delete pod netcheck --ignore-not-found && kubectl -n tasklane delete job cleanup-manual --ignore-not-found
+pod "netcheck" deleted from tasklane namespace
+job.batch "cleanup-manual" deleted from tasklane namespace

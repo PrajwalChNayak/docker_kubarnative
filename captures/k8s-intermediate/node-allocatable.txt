@@ -1,0 +1,50 @@
+$ kubectl describe node tasklane-worker | sed -n '/Capacity:/,/Events:/p'
+Capacity:
+  cpu:                14
+  ephemeral-storage:  1081101176832
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7883456Ki
+  pods:               110
+Allocatable:
+  cpu:                14
+  ephemeral-storage:  1081101176832
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7883456Ki
+  pods:               110
+System Info:
+  Machine ID:                 0ee24e2495e94229b7fc6f4eaf14c693
+  System UUID:                0ee24e2495e94229b7fc6f4eaf14c693
+  Boot ID:                    ac839c43-e491-4ac7-b3e4-0624b5e950ff
+  Kernel Version:             6.6.87.2-microsoft-standard-WSL2
+  OS Image:                   Debian GNU/Linux 13 (trixie)
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://2.3.4
+  Kubelet Version:            v1.37.0
+PodCIDR:                      10.244.1.0/24
+PodCIDRs:                     10.244.1.0/24
+ProviderID:                   kind://docker/tasklane/tasklane-worker
+Non-terminated Pods:          (9 in total)
+  Namespace                   Name                                                CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                                ------------  ----------  ---------------  -------------  ---
+  cert-manager                cert-manager-cainjector-8677bbdb7f-649vn            0 (0%)        0 (0%)      0 (0%)           0 (0%)         23h
+  cert-manager                cert-manager-webhook-55b94f85b4-7gzw8               0 (0%)        0 (0%)      0 (0%)           0 (0%)         23h
+  default                     node-debugger-tasklane-worker-9ct4w                 0 (0%)        0 (0%)      0 (0%)           0 (0%)         2m34s
+  envoy-gateway-system        envoy-tasklane-tasklane-8e4ae9b5-7cc87fff8-qxrd8    110m (0%)     0 (0%)      544Mi (7%)       0 (0%)         23h
+  kube-system                 kindnet-mrp5n                                       100m (0%)     0 (0%)      50Mi (0%)        0 (0%)         23h
+  kube-system                 kube-proxy-h2m7c                                    0 (0%)        0 (0%)      0 (0%)           0 (0%)         23h
+  kube-system                 metrics-server-6b975bf9bc-kzrsn                     100m (0%)     0 (0%)      200Mi (2%)       0 (0%)         23h
+  tasklane                    tasklane-api-86876d58cf-4dp97                       100m (0%)     0 (0%)      64Mi (0%)        128Mi (1%)     71m
+  tasklane                    tasklane-worker-cc4f995df-c55hs                     50m (0%)      0 (0%)      32Mi (0%)        64Mi (0%)      23h
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests     Limits
+  --------           --------     ------
+  cpu                460m (3%)    0 (0%)
+  memory             890Mi (11%)  192Mi (2%)
+  ephemeral-storage  0 (0%)       0 (0%)
+  hugepages-1Gi      0 (0%)       0 (0%)
+  hugepages-2Mi      0 (0%)       0 (0%)
+Events:

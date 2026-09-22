@@ -1,0 +1,16 @@
+# FIXED. The socket is gone. This job runs its own work and cannot reach the
+# host daemon at all. If a job genuinely needs to build images, give it a
+# rootless builder or a scoped socket proxy (see socket-proxy.compose.yaml),
+# never the raw /var/run/docker.sock.
+name: socket-escape-fixed
+
+services:
+  ci-runner:
+    image: docker:cli
+    command: ["sleep", "infinity"]
+    # Belt and braces: even without the socket, drop everything else too.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m

@@ -1,0 +1,10 @@
+$ docker image inspect tasklane-api:0.1.0 --format 'Id: {{.Id}}{{println}}RepoTags: {{json .RepoTags}}{{println}}RepoDigests: {{json .RepoDigests}}{{println}}Arch/OS: {{.Architecture}}/{{.Os}}{{println}}User: {{.Config.User}}{{println}}Entrypoint: {{json .Config.Entrypoint}}{{println}}ExposedPorts: {{json .Config.ExposedPorts}}{{println}}Healthcheck: {{json .Config.Healthcheck.Test}}{{println}}Layers: {{len .RootFS.Layers}}'
+Id: sha256:ca9c347d1d97f1c181823d6b97d0cdefcc0c3176173e8f149029db66773b74ac
+RepoTags: ["tasklane-api:0.1.0","tasklane-api:dev"]
+RepoDigests: ["tasklane-api@sha256:ca9c347d1d97f1c181823d6b97d0cdefcc0c3176173e8f149029db66773b74ac"]
+Arch/OS: amd64/linux
+User: 65532:65532
+Entrypoint: ["/api"]
+ExposedPorts: {"8080/tcp":{}}
+Healthcheck: ["CMD","/api","healthcheck"]
+Layers: 14

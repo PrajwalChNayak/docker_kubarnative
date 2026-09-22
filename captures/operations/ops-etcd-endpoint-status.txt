@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl -n kube-system exec etcd-tasklane-control-plane -- etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key endpoint status --write-out=table
+# reason: Error: open C:/Users/nprajwal/AppData/Local/Programs/Git/etc/kubernetes/pki/etcd/server.crt: no such file or directory command terminated with exit code 128

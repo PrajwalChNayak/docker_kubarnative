@@ -1,0 +1,9 @@
+$ docker info --format 'Server version: {{.ServerVersion}}{{println}}Storage driver: {{.Driver}}{{println}}Cgroup driver/version: {{.CgroupDriver}} / v{{.CgroupVersion}}{{println}}Logging driver: {{.LoggingDriver}}{{println}}Default runtime: {{.DefaultRuntime}}{{println}}Kernel: {{.KernelVersion}}{{println}}OS: {{.OperatingSystem}} ({{.OSType}}/{{.Architecture}}){{println}}CPUs/Memory: {{.NCPU}} / {{.MemTotal}}'
+Server version: 29.2.1
+Storage driver: overlayfs
+Cgroup driver/version: cgroupfs / v2
+Logging driver: json-file
+Default runtime: runc
+Kernel: 6.6.87.2-microsoft-standard-WSL2
+OS: Docker Desktop (linux/x86_64)
+CPUs/Memory: 14 / 8072658944

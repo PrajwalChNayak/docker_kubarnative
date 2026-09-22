@@ -1,0 +1,2 @@
+$ docker run --rm --security-opt no-new-privileges:true alpine:3.22 grep NoNewPrivs /proc/1/status
+NoNewPrivs:	1

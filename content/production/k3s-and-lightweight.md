@@ -146,17 +146,6 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
 - **Agent will not register.** `K3S_URL` or `K3S_TOKEN` is wrong, or the server's
   `:6443` is not reachable from the agent.
 
-## Common mistakes
-
-- **Running single-server SQLite in production** and discovering there is no
-  control-plane HA when the node dies.
-- **Leaving Traefik and ServiceLB in place** and fighting them instead of
-  disabling them and installing your chosen ingress and LB.
-- **Assuming flannel enforces NetworkPolicy** — it does not.
-- **Piping the installer to root shell on a fleet** without pinning or mirroring.
-- **Treating "lightweight" as "no operations"** — datastore backups and upgrades
-  are still yours.
-
 ## The rest of the family
 
 - **k0s** — a single binary with zero host dependencies; its control plane can
@@ -170,6 +159,17 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
 
 All are conformant Kubernetes. The choice is about the footprint, the datastore
 model, and how much the distro decides for you.
+
+## Common mistakes
+
+- **Running single-server SQLite in production** and discovering there is no
+  control-plane HA when the node dies.
+- **Leaving Traefik and ServiceLB in place** and fighting them instead of
+  disabling them and installing your chosen ingress and LB.
+- **Assuming flannel enforces NetworkPolicy** — it does not.
+- **Piping the installer to root shell on a fleet** without pinning or mirroring.
+- **Treating "lightweight" as "no operations"** — datastore backups and upgrades
+  are still yours.
 
 ## Related topics
 

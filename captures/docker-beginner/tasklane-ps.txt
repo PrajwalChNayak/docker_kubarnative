@@ -1,0 +1,5 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null && docker ps --filter label=org.example.tasklane.stage=docker-run --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+NAMES             IMAGE                   STATUS                    PORTS
+tasklane-worker   tasklane-worker:0.1.0   Up 8 seconds (healthy)    9090/tcp
+tasklane-api      tasklane-api:0.1.0      Up 9 seconds (healthy)    127.0.0.1:8088->8080/tcp
+tasklane-db       postgres:18-trixie      Up 18 seconds (healthy)   5432/tcp

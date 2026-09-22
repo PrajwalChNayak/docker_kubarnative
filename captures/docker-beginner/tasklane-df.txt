@@ -1,0 +1,6 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null && docker system df; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          44        28        36.84GB   29.25GB (79%)
+Containers      28        11        2.409GB   383.9MB (15%)
+Local Volumes   30        21        10.24GB   1.449GB (14%)
+Build Cache     57        0         2.213GB   1.168GB

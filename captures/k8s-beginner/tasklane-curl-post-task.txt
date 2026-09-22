@@ -1,0 +1,4 @@
+$ curl -s -X POST -H 'Content-Type: application/json' -d '{"title":"written from the handbook"}' http://localhost:8080/tasks; echo; sleep 4; curl -s http://localhost:8080/tasks
+{"id":2,"title":"written from the handbook","status":"pending","created_at":"2026-09-22T07:27:30.069772Z"}
+
+[{"id":2,"title":"written from the handbook","status":"done","created_at":"2026-09-22T07:27:30.069772Z","done_at":"2026-09-22T07:27:32.318637Z","worker":"tasklane-worker-cc4f995df-rfjkc"},{"id":1,"title":"hello from the gateway","status":"done","created_at":"2026-09-21T07:47:05.59181Z","done_at":"2026-09-21T07:47:07.691465Z","worker":"tasklane-worker-cc4f995df-8lbcl"}]

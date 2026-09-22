@@ -1,0 +1,69 @@
+k8s-advanced/nodes-zone-labels | kubectl get nodes -L topology.kubernetes.io/zone
+k8s-advanced/node-affinity-pods | kubectl apply -f examples/scheduling/node-affinity.yaml && kubectl -n tasklane rollout status deployment/sched-node-affinity --timeout=120s && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-node-affinity
+k8s-advanced/anti-affinity-pods | kubectl apply -f examples/scheduling/pod-anti-affinity.yaml && sleep 20 && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-anti-affinity
+k8s-advanced/taint-toleration-pods | kubectl taint nodes tasklane-worker maintenance=true:NoSchedule --overwrite && kubectl apply -f examples/scheduling/taints-tolerations.yaml && kubectl -n tasklane rollout status deployment/sched-toleration --timeout=120s && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-toleration ; kubectl taint nodes tasklane-worker maintenance=true:NoSchedule-
+k8s-advanced/topology-spread-pods | kubectl apply -f examples/scheduling/topology-spread.yaml && kubectl -n tasklane rollout status deployment/sched-spread --timeout=120s && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-spread
+k8s-advanced/priorityclasses | kubectl apply -f examples/scheduling/priority-classes.yaml && kubectl get priorityclasses
+k8s-advanced/unschedulable-describe | kubectl apply -f examples/scheduling/unschedulable-demo.yaml && sleep 20 && kubectl -n tasklane describe pod sched-unschedulable | tail -n 15 ; kubectl delete -f examples/scheduling/unschedulable-demo.yaml --ignore-not-found
+k8s-advanced/kube-scheduler-pod | kubectl -n kube-system get pods -l component=kube-scheduler -o wide
+k8s-advanced/scheduled-events | kubectl -n tasklane get events --field-selector reason=Scheduled --sort-by=.lastTimestamp | tail -n 6
+k8s-advanced/dra-api-resources | kubectl api-resources --api-group=resource.k8s.io
+k8s-advanced/dra-dry-run | kubectl apply --dry-run=server -f examples/dra/deviceclass.yaml -f examples/dra/resourceclaim.yaml -f examples/dra/resourceclaimtemplate.yaml
+
+k8s-advanced/hpa-apply | kubectl apply -f examples/autoscaling/hpa.yaml && kubectl -n tasklane get hpa
+k8s-advanced/hpa-describe | kubectl apply -f examples/autoscaling/hpa.yaml && sleep 90 && kubectl -n tasklane describe hpa tasklane-api
+k8s-advanced/top-pods | kubectl top pods -n tasklane
+k8s-advanced/metrics-api-raw | kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/tasklane/pods | head -c 600
+k8s-advanced/api-versions-metrics | kubectl api-versions | grep metrics
+k8s-advanced/autoscaling-api-resources | kubectl api-resources --api-group=autoscaling
+k8s-advanced/hpa-explain-behavior | kubectl explain horizontalpodautoscaler.spec.behavior.scaleDown
+k8s-advanced/hpa-scale-to-zero-dry-run | kubectl apply --dry-run=server -f examples/autoscaling/hpa-scale-to-zero.yaml
+k8s-advanced/in-place-resize | kubectl -n tasklane apply -f examples/autoscaling/in-place-resize.yaml && kubectl -n tasklane wait --for=condition=Ready pod/tasklane-resize-demo --timeout=90s && kubectl -n tasklane patch pod tasklane-resize-demo --subresource resize -p '{"spec":{"containers":[{"name":"demo","resources":{"requests":{"cpu":"200m"}}}]}}' && kubectl -n tasklane get pod tasklane-resize-demo -o jsonpath='{.spec.containers[0].resources}{"\n"}{.status.containerStatuses[0].resources}{"\n"}' && kubectl -n tasklane delete pod tasklane-resize-demo --wait=false
+
+k8s-advanced/helm-version | helm version
+k8s-advanced/helm-lint | helm lint examples/helm/tasklane --strict
+k8s-advanced/helm-template-head | helm template t examples/helm/tasklane | head -80
+k8s-advanced/helm-show-values | helm show values examples/helm/tasklane | head -40
+k8s-advanced/helm-schema-reject | helm template t examples/helm/tasklane --set api.replicas=3 2>&1 || true
+k8s-advanced/helm-dry-run-server | kubectl create namespace tasklane-helm --dry-run=client -o yaml | kubectl apply -f - && kubectl label --overwrite namespace tasklane-helm pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted && helm install t examples/helm/tasklane -n tasklane-helm --dry-run=server 2>&1 | head -60
+k8s-advanced/kustomize-prod-head | kubectl kustomize examples/kustomize/overlays/prod | head -60
+k8s-advanced/kustomize-dev-secret | kubectl kustomize examples/kustomize/overlays/dev | grep -A6 'kind: Secret'
+k8s-advanced/kustomize-dev-dry-run | kubectl create namespace tasklane-dev --dry-run=client -o yaml | kubectl apply -f - && kubectl label --overwrite namespace tasklane-dev pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted && kubectl apply -k examples/kustomize/overlays/dev --dry-run=server 2>&1
+k8s-advanced/kustomize-with-helm | kubectl kustomize --enable-helm --load-restrictor=LoadRestrictionsNone examples/kustomize/with-helm | head -40
+
+k8s-advanced/crd-list | kubectl get crds
+k8s-advanced/crd-apply | kubectl apply -f examples/operator/config/crd && kubectl get crd taskqueues.tasklane.example.com
+k8s-advanced/crd-stored-versions | kubectl apply -f examples/operator/config/crd && kubectl get crd taskqueues.tasklane.example.com -o jsonpath='{"served/storage: "}{range .spec.versions[*]}{.name}{" served="}{.served}{" storage="}{.storage}{" "}{end}{"\nstoredVersions: "}{.status.storedVersions}{"\n"}'
+k8s-advanced/crd-printer-columns | kubectl apply -f examples/operator/config/crd && kubectl apply -f examples/operator/config/samples/ && kubectl -n tasklane get taskqueues
+k8s-advanced/crd-defaulted-object | kubectl apply -f examples/operator/config/crd && kubectl apply -f examples/operator/config/samples/ && kubectl -n tasklane get taskqueue tasklane-worker -o jsonpath='{.spec}{"\n"}'
+k8s-advanced/crd-explain | kubectl apply -f examples/operator/config/crd && kubectl explain taskqueue.spec --api-version=tasklane.example.com/v1alpha1
+k8s-advanced/crd-reject-maximum | kubectl apply -f examples/operator/config/crd && kubectl apply --dry-run=server -f examples/operator/config/samples-invalid/taskqueue-too-many-workers.yaml
+k8s-advanced/crd-reject-transition | kubectl apply -f examples/operator/config/crd && kubectl apply -f examples/operator/config/samples/ && kubectl apply --dry-run=server -f examples/operator/config/samples-invalid/taskqueue-renamed-deployment.yaml
+k8s-advanced/admission-api-resources | kubectl api-resources --api-group=admissionregistration.k8s.io
+k8s-advanced/admission-dry-run | kubectl apply --dry-run=server -f examples/admission/
+k8s-advanced/admission-existing-policies | kubectl get validatingadmissionpolicies,validatingadmissionpolicybindings
+k8s-advanced/admission-webhook-configs | kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations
+k8s-advanced/admission-vap-typechecking | kubectl apply -f examples/admission/validatingadmissionpolicy.yaml && kubectl get validatingadmissionpolicy tasklane-workload-hygiene.tasklane.example.com -o jsonpath='{.status}{"\n"}'
+k8s-advanced/agg-apiservices-metrics | kubectl get apiservices | grep metrics
+k8s-advanced/agg-apiservice-yaml | kubectl get apiservice v1beta1.metrics.k8s.io -o yaml | head -40
+k8s-advanced/agg-metrics-group | kubectl get --raw /apis/metrics.k8s.io/
+
+# Notes for the maintainer
+# - crd-reject-maximum and crd-reject-transition are EXPECTED to exit non-zero.
+#   The rejection message on stderr is the output the pages show. Please capture
+#   stdout+stderr and ignore the exit code for those two ids.
+# - admission-vap-typechecking applies the ValidatingAdmissionPolicy for real.
+#   Its binding uses validationActions [Warn, Audit], so nothing in the lab can
+#   be rejected by it. Remove with:
+#     kubectl delete -f examples/admission/validatingadmissionpolicy.yaml
+# - Every other line is read-only or --dry-run=server, and all of them are
+#   idempotent (repeated apply of the same CRD/sample is a no-op).
+# - The CRD and samples applied by these captures can be removed with:
+#     kubectl -n tasklane delete -f examples/operator/config/samples/ ; kubectl delete -f examples/operator/config/crd
+
+k8s-advanced/tenant-apply-quota | kubectl apply -f examples/multi-tenancy/ && kubectl -n team-a describe resourcequota team-a-compute
+k8s-advanced/tenant-can-i | kubectl apply -f examples/multi-tenancy/ >/dev/null && echo "# create deployments in team-a"; kubectl auth can-i create deployments -n team-a --as=system:serviceaccount:team-a:team-a-deployer; echo "# create deployments in tasklane"; kubectl auth can-i create deployments -n tasklane --as=system:serviceaccount:team-a:team-a-deployer; echo "# delete the quota that bounds team-a"; kubectl auth can-i delete resourcequota -n team-a --as=system:serviceaccount:team-a:team-a-deployer; echo "# create a CustomResourceDefinition"; kubectl auth can-i create customresourcedefinitions --as=system:serviceaccount:team-a:team-a-deployer
+k8s-advanced/tenant-limitrange-reject | kubectl apply -f examples/multi-tenancy/ >/dev/null && kubectl apply -f examples/multi-tenancy/verify/oversized-pod.yaml --dry-run=server 2>&1 || true
+k8s-advanced/tenant-limitrange-defaults | kubectl apply -f examples/multi-tenancy/ >/dev/null && kubectl apply -f examples/multi-tenancy/verify/no-resources-pod.yaml --dry-run=server -o yaml 2>&1 | grep -A 7 '^      resources:'
+k8s-advanced/staging-overlay-dry-run | kubectl kustomize examples/kustomize/overlays/staging | kubectl apply --dry-run=client -f - -o name
+

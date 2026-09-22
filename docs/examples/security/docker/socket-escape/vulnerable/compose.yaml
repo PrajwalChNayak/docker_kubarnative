@@ -1,0 +1,17 @@
+# DELIBERATELY VULNERABLE. Run only on a disposable VM or the Docker Desktop
+# VM. Mounting the daemon socket into a container hands that container the
+# full Docker API, which is equivalent to root on the host.
+#
+# There is no top-level `version:` key: the Compose Specification made it
+# obsolete.
+name: socket-escape-demo
+
+services:
+  # Stands in for a CI runner or an "agent" container that was given the
+  # socket "so it can build images".
+  ci-runner:
+    image: docker:cli
+    command: ["sleep", "infinity"]
+    volumes:
+      # The vulnerability. Read-write access to this socket = host root.
+      - /var/run/docker.sock:/var/run/docker.sock

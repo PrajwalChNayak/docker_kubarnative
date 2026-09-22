@@ -1,0 +1,7 @@
+$ kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[0].status.conditions[*]}{.type}{"\t"}{.status}{"\n"}{end}'
+PodReadyToStartContainers	True
+Initialized	True
+Ready	False
+ContainersReady	True
+PodScheduled	True
+DisruptionTarget	True

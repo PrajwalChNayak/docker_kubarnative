@@ -1,0 +1,14 @@
+# A disposable namespace for the break-and-fix reproducers.
+# Pod Security Admission enforces "restricted" here, exactly like the real
+# tasklane namespace, so every reproducer pod still has to be hardened. The
+# faults below are runtime or logical, never a Pod Security violation.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: troubleshoot
+  labels:
+    app.kubernetes.io/part-of: troubleshoot
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

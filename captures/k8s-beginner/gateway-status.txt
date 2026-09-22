@@ -1,0 +1,6 @@
+$ kubectl -n tasklane get gateway,httproute -o wide
+NAME                                         CLASS   ADDRESS      PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/tasklane   eg      172.19.0.2   True         23h
+
+NAME                                               HOSTNAMES   AGE
+httproute.gateway.networking.k8s.io/tasklane-api               23h

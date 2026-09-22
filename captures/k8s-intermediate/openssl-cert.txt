@@ -1,0 +1,7 @@
+$ openssl s_client -connect 127.0.0.1:8443 -servername tasklane.localhost -CAfile /tmp/tasklane-ca.crt </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName
+subject=
+issuer=CN=Tasklane lab root CA
+notBefore=Sep 22 07:29:32 2026 GMT
+notAfter=Dec 21 07:29:32 2026 GMT
+X509v3 Subject Alternative Name: critical
+    DNS:tasklane.localhost

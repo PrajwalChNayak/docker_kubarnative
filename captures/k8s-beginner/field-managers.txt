@@ -1,0 +1,3 @@
+$ kubectl -n tasklane get deploy tasklane-api -o jsonpath='{range .metadata.managedFields[*]}{.manager}{"\t"}{.operation}{"\t"}{.apiVersion}{"\n"}{end}'
+kubectl-client-side-apply	Update	apps/v1
+kube-controller-manager	Update	apps/v1

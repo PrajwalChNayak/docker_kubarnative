@@ -1,0 +1,3 @@
+$ kubectl config get-contexts
+CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+*         kind-tasklane   kind-tasklane   kind-tasklane

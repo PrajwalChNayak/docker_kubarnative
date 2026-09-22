@@ -1,0 +1,3 @@
+$ kubectl -n kube-system get deploy metrics-server -o wide
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS       IMAGES                                                    SELECTOR
+metrics-server   1/1     1            1           24h   metrics-server   gcr.io/k8s-staging-metrics-server/metrics-server:master   k8s-app=metrics-server

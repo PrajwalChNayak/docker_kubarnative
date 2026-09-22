@@ -1,0 +1,48 @@
+$ kubectl -n tasklane get svc tasklane-api -o kyaml
+---
+{
+  apiVersion: "v1",
+  kind: "Service",
+  metadata: {
+    annotations: {
+      kubectl.kubernetes.io/last-applied-configuration: "\
+         {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/component\":\"api\",\"app.kubernetes.io/name\":\"tasklane-api\",\"app.kubernetes.io/part-of\":\"tasklane\"},\"name\":\"tasklane-api\",\"namespace\":\"tasklane\"},\"spec\":{\"ports\":[{\"name\":\"http\",\"port\":80,\"targetPort\":\"http\"}],\"selector\":{\"app.kubernetes.io/name\":\"tasklane-api\"},\"type\":\"ClusterIP\"}}\n\
+        ",
+    },
+    creationTimestamp: "2026-09-21T07:38:57Z",
+    labels: {
+      app.kubernetes.io/component: "api",
+      app.kubernetes.io/name: "tasklane-api",
+      app.kubernetes.io/part-of: "tasklane",
+    },
+    name: "tasklane-api",
+    namespace: "tasklane",
+    resourceVersion: "1651",
+    uid: "1c7d95f3-4ead-4bb0-8ea9-5035201969e3",
+  },
+  spec: {
+    clusterIP: "10.96.231.209",
+    clusterIPs: [
+      "10.96.231.209",
+    ],
+    internalTrafficPolicy: "Cluster",
+    ipFamilies: [
+      "IPv4",
+    ],
+    ipFamilyPolicy: "SingleStack",
+    ports: [{
+      name: "http",
+      port: 80,
+      protocol: "TCP",
+      targetPort: "http",
+    }],
+    selector: {
+      app.kubernetes.io/name: "tasklane-api",
+    },
+    sessionAffinity: "None",
+    type: "ClusterIP",
+  },
+  status: {
+    loadBalancer: {},
+  },
+}

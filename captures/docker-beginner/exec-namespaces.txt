@@ -1,0 +1,8 @@
+$ export MSYS_NO_PATHCONV=1; docker rm -f exec-demo >/dev/null 2>&1; docker run -d --name exec-demo alpine:3.22 sleep 300 >/dev/null; docker exec exec-demo ps -o pid,user,args; docker exec exec-demo sh -c 'for n in pid mnt net uts; do echo "$n pid1=$(readlink /proc/1/ns/$n) exec=$(readlink /proc/self/ns/$n)"; done'; docker rm -f exec-demo >/dev/null
+PID   USER     COMMAND
+    1 root     sleep 300
+    7 root     ps -o pid,user,args
+pid pid1=pid:[4026533686] exec=pid:[4026533686]
+mnt pid1=mnt:[4026533683] exec=mnt:[4026533683]
+net pid1=net:[4026533688] exec=net:[4026533688]
+uts pid1=uts:[4026533684] exec=uts:[4026533684]

@@ -1,0 +1,6 @@
+$ kubectl get csidrivers -o wide 2>&1 | head -10 && kubectl get csinodes -o wide 2>&1 | head -10
+No resources found
+NAME                     DRIVERS   AGE
+tasklane-control-plane   0         23h
+tasklane-worker          0         23h
+tasklane-worker2         0         23h

@@ -1,0 +1,2 @@
+$ kubectl apply -f examples/multi-tenancy/ >/dev/null && kubectl apply -f examples/multi-tenancy/verify/oversized-pod.yaml --dry-run=server 2>&1 || true
+Error from server (Forbidden): error when creating "examples/multi-tenancy/verify/oversized-pod.yaml": pods "oversized" is forbidden: [maximum cpu usage per Container is 2, but limit is 8, maximum memory usage per Container is 4Gi, but limit is 16Gi, maximum cpu usage per Pod is 4, but limit is 8, maximum memory usage per Pod is 8Gi, but limit is 16Gi]

@@ -1,0 +1,5 @@
+$ kubectl apply --dry-run=server -f examples/dra/deviceclass.yaml -f examples/dra/resourceclaim.yaml -f examples/dra/resourceclaimtemplate.yaml
+deviceclass.resource.k8s.io/example-gpu created (server dry run)
+deviceclass.resource.k8s.io/example-gpu-extended created (server dry run)
+resourceclaim.resource.k8s.io/shared-gpu created (server dry run)
+resourceclaimtemplate.resource.k8s.io/private-gpu created (server dry run)

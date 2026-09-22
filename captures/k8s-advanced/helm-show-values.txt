@@ -1,0 +1,41 @@
+$ helm show values examples/helm/tasklane | head -40
+# Default values for the tasklane chart.
+# Every key here is validated by values.schema.json, so a typo fails the
+# install instead of rendering a surprising manifest.
+
+# Override the generated resource names. fullnameOverride: tasklane gives the
+# same object names the raw manifests in examples/k8s use.
+nameOverride: ""
+fullnameOverride: ""
+
+# Pull secrets for private registries, e.g. [{name: regcred}].
+imagePullSecrets: []
+
+api:
+  replicaCount: 2
+  image:
+    repository: tasklane-api
+    tag: "0.1.0"
+    # Set digest to pin by content. It wins over tag when both are set.
+    digest: ""
+    pullPolicy: IfNotPresent
+  service:
+    port: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  topologySpreadConstraints: []
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1

@@ -1,0 +1,54 @@
+# The canary Service and the HTTPRoute the plugin rewrites.
+#
+# The stable Service is the stage-3 `tasklane-api` Service, unchanged. Argo
+# Rollouts adds a `rollouts-pod-template-hash` label to both selectors at
+# runtime; do not add it here, and do not fight it back in Git (the hash is
+# a runtime value, so Argo CD users should ignoreDifferences on
+# /spec/selector for both Services).
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklane-api-canary
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tasklane-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Replaces the stage-4 HTTPRoute of the same name. Both weights are declared
+# in Git so the object is complete; the plugin then owns them, moving the
+# pair as the canary progresses (95/5, 80/20, 50/50, 0/100).
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: tasklane-api
+          kind: Service
+          port: 80
+          weight: 100
+        - name: tasklane-api-canary
+          kind: Service
+          port: 80
+          weight: 0

@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+# check=skip=JSONArgsRecommended;error=true
+
+# Shell-form ENTRYPOINT: the container's PID 1 is /bin/sh, not the script.
+# The kernel ignores signals with default dispositions for PID 1, and this
+# shell installs no SIGTERM handler, so `docker stop` waits out the full
+# timeout and then SIGKILLs the container.
+FROM busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+
+COPY --chmod=0755 <<'EOF' /app/sleeper.sh
+#!/bin/sh
+# Handles SIGTERM correctly — but only if it is PID 1 and actually gets one.
+trap 'echo "sleeper: SIGTERM received, exiting"; exit 0' TERM
+echo "sleeper: started, my PID is $$"
+while :; do
+  sleep 1 &
+  wait $!
+done
+EOF
+
+# 65534 is "nobody" in the busybox image; declared numerically so no
+# /etc/passwd lookup is needed.
+USER 65534:65534
+
+# Two commands separated by `;` so that no shell can optimise this into an
+# exec of the script: /bin/sh stays PID 1. A single simple command is
+# exec-optimised by some shells (ash, dash) and not by others, which is why
+# "shell form sometimes works" is such a confusing bug to chase.
+# hadolint ignore=DL3025
+ENTRYPOINT echo "entrypoint: starting sleeper under $0"; /app/sleeper.sh

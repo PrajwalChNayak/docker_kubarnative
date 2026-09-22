@@ -1,0 +1,71 @@
+# Event-driven autoscaling of the Tasklane worker on queue depth.
+#
+# REQUIRES KEDA 2.20 (keda.sh) installed in the cluster: it owns the
+# keda.sh/v1alpha1 CRDs, serves external.metrics.k8s.io and creates the
+# HorizontalPodAutoscaler named keda-hpa-tasklane-worker for this object.
+# KEDA is NOT part of the lab, so this file is validated with kubeconform
+# against the CRD schemas only.
+#
+# Do not also create an HPA of your own for tasklane-worker: two
+# controllers scaling one Deployment fight each other. KEDA's admission
+# webhook rejects a ScaledObject whose target is already owned by an HPA.
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: tasklane-db
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # The scaler reads the "password" parameter from the same Secret the
+  # application uses. Only KEDA's operator needs access to it.
+  secretTargetRef:
+    - parameter: password
+      name: tasklane-db
+      key: password
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: tasklane
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-worker
+  pollingInterval: 15        # how often KEDA runs the query (default 30s)
+  cooldownPeriod: 120        # wait after the last active trigger before 1 -> 0
+  minReplicaCount: 0         # KEDA's operator handles 0 <-> 1 itself
+  maxReplicaCount: 10        # becomes the HPA's maxReplicas
+  advanced:
+    restoreToOriginalReplicaCount: true   # put replicas back when deleted
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+            - type: Pods
+              value: 1
+              periodSeconds: 60
+  triggers:
+    - type: postgresql
+      metricType: AverageValue
+      authenticationRef:
+        name: tasklane-db
+      metadata:
+        host: postgres.tasklane.svc.cluster.local
+        port: "5432"
+        userName: tasklane
+        dbName: tasklane
+        sslmode: disable          # lab only; use verify-full to a real database
+        # The query must return a single numeric value.
+        query: "SELECT count(*) FROM tasks WHERE status = 'pending'"
+        # 1 -> N: one worker per 5 pending tasks.
+        targetQueryValue: "5"
+        # 0 -> 1: activate as soon as the query returns more than 0.
+        activationTargetQueryValue: "0"

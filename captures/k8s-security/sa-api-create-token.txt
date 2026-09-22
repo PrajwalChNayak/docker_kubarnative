@@ -1,0 +1,2 @@
+$ kubectl create token tasklane-api -n tasklane --duration=10m | cut -c1-20
+eyJhbGciOiJSUzI1NiIs

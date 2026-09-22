@@ -1,0 +1,6 @@
+$ kubectl -n tasklane-basics get endpointslices -o wide
+NAME                       ADDRESSTYPE   PORTS   ENDPOINTS                             AGE
+hello-api-8r8vc            IPv4          8080    10.244.2.34,10.244.2.35,10.244.2.36   2m45s
+hello-api-headless-7kb9l   IPv4          8080    10.244.2.34,10.244.2.35,10.244.2.36   2m44s
+hello-api-lb-9m8hd         IPv4          8080    10.244.2.34,10.244.2.35,10.244.2.36   2m44s
+hello-api-nodeport-m5mc6   IPv4          8080    10.244.2.34,10.244.2.35,10.244.2.36   2m44s

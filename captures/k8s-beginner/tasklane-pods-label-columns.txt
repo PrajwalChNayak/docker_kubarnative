@@ -1,0 +1,24 @@
+$ kubectl -n tasklane get pods -L app.kubernetes.io/component,pod-template-hash
+NAME                                   READY   STATUS        RESTARTS      AGE     COMPONENT   POD-TEMPLATE-HASH
+postgres-0                             1/1     Running       1 (98m ago)   23h     database    
+sched-anti-affinity-868d6cb8cc-5g2s4   0/1     Pending       0             6m12s   demo        868d6cb8cc
+sched-anti-affinity-868d6cb8cc-fmlg9   1/1     Running       0             6m12s   demo        868d6cb8cc
+sched-anti-affinity-868d6cb8cc-r24ns   0/1     Pending       0             6m12s   demo        868d6cb8cc
+sched-batch-566df5c77b-6ztql           1/1     Running       0             4m12s   demo        566df5c77b
+sched-batch-566df5c77b-k9zc9           1/1     Running       0             4m12s   demo        566df5c77b
+sched-node-affinity-5bffb9f8fc-8tcmh   1/1     Running       0             6m25s   demo        5bffb9f8fc
+sched-node-affinity-5bffb9f8fc-jtvpm   1/1     Running       0             6m25s   demo        5bffb9f8fc
+sched-node-affinity-5bffb9f8fc-mb6c2   1/1     Running       0             6m25s   demo        5bffb9f8fc
+sched-node-affinity-5bffb9f8fc-snjdx   1/1     Running       0             6m25s   demo        5bffb9f8fc
+sched-spread-5467d59fb6-s77vk          1/1     Running       0             5m43s   demo        5467d59fb6
+sched-spread-5467d59fb6-sfmln          0/1     Pending       0             5m43s   demo        5467d59fb6
+sched-spread-5467d59fb6-sv9nv          0/1     Pending       0             5m43s   demo        5467d59fb6
+sched-spread-5467d59fb6-t9n76          0/1     Pending       0             5m43s   demo        5467d59fb6
+sched-toleration-85f76767b-5psbl       1/1     Running       0             5m48s   demo        85f76767b
+sched-toleration-85f76767b-p2knn       1/1     Running       0             5m48s   demo        85f76767b
+tasklane-api-86876d58cf-4dp97          1/1     Terminating   0             62m     api         86876d58cf
+tasklane-api-86876d58cf-9jxxr          1/1     Running       0             11m     api         86876d58cf
+tasklane-api-86876d58cf-vlxfp          1/1     Running       0             62m     api         86876d58cf
+tasklane-worker-cc4f995df-8lbcl        1/1     Running       1 (98m ago)   23h     worker      cc4f995df
+tasklane-worker-cc4f995df-c55hs        1/1     Terminating   1 (98m ago)   23h     worker      cc4f995df
+tasklane-worker-cc4f995df-rfjkc        1/1     Running       0             11m     worker      cc4f995df

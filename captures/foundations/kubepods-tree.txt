@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: docker exec tasklane-worker sh -c "find /sys/fs/cgroup -maxdepth 2 -name 'kubepods*' -type d | sort; echo; find /sys/fs/cgroup -maxdepth 3 -type d -name '*pod*' | head -n 12"
+# reason: Error response from daemon: No such container: tasklane-worker

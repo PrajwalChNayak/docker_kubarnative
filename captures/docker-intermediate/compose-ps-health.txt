@@ -1,0 +1,6 @@
+$ cd examples/compose && API_PORT=18080 docker compose up -d --wait >/dev/null 2>&1; API_PORT=18080 docker compose ps --format 'table {{.Service}}\t{{.Status}}'; API_PORT=18080 docker compose down >/dev/null 2>&1
+SERVICE   STATUS
+api       Up 7 seconds (healthy)
+db        Up 14 seconds (healthy)
+worker    Up 6 seconds (healthy)
+worker    Up 7 seconds (healthy)

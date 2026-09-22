@@ -1,0 +1,64 @@
+# Scaling the API on a per-pod custom metric instead of CPU.
+#
+# REQUIRES an adapter that serves custom.metrics.k8s.io, such as the
+# Prometheus Adapter, plus Prometheus scraping the pods. It is NOT part of
+# the lab: with no adapter registered the HPA is accepted by the API server
+# but reports FailedGetPodsMetric and never scales.
+#
+# The app exports the counter tasklane_http_requests_total on /metrics.
+# A Pods metric must be a rate-like value that falls as replicas are added,
+# so the adapter's rules turn that counter into a per-second series. The
+# Prometheus Adapter's own config walkthrough uses a rule with
+# name.matches "^(.*)_total" and name.as "${1}_per_second" over
+# sum(rate(...)), which is where the name below comes from. The name is
+# whatever your rules produce, so confirm it with:
+#
+#   kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 | jq '.resources[].name'
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tasklane-api-rps
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-api
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+    # Pods: the adapter returns one value per pod of the scale target and
+    # the controller averages them, so the target is an AverageValue.
+    # 50 requests per second per pod.
+    - type: Pods
+      pods:
+        metric:
+          name: tasklane_http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "50"
+    # Keep CPU as a floor: the maximum of all metric recommendations wins.
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60

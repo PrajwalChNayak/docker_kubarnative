@@ -1,0 +1,20 @@
+$ kubectl -n tasklane-basics get pods,rs,deploy,svc -o wide
+NAME                             READY   STATUS              RESTARTS   AGE   IP            NODE               NOMINATED NODE   READINESS GATES
+pod/config-demo                  0/1     ContainerCreating   0          7s    <none>        tasklane-worker2   <none>           <none>
+pod/hello-api-59869b57ff-sgcpk   1/1     Running             0          8s    10.244.2.28   tasklane-worker2   <none>           <none>
+pod/hello-api-59869b57ff-tt7nl   1/1     Running             0          8s    10.244.2.27   tasklane-worker2   <none>           <none>
+pod/hello-api-59869b57ff-xzjgz   1/1     Running             0          8s    10.244.2.26   tasklane-worker2   <none>           <none>
+pod/hello-pod                    1/1     Running             0          8s    10.244.2.25   tasklane-worker2   <none>           <none>
+
+NAME                                   DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES               SELECTOR
+replicaset.apps/hello-api-59869b57ff   3         3         3       8s    api          tasklane-api:0.1.0   app.kubernetes.io/name=hello-api,pod-template-hash=59869b57ff
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES               SELECTOR
+deployment.apps/hello-api   3/3     3            3           8s    api          tasklane-api:0.1.0   app.kubernetes.io/name=hello-api
+
+NAME                         TYPE           CLUSTER-IP     EXTERNAL-IP                           PORT(S)        AGE   SELECTOR
+service/hello-api            ClusterIP      10.96.104.15   <none>                                80/TCP         8s    app.kubernetes.io/name=hello-api
+service/hello-api-headless   ClusterIP      None           <none>                                80/TCP         7s    app.kubernetes.io/name=hello-api
+service/hello-api-lb         LoadBalancer   10.96.70.158   <pending>                             80:30177/TCP   7s    app.kubernetes.io/name=hello-api
+service/hello-api-nodeport   NodePort       10.96.147.32   <none>                                80:30586/TCP   7s    app.kubernetes.io/name=hello-api
+service/tasklane-db          ExternalName   <none>         postgres.tasklane.svc.cluster.local   <none>         7s    <none>

@@ -1,0 +1,2 @@
+$ docker build -q -t di-exec -f examples/dockerfiles/signal-forms/Dockerfile.exec examples/dockerfiles/signal-forms >/dev/null && docker run -d --name di-exec di-exec >/dev/null 2>&1; ( time docker stop di-exec >/dev/null ) 2>&1 | grep real; docker rm -f di-exec >/dev/null 2>&1
+real	0m0.880s

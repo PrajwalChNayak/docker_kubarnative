@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl -n cert-manager get pods && kubectl get clusterissuer && kubectl -n tasklane get certificate,certificaterequest,secret tasklane-tls
+# reason: Error from server (NotFound): certificaterequests.cert-manager.io "tasklane-tls" not found NAME                                       READY   STATUS        RESTARTS       AGE cert-manager-54b7dc69c4-824nz              1/1     Running       1 (108m ago)   23h

@@ -1,0 +1,8 @@
+$ cd examples/compose && API_PORT=18080 docker compose up -d --wait >/dev/null 2>&1; API_PORT=18080 docker compose up -d --scale worker=3 --no-recreate 2>&1 | tail -4; API_PORT=18080 docker compose ps --format 'table {{.Service}}\t{{.Name}}' | grep worker; API_PORT=18080 docker compose down >/dev/null 2>&1
+ Container tasklane-db-1 Healthy 
+ Container tasklane-worker-3 Starting 
+ Container tasklane-migrate-1 Exited 
+ Container tasklane-worker-3 Started 
+worker    tasklane-worker-1
+worker    tasklane-worker-2
+worker    tasklane-worker-3

@@ -1,0 +1,169 @@
+# Grafana Alloy as a node-agent log shipper. Alloy is Grafana's supported
+# collector; Promtail is deprecated (feature-frozen in Feb 2025, EOL announced
+# March 2026) in favour of Alloy. One Alloy pod runs on every node via the
+# DaemonSet and tails the logs of the pods scheduled to that node, then pushes
+# them to Loki.
+#
+# This variant tails logs through the Kubernetes API (loki.source.kubernetes),
+# so it needs no hostPath mount and runs as a non-root user. The file-based
+# alternative (discovery + loki.source.file over a hostPath /var/log/pods)
+# reads root-owned files and must run as root; see the README for the trade.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: tasklane
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alloy-logs
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alloy-logs
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/proxy", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: alloy-logs
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alloy-logs
+subjects:
+  - kind: ServiceAccount
+    name: alloy-logs
+    namespace: monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-logs-config
+  namespace: monitoring
+data:
+  config.alloy: |
+    // Discover only the pods scheduled to THIS node, so each agent tails its
+    // own node's workloads and no line is shipped twice.
+    discovery.kubernetes "pods" {
+      role = "pod"
+      selectors {
+        role  = "pod"
+        field = "spec.nodeName=" + sys.env("NODE_NAME")
+      }
+    }
+
+    // Turn pod metadata into Loki labels. Keep the label set SMALL: every
+    // distinct combination is a separate stream, and high-cardinality labels
+    // (pod name, request id) blow up Loki's index. namespace/app/container are
+    // safe; pod is borderline and dropped here.
+    discovery.relabel "pod_logs" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        target_label  = "app"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+    }
+
+    loki.source.kubernetes "pods" {
+      targets    = discovery.relabel.pod_logs.output
+      forward_to = [loki.process.parse.receiver]
+    }
+
+    // Tasklane logs JSON to stdout (12-factor). Lift the level field to a
+    // label so queries can filter by severity without a full-text scan.
+    loki.process "parse" {
+      forward_to = [loki.write.default.receiver]
+      stage.json {
+        expressions = { level = "level" }
+      }
+      stage.labels {
+        values = { level = "" }
+      }
+    }
+
+    loki.write "default" {
+      endpoint {
+        url = "http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: alloy-logs
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alloy-logs
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alloy-logs
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: alloy-logs
+    spec:
+      serviceAccountName: alloy-logs
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: alloy
+          image: grafana/alloy:v1.19.2
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --storage.path=/var/lib/alloy/data
+            - --server.http.listen-addr=0.0.0.0:12345
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - name: http
+              containerPort: 12345
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/alloy/data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: config
+          configMap:
+            name: alloy-logs-config
+        - name: data
+          emptyDir: {}

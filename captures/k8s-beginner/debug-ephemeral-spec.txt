@@ -1,0 +1,2 @@
+$ kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[0].spec.ephemeralContainers[*]}{.name}{"\t"}{.image}{"\t"}{.securityContext}{"\n"}{end}'
+dbg-1790061934	busybox:1.37	{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}

@@ -1,0 +1,28 @@
+# NodePort: everything ClusterIP does, plus a port on every node.
+# The port is allocated from --service-node-port-range (30000-32767 by
+# default) unless you pin it with "nodePort:".
+#
+# In the kind lab only host port 8080 -> node port 30080 is mapped, and that
+# mapping belongs to the Gateway, so reach this Service from inside the
+# cluster or from a node container instead of from the host.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-api-nodeport
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  type: NodePort
+  # Cluster (the default) lets any node forward to a pod on any other node,
+  # at the cost of one extra hop and the loss of the original client IP.
+  # Local keeps the client IP but only answers on nodes running a pod.
+  externalTrafficPolicy: Cluster
+  selector:
+    app.kubernetes.io/name: hello-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,2 @@
+$ docker info --format '{{.SecurityOptions}}'
+[name=seccomp,profile=builtin name=cgroupns]

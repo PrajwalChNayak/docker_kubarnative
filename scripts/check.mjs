@@ -34,7 +34,11 @@ const REMOVED_APIS = [
   'extensions/v1beta1', 'apps/v1beta1', 'apps/v1beta2', 'networking.k8s.io/v1beta1',
   'policy/v1beta1', 'batch/v1beta1', 'autoscaling/v2beta1', 'autoscaling/v2beta2',
   'discovery.k8s.io/v1beta1', 'events.k8s.io/v1beta1', 'node.k8s.io/v1beta1',
-  'storage.k8s.io/v1beta1', 'rbac.authorization.k8s.io/v1beta1', 'scheduling.k8s.io/v1beta1',
+  'storage.k8s.io/v1beta1', 'rbac.authorization.k8s.io/v1beta1',
+  // NOTE: scheduling.k8s.io/v1beta1 is NOT in this list. That group/version once
+  // held the removed PriorityClass beta, but in 1.37 it was re-promoted to host
+  // the new Workload/PodGroup gang-scheduling API (KEP-4671, GenericWorkload
+  // gate). It is banned only when paired with kind PriorityClass — see below.
   'admissionregistration.k8s.io/v1beta1', 'apiextensions.k8s.io/v1beta1',
   'apiregistration.k8s.io/v1beta1', 'authentication.k8s.io/v1beta1',
   'authorization.k8s.io/v1beta1', 'certificates.k8s.io/v1beta1', 'coordination.k8s.io/v1beta1',
@@ -236,6 +240,13 @@ function validateLinks(pg) {
         continue;
       }
       const repoRel = path.posix.normalize(`${dir}/${pathPart}`);
+      // A .md link outside content/ (e.g. examples/**/README.md) is a link to a
+      // real repo file, not a handbook page; verify it exists on disk instead of
+      // looking it up in the page graph. build.mjs rewrites it to a source URL.
+      if (!repoRel.startsWith('content/')) {
+        if (!fs.existsSync(path.join(REPO, repoRel))) err(f, ln, `link to missing file: ${pathPart}`);
+        continue;
+      }
       const targetId = repoRel.replace(/^content\//, '').replace(/\.md$/, '');
       const target = pages[targetId];
       if (!target) { err(f, ln, `broken internal link: ${pathPart}`); continue; }
@@ -301,6 +312,8 @@ function validateBans(pg) {
     for (const api of REMOVED_APIS) {
       if (line.includes(api)) { err(f, idx + 1 + off, `banned removed API version: ${api}`); break; }
     }
+    // scheduling.k8s.io/v1beta1 is current (Workload API) EXCEPT for PriorityClass
+    if (line.includes('scheduling.k8s.io/v1beta1') && /PriorityClass/.test(line)) err(f, idx + 1 + off, 'banned removed API version: scheduling.k8s.io/v1beta1 PriorityClass (use scheduling.k8s.io/v1)');
     // PodSecurityPolicy
     if (/\bPodSecurityPolicy\b/.test(line)) err(f, idx + 1 + off, 'banned: PodSecurityPolicy (removed in 1.25)');
     // kind: Endpoints
@@ -333,6 +346,7 @@ function validateBans(pg) {
         // bans that apply inside code blocks
         if (!inCallout(idx)) {
           for (const api of REMOVED_APIS) { if (line.includes(api)) { err(f, idx + 1 + off, `banned removed API version: ${api}`); break; } }
+          if (line.includes('scheduling.k8s.io/v1beta1') && /PriorityClass/.test(line)) err(f, idx + 1 + off, 'banned removed API version: scheduling.k8s.io/v1beta1 PriorityClass (use scheduling.k8s.io/v1)');
           if (/\bPodSecurityPolicy\b/.test(line)) err(f, idx + 1 + off, 'banned: PodSecurityPolicy (removed in 1.25)');
           if (/^\s*kind:\s*Endpoints\b/.test(line)) err(f, idx + 1 + off, 'banned: `kind: Endpoints` (use EndpointSlice)');
           // :latest only in titled/included manifest or Dockerfile blocks

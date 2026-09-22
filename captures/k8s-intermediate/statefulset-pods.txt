@@ -1,0 +1,3 @@
+$ kubectl -n tasklane get pods -l app.kubernetes.io/name=postgres -o wide
+NAME         READY   STATUS    RESTARTS       AGE   IP           NODE               NOMINATED NODE   READINESS GATES
+postgres-0   1/1     Running   1 (107m ago)   23h   10.244.2.3   tasklane-worker2   <none>           <none>

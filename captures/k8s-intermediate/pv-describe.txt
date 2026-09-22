@@ -1,0 +1,22 @@
+$ kubectl get pv -o jsonpath='{.items[0].metadata.name}' | xargs -r kubectl describe pv
+Name:              pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565
+Labels:            <none>
+Annotations:       local.path.provisioner/selected-node: tasklane-worker2
+                   pv.kubernetes.io/provisioned-by: rancher.io/local-path
+Finalizers:        [kubernetes.io/pv-protection]
+StorageClass:      standard
+Status:            Bound
+Claim:             tasklane/data-postgres-0
+Reclaim Policy:    Delete
+Access Modes:      RWO
+VolumeMode:        Filesystem
+Capacity:          1Gi
+Node Affinity:     
+  Required Terms:  
+    Term 0:        kubernetes.io/hostname in [tasklane-worker2]
+Message:           
+Source:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/local-path-provisioner/pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565_tasklane_data-postgres-0
+    HostPathType:  DirectoryOrCreate
+Events:            <none>

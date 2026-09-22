@@ -1,0 +1,6 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes
+==> removing containers
+==> removing network tasklane-net
+==> removing volume tasklane-db-data
+==> removing volume tasklane-secrets
+==> done

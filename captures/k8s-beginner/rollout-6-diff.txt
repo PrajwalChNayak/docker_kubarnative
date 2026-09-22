@@ -1,0 +1,17 @@
+$ kubectl diff -f examples/k8s/basics/20-deployment.yaml; echo "exit: $?"
+diff -u -N C:\Users\nprajwal\AppData\Local\Temp\LIVE-2696132940/apps.v1.Deployment.tasklane-basics.hello-api C:\Users\nprajwal\AppData\Local\Temp\MERGED-1908503236/apps.v1.Deployment.tasklane-basics.hello-api
+--- C:\Users\nprajwal\AppData\Local\Temp\LIVE-2696132940/apps.v1.Deployment.tasklane-basics.hello-api	2026-09-22 12:51:07.085699500 +0530
++++ C:\Users\nprajwal\AppData\Local\Temp\MERGED-1908503236/apps.v1.Deployment.tasklane-basics.hello-api	2026-09-22 12:51:07.089243800 +0530
+@@ -5,9 +5,9 @@
+     deployment.kubernetes.io/revision: "2"
+     kubectl.kubernetes.io/last-applied-configuration: |
+       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"kubernetes.io/change-cause":"initial release: tasklane-api:0.1.0"},"labels":{"app.kubernetes.io/component":"api","app.kubernetes.io/name":"hello-api","app.kubernetes.io/part-of":"tasklane"},"name":"hello-api","namespace":"tasklane-basics"},"spec":{"minReadySeconds":5,"progressDeadlineSeconds":60,"replicas":3,"revisionHistoryLimit":5,"selector":{"matchLabels":{"app.kubernetes.io/name":"hello-api"}},"strategy":{"rollingUpdate":{"maxSurge":1,"maxUnavailable":0},"type":"RollingUpdate"},"template":{"metadata":{"labels":{"app.kubernetes.io/component":"api","app.kubernetes.io/name":"hello-api","app.kubernetes.io/part-of":"tasklane"}},"spec":{"automountServiceAccountToken":false,"containers":[{"env":[{"name":"SHUTDOWN_DELAY_SECONDS","value":"2"}],"image":"tasklane-api:0.1.0","name":"api","ports":[{"containerPort":8080,"name":"http"}],"readinessProbe":{"failureThreshold":2,"httpGet":{"path":"/healthz","port":"http"},"periodSeconds":2},"resources":{"limits":{"memory":"64Mi"},"requests":{"cpu":"50m","memory":"32Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}}],"securityContext":{"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}},"terminationGracePeriodSeconds":30}}}}
+-    kubernetes.io/change-cause: set RELEASE=2
++    kubernetes.io/change-cause: 'initial release: tasklane-api:0.1.0'
+   creationTimestamp: "2026-09-22T07:20:32Z"
+-  generation: 2
++  generation: 3
+   labels:
+     app.kubernetes.io/component: api
+     app.kubernetes.io/name: hello-api
+exit: 1

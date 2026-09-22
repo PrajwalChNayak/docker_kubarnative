@@ -1,0 +1,4 @@
+$ docker run --rm --memory 128m --cpus 0.5 --pids-limit 64 busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23 sh -c 'cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/cpu.max /sys/fs/cgroup/pids.max'
+134217728
+50000 100000
+64

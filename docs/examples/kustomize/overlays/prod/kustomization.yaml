@@ -1,0 +1,59 @@
+# Prod overlay: images by digest, autoscaling and NetworkPolicy switched on,
+# the database password supplied by External Secrets.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - namespace.yaml
+  - externalsecret.yaml
+
+components:
+  - ../../components/network-policy
+  - ../../components/hpa
+
+namespace: tasklane-prod
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: tasklane-prod
+      tasklane.example.com/environment: prod
+    includeSelectors: false
+    includeTemplates: true
+
+# Digests, not tags: a tag can be moved, a digest cannot. CI rewrites these
+# with `kustomize edit set image tasklane-api=<repo>@<digest>` after it pushes.
+# The digests below are placeholders — they are not real images.
+images:
+  - name: tasklane-api
+    newName: registry.example.com/tasklane/tasklane-api
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  - name: tasklane-worker
+    newName: registry.example.com/tasklane/tasklane-worker
+    digest: sha256:1111111111111111111111111111111111111111111111111111111111111111
+
+# Only the worker is listed: the HPA component owns the API's replica count and
+# removes .spec.replicas from its Deployment.
+replicas:
+  - name: tasklane-worker
+    count: 3
+
+configMapGenerator:
+  - name: tasklane-config
+    behavior: merge
+    literals:
+      - SHUTDOWN_DELAY_SECONDS=20
+
+patches:
+  - path: patches/api-prod.yaml
+  # JSON 6902 addresses list elements by index, which is the only way to edit
+  # a volumeClaimTemplate in place.
+  - target:
+      group: apps
+      version: v1
+      kind: StatefulSet
+      name: postgres
+    patch: |-
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 20Gi

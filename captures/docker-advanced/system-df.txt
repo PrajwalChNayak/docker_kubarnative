@@ -1,0 +1,60 @@
+$ docker system df -v
+Images space usage:
+
+REPOSITORY                                      TAG                            IMAGE ID       CREATED         SIZE      SHARED SIZE   UNIQUE SIZE   CONTAINERS
+tasklane-api                                    0.1.0                          ca9c347d1d97   23 hours ago    22.6MB    5.779MB       16.81MB       0
+tasklane-worker                                 0.1.0                          2c71ef0bbe8b   23 hours ago    22.5MB    5.779MB       16.77MB       0
+golang                                          1.27                           3680233e3204   3 days ago      1.31GB    0B            1.311GB       0
+cassandra                                       5.0                            ee178b38a274   3 days ago      541MB     87.65MB       453.5MB       1
+neo4j                                           5-community                    3388e05ee53c   3 days ago      980MB     87.65MB       892.5MB       1
+<none>                                          <none>                         86c951e05bf5   3 days ago      650MB     87.65MB       562.5MB       0
+influxdb                                        3-core                         43991052bc05   3 days ago      592MB     87.63MB       504.7MB       1
+<none>                                          <none>                         7d6e7e750c4d   3 days ago      644MB     487.4MB       156.6MB       0
+ci_ecommerce_identity                           previous                       c2a5e9d36cdc   3 days ago      644MB     487.4MB       156.6MB       1
+ci_ecommerce_identity                           latest                         435770525014   3 days ago      644MB     487.4MB       156.6MB       1
+redis                                           8-alpine                       bd999b5cfee2   4 days ago      160MB     0B            160.2MB       1
+postgres                                        18-alpine                      6c538e7206ea   4 days ago      433MB     0B            433.4MB       1
+alpine                                          3.22                           5291449c3df7   4 days ago      12.8MB    0B            12.85MB       0
+timescale/timescaledb                           latest-pg17                    c79fa5891443   4 days ago      2.17GB    0B            2.175GB       1
+clickhouse/clickhouse-server                    latest                         a73b5c0fb6f8   5 days ago      1.2GB     0B            1.196GB       1
+mongo                                           8.0                            4968f22d0c6c   6 days ago      1.27GB    87.63MB       1.186GB       0
+mariadb                                         11.8                           79d59758afc9   6 days ago      458MB     87.63MB       370.1MB       1
+opensearchproject/opensearch                    3                              fafe3fc35870   6 days ago      2.83GB    0B            2.829GB       1
+us-docker.pkg.dev/fairwinds-ops/oss/pluto       v5.24.4                        0b058f9f27f0   6 days ago      65.2MB    9.073MB       56.17MB       0
+mysql                                           8.4                            85b9bf2e29cf   10 days ago     1.12GB    0B            1.122GB       1
+mongo                                           8                              613a7cc66be5   13 days ago     1.16GB    0B            1.158GB       1
+valkey/valkey                                   9-alpine                       a0dbf4c1d570   2 weeks ago     74.5MB    9.073MB       65.42MB       1
+scylladb/scylla                                 latest                         705b9cc8d815   2 weeks ago     869MB     0B            868.7MB       1
+curlimages/curl                                 latest                         58adaa4e8dca   2 weeks ago     35.4MB    0B            35.43MB       0
+<none>                                          <none>                         a1ed56cfb0e7   3 weeks ago     1.34GB    0B            1.343GB       3
+golang                                          1.25                           699337d62055   4 weeks ago     1.26GB    0B            1.259GB       0
+redis                                           7.4-alpine                     ff02b58f971e   4 weeks ago     57.8MB    0B            57.83MB       1
+aquasec/trivy                                   0.74.0                         62b1e65e8869   5 weeks ago     254MB     9.073MB       245MB         0
+pgvector/pgvector                               pg18                           2ba9ca5f2e7d   5 weeks ago     631MB     0B            630.9MB       1
+amazon/dynamodb-local                           latest                         ff89bd48ff32   7 weeks ago     758MB     0B            757.8MB       1
+hadolint/hadolint                               v2.15.1                        32dac94127fd   7 weeks ago     67.9MB    0B            67.88MB       0
+docker.elastic.co/elasticsearch/elasticsearch   9.5.0                          8818ab9af72d   7 weeks ago     2.55GB    0B            2.554GB       1
+mcr.microsoft.com/dotnet/sdk                    10.0                           ea8bde36c11b   2 months ago    1.25GB    0B            1.245GB       1
+influxdb                                        2.7-alpine                     991673dc2d23   4 months ago    276MB     9.11MB        267MB         0
+mcr.microsoft.com/mssql/server                  2019-latest                    5b89fce40832   4 months ago    2.05GB    0B            2.046GB       1
+docker.elastic.co/elasticsearch/elasticsearch   9.1.0                          47f91984aa10   14 months ago   2.14GB    0B            2.136GB       0
+timescale/timescaledb                           2.17.2-pg16                    4e459e217f00   20 months ago   2.71GB    0B            2.706GB       1
+axllent/mailpit                                 v1.21                          81370195cd4a   21 months ago   44.2MB    0B            44.17MB       0
+minio/minio                                     RELEASE.2024-12-18T13-15-44Z   1dce27c494a1   21 months ago   244MB     0B            244.4MB       1
+emqx/emqx                                       5.8.3                          2bb94239a381   21 months ago   340MB     0B            340.3MB       1
+prom/prometheus                                 v3.0.1                         565ee8650122   22 months ago   410MB     0B            410.3MB       0
+mcr.microsoft.com/mssql-tools                   latest                         625565005220   8 years ago     334MB     0B            334.4MB       0
+
+Containers space usage:
+
+CONTAINER ID   IMAGE                                                 COMMAND                  LOCAL VOLUMES   SIZE      CREATED        STATUS                         NAMES
+15f299a923e6   kindest/node:v1.37.0                                  "/usr/local/bin/entr…"   1               274kB     23 hours ago   Up 40 minutes                  tasklane-worker2
+fbe8cd0e7188   kindest/node:v1.37.0                                  "/usr/local/bin/entr…"   1               274kB     23 hours ago   Up 40 minutes                  tasklane-worker
+6dd217b020fe   kindest/node:v1.37.0                                  "/usr/local/bin/entr…"   1               3.9MB     23 hours ago   Up 41 minutes                  tasklane-control-plane
+37fd1caaa25a   scylladb/scylla:latest                                "/docker-entrypoint.…"   1               127kB     33 hours ago   Exited (137) 27 hours ago      dbh-scylla
+50eb0e3492b6   pgvector/pgvector:pg18                                "docker-entrypoint.s…"   1               16.4kB    34 hours ago   Exited (0) 27 hours ago        dbh-pgvector
+531b615fac0b   influxdb:3-core                                       "/usr/bin/entrypoint…"   0               13.3MB    36 hours ago   Exited (0) 27 hours ago        dbh-influx
+58fe8cc8dfca   opensearchproject/opensearch:3                        "./opensearch-docker…"   0               1.63MB    36 hours ago   Exited (143) 27 hours ago      dbh-opensearch
+a27fdd791912   docker.elastic.co/elasticsearch/elasticsearch:9.5.0   "/bin/tini -- /usr/l…"   0               733kB     36 hours ago   Exited (137) 27 hours ago      dbh-elastic
+559778ba9405   neo4j:5-community                                     "tini -g -- /startup…"   2               175MB     36 hours ago   Exited (137) 27 hours ago      dbh-neo4j
+ccd85aee9e28   valkey/valkey:9-alpine                                "tini -- docker-entr…"   0               12.3kB    36 hours ago   Exited (0) 27 hours ago        dbh-valkey

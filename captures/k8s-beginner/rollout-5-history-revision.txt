@@ -1,0 +1,26 @@
+$ kubectl -n tasklane-basics rollout history deploy/hello-api --revision=2
+deployment.apps/hello-api with revision #2
+Pod Template:
+  Labels:	app.kubernetes.io/component=api
+	app.kubernetes.io/name=hello-api
+	app.kubernetes.io/part-of=tasklane
+	pod-template-hash=5465458575
+  Annotations:	kubernetes.io/change-cause: set RELEASE=2
+  Containers:
+   api:
+    Image:	tasklane-api:0.1.0
+    Port:	8080/TCP (http)
+    Host Port:	0/TCP (http)
+    Limits:
+      memory:	64Mi
+    Requests:
+      cpu:	50m
+      memory:	32Mi
+    Readiness:	http-get http://:http/healthz delay=0s timeout=1s period=2s successThreshold=1 failureThreshold=2
+    Environment:
+      RELEASE:	2
+      SHUTDOWN_DELAY_SECONDS:	2
+    Mounts:	<none>
+  Volumes:	<none>
+  Node-Selectors:	<none>
+  Tolerations:	<none>

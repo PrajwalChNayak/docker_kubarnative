@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: POD=$(kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{.items[0].metadata.name}'); C=dbg-$(date +%s); kubectl -n tasklane debug "$POD" --image=busybox:1.37 --profile=restricted --target=api -c "$C" -- sh -c 'ps -o pid,user,args; ls -l /proc/1/root/ 2>/dev/null; echo done'; sleep 15; kubectl -n tasklane logs "$POD" -c "$C"
+# reason: Error from server: Get "https://172.19.0.3:10250/containerLogs/tasklane/tasklane-api-86876d58cf-4dp97/dbg-1790061934": dial tcp 172.19.0.3:10250: connect: no route to host Targeting container "api". If you don't see processes from this container it may be because the container runtime doesn't support this feature.

@@ -1,0 +1,39 @@
+# Component: horizontal autoscaling for the API.
+# autoscaling/v2 is the only served version; v2beta1 and v2beta2 were removed
+# in 1.26. No metadata.namespace — the overlay supplies it.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tasklane-api
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      # Scale in slowly: one step every five minutes after a 5-minute window
+      # of stable recommendations.
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30

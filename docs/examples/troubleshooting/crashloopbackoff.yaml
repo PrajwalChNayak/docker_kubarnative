@@ -1,0 +1,43 @@
+# FAULT: the container starts, prints a line, then exits 1 on every attempt.
+# The kubelet restarts it (restartPolicy defaults to Always for a bare Pod),
+# each restart is delayed by an exponential back-off, and after the second
+# failure the pod's State reason becomes CrashLoopBackOff.
+#
+# This stands in for the common real cause: a process that dies at start-up
+# because of bad configuration, a missing dependency or a code bug. The exit
+# code (here 1) and the container logs are what tell config from code.
+#
+# FIX: make the process stay up. Here, remove the `exit 1`; in real life,
+# fix the configuration or dependency the logs point at.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashloop
+  namespace: troubleshoot
+  labels:
+    case: crashloop
+spec:
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c"]
+      args:
+        - 'echo "starting up"; sleep 1; echo "config missing: giving up" >&2; exit 1'
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

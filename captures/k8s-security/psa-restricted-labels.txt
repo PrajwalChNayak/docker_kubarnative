@@ -1,0 +1,7 @@
+$ kubectl get ns tasklane -o jsonpath='{.metadata.labels}' | tr ',' '\n'
+{"app.kubernetes.io/part-of":"tasklane"
+"kubernetes.io/metadata.name":"tasklane"
+"pod-security.kubernetes.io/audit":"restricted"
+"pod-security.kubernetes.io/enforce":"restricted"
+"pod-security.kubernetes.io/enforce-version":"v1.37"
+"pod-security.kubernetes.io/warn":"restricted"}

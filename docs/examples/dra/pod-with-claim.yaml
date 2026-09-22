@@ -1,0 +1,54 @@
+# A pod that consumes both kinds of claim.
+#
+# REQUIRES A DRA DRIVER (see README.md). Without a driver publishing
+# ResourceSlices for `gpu.example.com`, the DynamicResources scheduler
+# plugin finds no candidate device and this pod stays Pending with a
+# FailedScheduling event.
+#
+# spec.resourceClaims names the claims for the pod; each container opts in
+# by listing a name under resources.claims. A claim that no container
+# references is still allocated and reserved for the pod, but is not made
+# available inside any container.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dra-demo
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: dra-demo
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  resourceClaims:
+    # Generated per pod from the template and deleted with the pod.
+    - name: private
+      resourceClaimTemplateName: private-gpu
+    # An existing, long-lived claim; other pods may share the same device.
+    - name: shared
+      resourceClaimName: shared-gpu
+  containers:
+    - name: trainer
+      image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+      command: ["sleep", "3600"]
+      resources:
+        claims:
+          - name: private
+          - name: shared
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

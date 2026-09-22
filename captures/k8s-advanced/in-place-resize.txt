@@ -1,0 +1,7 @@
+$ kubectl -n tasklane apply -f examples/autoscaling/in-place-resize.yaml && kubectl -n tasklane wait --for=condition=Ready pod/tasklane-resize-demo --timeout=90s && kubectl -n tasklane patch pod tasklane-resize-demo --subresource resize -p '{"spec":{"containers":[{"name":"demo","resources":{"requests":{"cpu":"200m"}}}]}}' && kubectl -n tasklane get pod tasklane-resize-demo -o jsonpath='{.spec.containers[0].resources}{"\n"}{.status.containerStatuses[0].resources}{"\n"}' && kubectl -n tasklane delete pod tasklane-resize-demo --wait=false
+pod/tasklane-resize-demo created
+pod/tasklane-resize-demo condition met
+pod/tasklane-resize-demo patched
+{"limits":{"memory":"64Mi"},"requests":{"cpu":"200m","memory":"32Mi"}}
+{"limits":{"memory":"64Mi"},"requests":{"cpu":"200m","memory":"32Mi"}}
+pod "tasklane-resize-demo" deleted from tasklane namespace

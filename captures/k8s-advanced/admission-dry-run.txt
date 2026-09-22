@@ -1,0 +1,5 @@
+$ kubectl apply --dry-run=server -f examples/admission/
+mutatingadmissionpolicy.admissionregistration.k8s.io/tasklane-default-team.tasklane.example.com created (server dry run)
+mutatingadmissionpolicybinding.admissionregistration.k8s.io/tasklane-default-team.tasklane.example.com created (server dry run)
+validatingadmissionpolicy.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com created (server dry run)
+validatingadmissionpolicybinding.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com created (server dry run)

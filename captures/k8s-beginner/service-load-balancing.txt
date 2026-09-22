@@ -1,0 +1,12 @@
+$ kubectl -n tasklane-basics exec config-demo -- sh -c 'for i in 1 2 3 4 5 6; do wget -qO- http://hello-api/; echo; done'
+{"host":"hello-api-77bcdbdf4-dwmkj","service":"tasklane-api","version":"dev"}
+
+{"host":"hello-api-77bcdbdf4-kvtdr","service":"tasklane-api","version":"dev"}
+
+{"host":"hello-api-77bcdbdf4-kvtdr","service":"tasklane-api","version":"dev"}
+
+{"host":"hello-api-77bcdbdf4-dwmkj","service":"tasklane-api","version":"dev"}
+
+{"host":"hello-api-77bcdbdf4-kvtdr","service":"tasklane-api","version":"dev"}
+
+{"host":"hello-api-77bcdbdf4-wst9s","service":"tasklane-api","version":"dev"}

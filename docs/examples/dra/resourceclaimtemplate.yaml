@@ -1,0 +1,27 @@
+# A ResourceClaimTemplate: one private device per pod.
+#
+# REQUIRES A DRA DRIVER (see README.md). The resourceclaim controller in
+# kube-controller-manager generates one ResourceClaim per pod from this
+# template, names it `<pod>-<claim-name>-<suffix>`, owns it, and deletes it
+# with the pod. Note the doubled `spec.spec`: the outer spec is the
+# template, the inner one is the ResourceClaim spec.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: private-gpu
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          exactly:
+            deviceClassName: example-gpu
+            count: 1
+            selectors:
+              - cel:
+                  expression: |-
+                    device.attributes["gpu.example.com"].model == "LATEST-GPU-MODEL" &&
+                    device.capacity["gpu.example.com"].memory.isGreaterThan(quantity("40Gi"))

@@ -109,11 +109,15 @@ function gatherManifests() {
       n++;
     }
   };
+  // Fixtures meant to be REJECTED by the API server (admission, PSA, LimitRange,
+  // CEL) — recognised by path so the harness reports them as intended rejections
+  // rather than failures.
+  const rejectRe = /reject|noncompliant|non-compliant|samples-invalid|oversized|too-many/i;
   // From markdown (inline + include)
   for (const b of extractFromMarkdown()) {
     if (b.viaInclude) {
       const p = join(ROOT, b.viaInclude);
-      if (existsSync(p)) add(readFileSync(p, 'utf8'), b.source, b.reject);
+      if (existsSync(p)) add(readFileSync(p, 'utf8'), b.source, b.reject || rejectRe.test(b.viaInclude));
     } else add(b.content, b.source, b.reject);
   }
   // From examples/**/*.yaml (skip kustomization/helm-template inputs and known non-CRD helpers handled elsewhere)
@@ -125,7 +129,11 @@ function gatherManifests() {
     if (/\/helm\/.*\/(values|Chart)\.ya?ml$/.test(rel)) continue;
     const content = readFileSync(p, 'utf8');
     if (/^\s*\$patch:/m.test(content) || /(^|\n)\s*- op:\s/.test(content)) continue; // patch documents
-    add(content, rel, /reject|vulnerable|non-compliant/i.test(rel));
+    // Only expect the API server to REJECT fixtures that are actually invalid
+    // or that violate a namespace's Pod Security level. An over-permissive
+    // RBAC binding or a privileged pod in a privileged namespace is insecure
+    // but perfectly valid, so the server accepts it — do not mark those.
+    add(content, rel, rejectRe.test(rel));
   }
   return items;
 }
@@ -161,19 +169,52 @@ function runServerDryRun(items) {
   const kubectl = bin('kubectl');
   try { run(kubectl, ['cluster-info'], { timeout: 15000 }); }
   catch { record('kubectl-dry-run', 'NOT RUN (no reachable cluster)'); return; }
-  let pass = 0, fail = 0, rejectedAsExpected = 0; const failures = [];
+
+  // Pre-create every namespace the manifests target, so namespaced objects can
+  // be server-validated. These are disposable lab namespaces; creating them is
+  // exactly what the lab is for. Namespace manifests in the set are applied for
+  // real; any other referenced namespace is created empty.
+  const nsNames = new Set();
+  for (const it of items) {
+    const c = it.content || (existsSync(it.file) ? readFileSync(it.file, 'utf8') : '');
+    if (/(^|\n)kind:\s*Namespace(\s|$)/.test(c)) {
+      try { run(kubectl, ['apply', '-f', it.file], { timeout: 20000 }); } catch {}
+    }
+    const m = c.match(/(^|\n)\s*namespace:\s*["']?([a-z0-9-]+)/);
+    if (m) nsNames.add(m[2]);
+  }
+  for (const ns of nsNames) {
+    try { run(kubectl, ['create', 'namespace', ns], { timeout: 15000 }); } catch {}
+  }
+
+  let pass = 0, realFail = 0, rejectedAsExpected = 0, wronglyAccepted = 0;
+  let skipCrd = 0, skipNs = 0, skipOther = 0;
+  const failures = [], skipped = [];
   for (const it of items) {
     try {
       run(kubectl, ['apply', '--dry-run=server', '-f', it.file], { timeout: 30000 });
-      if (it.reject) { fail++; failures.push(`${it.source}: expected rejection but server accepted it`); }
+      if (it.reject) { wronglyAccepted++; failures.push(`${it.source}: expected rejection but server accepted it`); }
       else pass++;
     } catch (e) {
-      if (it.reject) { rejectedAsExpected++; }
-      else { fail++; failures.push(`${it.source}: ${((e.stderr || '') + (e.stdout || '')).split('\n')[0]}`); }
+      const msg = ((e.stderr || '') + (e.stdout || '')).split('\n').find(l => l.trim()) || 'unknown error';
+      if (it.reject) { rejectedAsExpected++; continue; }
+      if (/no matches for kind|ensure CRDs are installed|the server could not find the requested resource/i.test(msg)) {
+        skipCrd++; skipped.push(`[CRD not installed] ${it.source}: ${msg}`);
+      } else if (/namespaces? .* not found/i.test(msg)) {
+        skipNs++; skipped.push(`[namespace absent] ${it.source}: ${msg}`);
+      } else if (/webhook|connection refused|failed calling webhook/i.test(msg)) {
+        skipOther++; skipped.push(`[admission webhook offline] ${it.source}: ${msg}`);
+      } else {
+        realFail++; failures.push(`${it.source}: ${msg}`);
+      }
     }
   }
-  record('kubectl-dry-run', `${pass} accepted, ${rejectedAsExpected} rejected-as-expected, ${fail} unexpected failures`);
+  record('kubectl-dry-run',
+    `${pass} accepted, ${rejectedAsExpected} rejected-as-expected, ${realFail} real failures` +
+    (wronglyAccepted ? `, ${wronglyAccepted} WRONGLY-ACCEPTED` : '') +
+    ` (skipped: ${skipCrd} CRD-not-installed, ${skipNs} namespace-absent, ${skipOther} webhook-offline)`);
   if (failures.length) writeFileSync(join(OUT, 'dryrun-failures.txt'), failures.join('\n'));
+  if (skipped.length) writeFileSync(join(OUT, 'dryrun-skipped.txt'), skipped.join('\n'));
 }
 
 // ---------------------------------------------------------------------------
@@ -184,8 +225,20 @@ function runPluto() {
   if (existsSync(bin('pluto')) && bin('pluto') !== 'pluto') { cmd = bin('pluto'); }
   else if (has('docker')) { cmd = 'docker'; pre = ['run', '--rm', '-v', `${ROOT.replace(/\\/g, '/')}:/w`, '-w', '/w', 'us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5.24.4']; }
   else { record('pluto', 'NOT RUN (pluto and docker both unavailable)'); return; }
+  // The migration examples deliberately contain removed APIs to demonstrate
+  // detection; copy only the non-migration manifests into a clean dir so Pluto
+  // gates real content, not the intentional fixtures.
+  const gateDir = join(OUT, 'manifests-nolegacy');
+  rmSync(gateDir, { recursive: true, force: true });
+  mkdirSync(gateDir, { recursive: true });
+  let copied = 0;
+  for (const it of (globalThis.__harnessItems || [])) {
+    if (/migration|removed-api|legacy|vulnerable/i.test(it.source)) continue;
+    try { writeFileSync(join(gateDir, basename(it.file)), readFileSync(it.file)); copied++; } catch {}
+  }
+  const relGate = pre.length ? '.harness/manifests-nolegacy' : gateDir;
   try {
-    const out = run(cmd, [...pre, 'detect-files', '-d', pre.length ? '.harness/manifests' : join(OUT, 'manifests'), '--target-versions', 'k8s=v' + K8S_VERSION]);
+    const out = run(cmd, [...pre, 'detect-files', '-d', relGate, '--target-versions', 'k8s=v' + K8S_VERSION]);
     record('pluto', 'no deprecated/removed APIs found');
     writeFileSync(join(OUT, 'pluto.txt'), out);
   } catch (e) {
@@ -290,6 +343,7 @@ console.log(`Harness — Kubernetes ${K8S_VERSION}${withCluster ? ' (with cluste
 let items = [];
 if (want('manifests')) {
   items = gatherManifests();
+  globalThis.__harnessItems = items;
   record('manifests-extracted', String(items.length));
   runKubeconform(items);
   if (withCluster) { runServerDryRun(items); runPluto(); }

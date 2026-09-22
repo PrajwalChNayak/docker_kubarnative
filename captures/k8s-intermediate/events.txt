@@ -1,0 +1,26 @@
+$ kubectl -n tasklane get events --sort-by=.lastTimestamp | tail -25
+5m11s       Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/tasklane-api        invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+5m11s       Warning   FailedGetResourceMetric        horizontalpodautoscaler/tasklane-api        failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+9s          Normal    SuccessfulCreate               replicaset/tasklane-api-77b7f55948          Created pod: tasklane-api-77b7f55948-tztnd
+9s          Normal    ScalingReplicaSet              deployment/tasklane-api                     Scaled up replica set tasklane-api-77b7f55948 from 0 to 1
+8s          Normal    Started                        pod/tasklane-api-77b7f55948-tztnd           Container started
+8s          Normal    Created                        pod/tasklane-api-77b7f55948-tztnd           Container created
+8s          Normal    Pulled                         pod/tasklane-api-77b7f55948-tztnd           Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+7s          Normal    Created                        pod/tasklane-api-77b7f55948-tztnd           Container created
+7s          Normal    Pulled                         pod/tasklane-api-77b7f55948-tztnd           Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+7s          Normal    Started                        pod/tasklane-api-77b7f55948-tztnd           Container started
+6s          Normal    Killing                        pod/tasklane-api-9dddb5cf6-98hls            Stopping container api
+6s          Normal    ScalingReplicaSet              deployment/tasklane-api                     Scaled up replica set tasklane-api-77b7f55948 from 1 to 2
+6s          Normal    ScalingReplicaSet              deployment/tasklane-api                     Scaled down replica set tasklane-api-9dddb5cf6 from 2 to 1
+6s          Normal    SuccessfulDelete               replicaset/tasklane-api-9dddb5cf6           Deleted pod: tasklane-api-9dddb5cf6-98hls
+6s          Normal    SuccessfulCreate               replicaset/tasklane-api-77b7f55948          Created pod: tasklane-api-77b7f55948-tvcg4
+5s          Normal    Pulled                         pod/tasklane-api-77b7f55948-tvcg4           Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+5s          Normal    Created                        pod/tasklane-api-77b7f55948-tvcg4           Container created
+5s          Normal    Started                        pod/tasklane-api-77b7f55948-tvcg4           Container started
+4s          Normal    Pulled                         pod/tasklane-api-77b7f55948-tvcg4           Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+4s          Normal    Started                        pod/tasklane-api-77b7f55948-tvcg4           Container started
+4s          Normal    Created                        pod/tasklane-api-77b7f55948-tvcg4           Container created
+3s          Normal    SuccessfulDelete               replicaset/tasklane-api-9dddb5cf6           Deleted pod: tasklane-api-9dddb5cf6-t8px5
+3s          Warning   Unhealthy                      pod/tasklane-api-9dddb5cf6-98hls            Readiness probe failed: HTTP probe failed with statuscode: 503
+3s          Normal    Killing                        pod/tasklane-api-9dddb5cf6-t8px5            Stopping container api
+3s          Normal    ScalingReplicaSet              deployment/tasklane-api                     Scaled down replica set tasklane-api-9dddb5cf6 from 1 to 0

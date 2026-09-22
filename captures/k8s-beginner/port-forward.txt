@@ -1,0 +1,8 @@
+$ kubectl -n tasklane port-forward svc/tasklane-api 18080:80 & PF=$!; sleep 4; curl -s http://127.0.0.1:18080/; echo; curl -s http://127.0.0.1:18080/readyz; kill $PF
+Forwarding from 127.0.0.1:18080 -> 8080
+Forwarding from [::1]:18080 -> 8080
+Handling connection for 18080
+{"host":"tasklane-api-9dddb5cf6-98hls","service":"tasklane-api","version":"dev"}
+
+Handling connection for 18080
+ready

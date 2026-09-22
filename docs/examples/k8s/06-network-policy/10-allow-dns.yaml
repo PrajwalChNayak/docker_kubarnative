@@ -1,0 +1,39 @@
+# Stage 6, step 2: let every pod reach cluster DNS.
+#
+# This is the rule people forget. After a default-deny egress policy, name
+# resolution stops, and the symptom is not "blocked" but "no such host":
+# connecting to "postgres" fails before a single packet reaches port 5432.
+#
+# The peer is CoreDNS in kube-system, matched by the namespace's automatic
+# kubernetes.io/metadata.name label AND by the CoreDNS pod label. Both
+# selectors sit in ONE list item, so they are ANDed: pods labelled
+# k8s-app=kube-dns *inside* kube-system. Two list items would be an OR, which
+# here would mean "everything in kube-system, plus every k8s-app=kube-dns pod
+# in any namespace" - a much wider hole.
+#
+# Both protocols are listed: DNS uses UDP first and retries over TCP for large
+# answers.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

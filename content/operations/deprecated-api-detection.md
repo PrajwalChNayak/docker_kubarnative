@@ -21,7 +21,8 @@ apiserver's own `apiserver_requested_deprecated_apis` metric, and using the
 
 :::note Nothing was removed in 1.33–1.37
 No API versions were removed in Kubernetes 1.33 through 1.37 — the last removal
-was `flowcontrol.apiserver.k8s.io/v1beta3` in **1.32**. So on today's supported
+was the `flowcontrol.apiserver.k8s.io` v1beta3 FlowSchema and
+PriorityLevelConfiguration in **1.32**. So on today's supported
 minors these scans should come back clean. The point is to build the habit and
 the tooling now, so the minor that *does* remove an API (there will be one)
 finds you ready.

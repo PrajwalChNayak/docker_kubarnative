@@ -1,0 +1,4 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null && curl -s -o /dev/null -X POST -H 'Content-Type: application/json' -d '{"title":"processed by the worker"}' http://127.0.0.1:8088/tasks && sleep 5 && docker logs --tail 6 tasklane-worker; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+{"time":"2026-09-22T07:05:00.448930242Z","level":"INFO","msg":"worker started","svc":"worker","version":"dev","work_ms":1500,"poll_ms":1000}
+{"time":"2026-09-22T07:05:08.479628866Z","level":"INFO","msg":"processing","svc":"worker","version":"dev","task":1,"title":"processed by the worker"}
+{"time":"2026-09-22T07:05:09.986206235Z","level":"INFO","msg":"done","svc":"worker","version":"dev","task":1}

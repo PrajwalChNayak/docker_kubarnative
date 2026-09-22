@@ -1,0 +1,7 @@
+$ kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations
+NAME                                                                               WEBHOOKS   AGE
+validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook   1          23h
+
+NAME                                                                                                             WEBHOOKS   AGE
+mutatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook                                   1          23h
+mutatingwebhookconfiguration.admissionregistration.k8s.io/envoy-gateway-topology-injector.envoy-gateway-system   1          23h

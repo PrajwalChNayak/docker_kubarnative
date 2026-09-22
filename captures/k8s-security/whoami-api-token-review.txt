@@ -1,0 +1,4 @@
+$ kubectl auth whoami --as=system:serviceaccount:tasklane:tasklane-api
+ATTRIBUTE   VALUE
+Username    system:serviceaccount:tasklane:tasklane-api
+Groups      [system:serviceaccounts system:serviceaccounts:tasklane system:authenticated]

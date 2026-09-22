@@ -1,0 +1,4 @@
+$ kubectl -n envoy-gateway-system get svc -o wide
+NAME                               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                            AGE   SELECTOR
+envoy-gateway                      ClusterIP   10.96.217.223   <none>        18000/TCP,18001/TCP,18002/TCP,19001/TCP,9443/TCP   23h   app.kubernetes.io/instance=eg,app.kubernetes.io/name=gateway-helm,control-plane=envoy-gateway
+envoy-tasklane-tasklane-8e4ae9b5   NodePort    10.96.14.59     <none>        80:30080/TCP,443:30443/TCP                         23h   app.kubernetes.io/component=proxy,app.kubernetes.io/managed-by=envoy-gateway,app.kubernetes.io/name=envoy,gateway.envoyproxy.io/owning-gateway-name=tasklane,gateway.envoyproxy.io/owning-gateway-namespace=tasklane

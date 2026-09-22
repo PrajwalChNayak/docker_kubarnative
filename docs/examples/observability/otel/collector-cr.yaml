@@ -1,0 +1,64 @@
+# OpenTelemetry Collector as a Custom Resource. REQUIRES the OpenTelemetry
+# Operator (install it first; see this directory's README). The operator
+# reconciles this CR into a Deployment, ConfigMap, Service and RBAC, and keeps
+# the generated config in sync. If you do not run the operator, use
+# collector-raw.yaml instead.
+#
+# This is a gateway collector (mode: deployment): application pods send OTLP to
+# it, it batches and fans out to a traces backend, a metrics backend and a logs
+# backend. Collector v0.161.0 config schema.
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: tasklane
+  namespace: observability
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  mode: deployment
+  replicas: 1
+  config:
+    receivers:
+      # Accept OTLP over gRPC (4317) and HTTP (4318) from instrumented apps.
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      # memory_limiter must be first in every pipeline: it sheds load before
+      # the collector OOMs. batch reduces export overhead and backend load.
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+      batch:
+        send_batch_size: 8192
+        timeout: 5s
+    exporters:
+      # Replace these endpoints with your real backends.
+      otlphttp/tempo:
+        endpoint: http://tempo.observability.svc.cluster.local:4318
+      otlphttp/loki:
+        endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+      # Expose collected metrics for Prometheus to scrape.
+      prometheus:
+        endpoint: 0.0.0.0:8889
+      # Keep a debug exporter while wiring things up; remove it in production.
+      debug:
+        verbosity: normal
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlphttp/tempo]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [prometheus]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlphttp/loki]

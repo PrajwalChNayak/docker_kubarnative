@@ -1,0 +1,37 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/crashloopbackoff.yaml && sleep 30 && kubectl -n troubleshoot get pods -l case=crashloop && echo "--- describe ---" && kubectl -n troubleshoot describe pod -l case=crashloop | tail -30 && echo "--- previous logs ---" && kubectl -n troubleshoot logs -l case=crashloop --previous --tail=20; kubectl delete -f examples/troubleshooting/crashloopbackoff.yaml
+pod/crashloop created
+NAME        READY   STATUS   RESTARTS      AGE
+crashloop   0/1     Error    2 (29s ago)   32s
+--- describe ---
+      memory:     16Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-mldkm (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-mldkm:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  32s                default-scheduler  Successfully assigned troubleshoot/crashloop to tasklane-worker2
+  Normal   Pulled     19s (x3 over 32s)  kubelet            spec.containers{app}: Container image "busybox:1.37" already present on machine and can be accessed by the pod
+  Normal   Created    19s (x3 over 32s)  kubelet            spec.containers{app}: Container created
+  Normal   Started    19s (x3 over 32s)  kubelet            spec.containers{app}: Container started
+  Warning  BackOff    17s (x2 over 29s)  kubelet            spec.containers{app}: Back-off restarting failed container app in pod crashloop_troubleshoot(4f83aa31-0b82-4632-be7c-87876698eb20)
+--- previous logs ---
+unable to retrieve container logs for containerd://72cb233eeff618d05cbcd40b85b1914d24d643703a47f471ea7ee540ed50b656pod "crashloop" deleted from troubleshoot namespace

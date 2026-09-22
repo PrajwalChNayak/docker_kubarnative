@@ -1,0 +1,27 @@
+# Base: the route that attaches the API to the lab Gateway.
+#
+# The lab Gateway lives in the `tasklane` namespace (examples/k8s/04-gateway),
+# so the parentRef names that namespace explicitly. The overlays put this
+# HTTPRoute in tasklane-dev / tasklane-staging / tasklane-prod, which makes the
+# attachment cross-namespace: the Gateway listener must allow it. See the
+# README ("Cross-namespace routes") for the one change the lab Gateway needs.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-api
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+spec:
+  parentRefs:
+    - name: tasklane
+      namespace: tasklane
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: tasklane-api
+          port: 80

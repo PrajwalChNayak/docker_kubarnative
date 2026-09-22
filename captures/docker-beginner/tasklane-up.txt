@@ -1,0 +1,17 @@
+$ bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null 2>&1; bash examples/docker-run/tasklane-docker-run.sh; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+==> creating network tasklane-net
+==> creating volume tasklane-db-data
+==> creating volume tasklane-secrets
+==> generating database password in volume tasklane-secrets
+==> starting tasklane-db
+==> tasklane-db is healthy
+==> running migration
+{"time":"2026-09-22T07:03:00.846446106Z","level":"INFO","msg":"migration complete","svc":"api","version":"dev"}
+==> starting tasklane-api on 127.0.0.1:8088
+==> starting tasklane-worker
+==> tasklane-api is healthy
+==> tasklane-worker is healthy
+==> Tasklane is running. Try:
+    curl http://127.0.0.1:8088/
+    curl -X POST -H 'Content-Type: application/json' -d '{"title":"hello"}' http://127.0.0.1:8088/tasks
+    curl http://127.0.0.1:8088/tasks

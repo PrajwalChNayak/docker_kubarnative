@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl get --raw /apis/metrics.k8s.io/
+# reason: Error from server (NotFound): the server could not find the requested resource

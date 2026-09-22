@@ -1,0 +1,50 @@
+# Base: the three Services. Selectors use app.kubernetes.io/name only, so the
+# `labels:` transformer in kustomization.yaml must not inject into selectors
+# (includeSelectors: false) — Deployment selectors are immutable after create.
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklane-api
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tasklane-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  # Headless: stable DNS for the StatefulSet pod.
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklane-worker-metrics
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+spec:
+  selector:
+    app.kubernetes.io/name: tasklane-worker
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: metrics

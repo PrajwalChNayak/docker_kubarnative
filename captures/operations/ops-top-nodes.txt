@@ -1,0 +1,5 @@
+$ kubectl top nodes
+NAME                     CPU(cores)   CPU(%)      MEMORY(bytes)   MEMORY(%)   
+tasklane-control-plane   253m         1%          1297Mi          16%         
+tasklane-worker2         229m         1%          786Mi           10%         
+tasklane-worker          <unknown>    <unknown>   <unknown>       <unknown>

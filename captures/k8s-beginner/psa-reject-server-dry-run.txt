@@ -1,0 +1,2 @@
+$ kubectl -n tasklane-basics run psa-test --image=busybox:1.37 --dry-run=server -- sleep 1; echo "exit: $?"
+exit: 1

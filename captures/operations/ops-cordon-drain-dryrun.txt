@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl drain tasklane-worker --ignore-daemonsets --delete-emptydir-data --dry-run=client
+# reason: error: unable to drain node "tasklane-worker" due to error: cannot delete Pods that declare no controller (use --force to override): default/node-debugger-tasklane-worker-9ct4w, continuing command... There are pending nodes to be drained:  tasklane-worker

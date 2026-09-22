@@ -1,0 +1,60 @@
+$ docker buildx imagetools inspect golang:1.27-trixie
+Name:      docker.io/library/golang:1.27-trixie
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:433790e515d27dc6003e847e644cc0af956985cf315c1c58a3b73ee2dd305183
+           
+Manifests: 
+  Name:        docker.io/library/golang:1.27-trixie@sha256:7bffdb405cd12940d2980daa49a86ef575ed4525a17ee7d0c9562547357ab46a
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+  Annotations: 
+    org.opencontainers.image.revision:        c4664da1bd8d0cbc975460744d90c031b409c215
+    org.opencontainers.image.source:          https://github.com/docker-library/golang.git#c4664da1bd8d0cbc975460744d90c031b409c215:1.27/trixie
+    org.opencontainers.image.url:             https://hub.docker.com/_/golang
+    org.opencontainers.image.version:         1.27.1-trixie
+    com.docker.official-images.bashbrew.arch: amd64
+    org.opencontainers.image.base.digest:     sha256:abe50ed87d1abd578b7a0d4cdec1e2ae88c4ff9c78646d8d757934e77cbe25c9
+    org.opencontainers.image.base.name:       buildpack-deps:trixie-scm
+    org.opencontainers.image.created:         2026-09-19T02:16:16Z
+               
+  Name:        docker.io/library/golang:1.27-trixie@sha256:229e4de59d56b122ef9b5640ec7167895d9c8f185eb4d5adf542a40a816f5367
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    com.docker.official-images.bashbrew.arch: amd64
+    vnd.docker.reference.digest:              sha256:7bffdb405cd12940d2980daa49a86ef575ed4525a17ee7d0c9562547357ab46a
+    vnd.docker.reference.type:                attestation-manifest
+               
+  Name:        docker.io/library/golang:1.27-trixie@sha256:5cd49a1e0c05e19eae3044d4aa75b99f0d5571515139d1d3b39016ad639a2a41
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm/v7
+  Annotations: 
+    com.docker.official-images.bashbrew.arch: arm32v7
+    org.opencontainers.image.base.digest:     sha256:41e041010a68c74d532905179aaa84a59727eea7f337de5fce5bd9c810e618a6
+    org.opencontainers.image.base.name:       buildpack-deps:trixie-scm
+    org.opencontainers.image.created:         2026-09-19T03:17:31Z
+    org.opencontainers.image.revision:        c4664da1bd8d0cbc975460744d90c031b409c215
+    org.opencontainers.image.source:          https://github.com/docker-library/golang.git#c4664da1bd8d0cbc975460744d90c031b409c215:1.27/trixie
+    org.opencontainers.image.url:             https://hub.docker.com/_/golang
+    org.opencontainers.image.version:         1.27.1-trixie
+               
+  Name:        docker.io/library/golang:1.27-trixie@sha256:abb1820b671e6ae9522bf4ffdb2a598c1ff8a24bc947d5694d6c9887483ad334
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    com.docker.official-images.bashbrew.arch: arm32v7
+    vnd.docker.reference.digest:              sha256:5cd49a1e0c05e19eae3044d4aa75b99f0d5571515139d1d3b39016ad639a2a41
+    vnd.docker.reference.type:                attestation-manifest
+               
+  Name:        docker.io/library/golang:1.27-trixie@sha256:9fef6c185fa8277ea98a09c2067351103b002cce3a421771dceb241c25a22529
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm64/v8
+  Annotations: 
+    org.opencontainers.image.url:             https://hub.docker.com/_/golang
+    org.opencontainers.image.version:         1.27.1-trixie
+    com.docker.official-images.bashbrew.arch: arm64v8
+    org.opencontainers.image.base.digest:     sha256:e26bfa70ca9cfdb5ca5956706d3edb8e3a7810e434fa9d00d89428fe13a35b40
+    org.opencontainers.image.base.name:       buildpack-deps:trixie-scm
+    org.opencontainers.image.created:         2026-09-19T02:15:39Z
+    org.opencontainers.image.revision:        c4664da1bd8d0cbc975460744d90c031b409c215
+    org.opencontainers.image.source:          https://github.com/docker-library/golang.git#c4664da1bd8d0cbc975460744d90c031b409c215:1.27/trixie

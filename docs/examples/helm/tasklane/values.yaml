@@ -1,0 +1,142 @@
+# Default values for the tasklane chart.
+# Every key here is validated by values.schema.json, so a typo fails the
+# install instead of rendering a surprising manifest.
+
+# Override the generated resource names. fullnameOverride: tasklane gives the
+# same object names the raw manifests in examples/k8s use.
+nameOverride: ""
+fullnameOverride: ""
+
+# Pull secrets for private registries, e.g. [{name: regcred}].
+imagePullSecrets: []
+
+api:
+  replicaCount: 2
+  image:
+    repository: tasklane-api
+    tag: "0.1.0"
+    # Set digest to pin by content. It wins over tag when both are set.
+    digest: ""
+    pullPolicy: IfNotPresent
+  service:
+    port: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  topologySpreadConstraints: []
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+worker:
+  replicaCount: 2
+  image:
+    repository: tasklane-worker
+    tag: "0.1.0"
+    digest: ""
+    pullPolicy: IfNotPresent
+  metricsPort: 9090
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
+
+serviceAccount:
+  create: true
+  # Neither workload talks to the Kubernetes API, so no token is mounted.
+  automount: false
+  annotations: {}
+
+database:
+  # host defaults to the in-chart PostgreSQL Service when postgresql.enabled is
+  # true. Set it to the real hostname when using a managed database.
+  host: ""
+  port: 5432
+  user: tasklane
+  name: tasklane
+  # disable is only acceptable for an in-cluster lab database. Use require or
+  # verify-full against anything else.
+  sslMode: disable
+  # The chart never creates a Secret and never renders a password. This Secret
+  # must already exist in the release namespace with the key below.
+  existingSecret: tasklane-db
+  existingSecretKey: password
+
+# Extra non-secret environment for both workloads; merged into the ConfigMap.
+config:
+  SHUTDOWN_DELAY_SECONDS: "5"
+  WORK_DURATION_MS: "2000"
+  POLL_INTERVAL_MS: "1000"
+
+# Schema migration as a pre-install,pre-upgrade hook Job running
+# `tasklane-api migrate`.
+migrations:
+  enabled: true
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
+# A single-replica PostgreSQL for labs and review environments, so that the
+# chart installs on an empty namespace with no arguments. Turn it OFF in
+# production (postgresql.enabled=false plus database.host=<managed endpoint>):
+# a database in the same release shares its lifecycle with the application,
+# and a pre-install hook cannot reach a database that same release creates.
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 18-trixie
+    digest: sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+    pullPolicy: IfNotPresent
+  storage:
+    size: 1Gi
+    storageClassName: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+httpRoute:
+  enabled: true
+  parentRef:
+    name: tasklane
+    # Empty means the release namespace. The lab Gateway lives in tasklane.
+    namespace: tasklane
+    sectionName: http
+  hostnames: []
+  pathPrefix: /
+
+networkPolicy:
+  # Needs a CNI that enforces NetworkPolicy.
+  enabled: false
+  gatewayNamespace: envoy-gateway-system
+
+tests:
+  # `helm test` pod. busybox pinned by digest, run as 65534.
+  image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23

@@ -1,0 +1,24 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/pvc-pending.yaml && sleep 10 && kubectl -n troubleshoot get pvc pvc-pending && echo "--- describe ---" && kubectl -n troubleshoot describe pvc pvc-pending | tail -15 && echo "--- storageclasses ---" && kubectl get storageclass; kubectl delete -f examples/troubleshooting/pvc-pending.yaml
+persistentvolumeclaim/pvc-pending created
+NAME          STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS                   VOLUMEATTRIBUTESCLASS   AGE
+pvc-pending   Pending                                      fast-ssd-that-does-not-exist   <unset>                 11s
+--- describe ---
+Namespace:     troubleshoot
+StorageClass:  fast-ssd-that-does-not-exist
+Status:        Pending
+Volume:        
+Labels:        case=pvc-pending
+Annotations:   <none>
+Finalizers:    [kubernetes.io/pvc-protection]
+Capacity:      
+Access Modes:  
+VolumeMode:    Filesystem
+Used By:       <none>
+Events:
+  Type     Reason              Age   From                         Message
+  ----     ------              ----  ----                         -------
+  Warning  ProvisioningFailed  13s   persistentvolume-controller  storageclass.storage.k8s.io "fast-ssd-that-does-not-exist" not found
+--- storageclasses ---
+NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  24h
+persistentvolumeclaim "pvc-pending" deleted from troubleshoot namespace

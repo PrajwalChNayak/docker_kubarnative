@@ -1,0 +1,4 @@
+$ export MSYS_NO_PATHCONV=1; docker rm -f exec-api >/dev/null 2>&1; docker run -d --name exec-api tasklane-api:0.1.0 >/dev/null; sleep 2; docker exec exec-api sh -c 'echo hi'; echo "exit=$?"; docker exec exec-api /api healthcheck; echo "healthcheck exit=$?"; docker rm -f exec-api >/dev/null
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+exit=127
+healthcheck exit=0

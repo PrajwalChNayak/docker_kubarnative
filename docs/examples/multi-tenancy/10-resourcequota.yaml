@@ -1,0 +1,55 @@
+# Compute quota. The moment a namespace has a quota on requests.cpu or
+# requests.memory, every container in it must set that request, or the pod
+# is rejected at admission. That is why the LimitRange in 20-limitrange.yaml
+# is not optional: it supplies the defaults.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-a-compute
+  namespace: team-a
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    pods: "40"
+---
+# Object-count quota. Without it a tenant can exhaust cluster-scoped things
+# that have nothing to do with CPU: LoadBalancer Services cost real money,
+# and unbounded PVCs fill the storage backend.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-a-objects
+  namespace: team-a
+spec:
+  hard:
+    count/deployments.apps: "20"
+    count/statefulsets.apps: "5"
+    count/jobs.batch: "20"
+    count/cronjobs.batch: "10"
+    services: "20"
+    services.loadbalancers: "0"
+    services.nodeports: "0"
+    persistentvolumeclaims: "10"
+    requests.storage: 50Gi
+    count/configmaps: "50"
+    count/secrets: "50"
+---
+# Scoped quota: only two pods in this namespace may run at a priority above
+# the default. Without a scoped quota, any tenant that can name a
+# PriorityClass can preempt another tenant's workloads.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-a-high-priority
+  namespace: team-a
+spec:
+  hard:
+    pods: "2"
+  scopeSelector:
+    matchExpressions:
+      - operator: In
+        scopeName: PriorityClass
+        values: ["system-cluster-critical", "high-priority"]

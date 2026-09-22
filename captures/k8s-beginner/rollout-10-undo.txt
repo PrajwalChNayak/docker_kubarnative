@@ -1,0 +1,3 @@
+$ kubectl -n tasklane-basics rollout undo deploy/hello-api && kubectl -n tasklane-basics rollout status deploy/hello-api --timeout=180s
+deployment.apps/hello-api rolled back
+deployment "hello-api" successfully rolled out

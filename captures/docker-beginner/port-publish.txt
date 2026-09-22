@@ -1,0 +1,7 @@
+$ docker rm -f port-demo >/dev/null 2>&1; docker run -d --name port-demo -p 127.0.0.1:8089:8080 tasklane-api:0.1.0 >/dev/null; sleep 2; docker port port-demo; docker ps --filter name=port-demo --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}'; curl -s http://127.0.0.1:8089/; echo; curl -s -o /dev/null -w 'healthz=%{http_code}\n' http://127.0.0.1:8089/healthz; docker rm -f port-demo >/dev/null
+8080/tcp -> 127.0.0.1:8089
+NAMES       IMAGE                PORTS
+port-demo   tasklane-api:0.1.0   127.0.0.1:8089->8080/tcp
+{"host":"6ad77453e02d","service":"tasklane-api","version":"dev"}
+
+healthz=200

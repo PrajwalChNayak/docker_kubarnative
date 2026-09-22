@@ -1,0 +1,6 @@
+$ bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null 2>&1; bash examples/docker-run/tasklane-docker-run.sh >/dev/null && curl -s -o /dev/null -X POST -H 'Content-Type: application/json' -d '{"title":"survives a rebuild"}' http://127.0.0.1:8088/tasks && bash examples/docker-run/tasklane-docker-cleanup.sh >/dev/null && docker volume ls --filter name=tasklane && bash examples/docker-run/tasklane-docker-run.sh >/dev/null && curl -s http://127.0.0.1:8088/tasks && echo; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+DRIVER    VOLUME NAME
+local     tasklane-db-data
+local     tasklane-secrets
+local     tasklane_db-data
+[{"id":1,"title":"survives a rebuild","status":"processing","created_at":"2026-09-22T07:07:50.952769Z","worker":"d83181dfc7d1"}]

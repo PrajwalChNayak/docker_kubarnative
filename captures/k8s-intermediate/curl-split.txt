@@ -1,0 +1,2 @@
+$ for i in $(seq 1 20); do curl -s --cacert /tmp/tasklane-ca.crt --resolve tasklane.localhost:8443:127.0.0.1 https://tasklane.localhost:8443/; echo; done | sort | uniq -c
+     20

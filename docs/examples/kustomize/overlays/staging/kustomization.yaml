@@ -1,0 +1,70 @@
+# Staging overlay: production shape, release-candidate images, no secrets in
+# git. The Secret tasklane-db is created out of band (by the platform team or
+# by External Secrets, as in the prod overlay).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+components:
+  - ../../components/network-policy
+
+namespace: tasklane-staging
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: tasklane-staging
+      tasklane.example.com/environment: staging
+    includeSelectors: false
+    includeTemplates: true
+
+images:
+  - name: tasklane-api
+    newTag: 0.1.0-rc.3
+  - name: tasklane-worker
+    newTag: 0.1.0-rc.3
+
+replicas:
+  - name: tasklane-api
+    count: 2
+  - name: tasklane-worker
+    count: 2
+
+configMapGenerator:
+  - name: tasklane-config
+    behavior: merge
+    literals:
+      - SHUTDOWN_DELAY_SECONDS=10
+
+patches:
+  - path: patches/worker-staging.yaml
+  # Service ports merge on the key `port`, so a strategic merge patch that set
+  # port: 8080 would add a second port instead of changing the first one.
+  # JSON 6902 addresses the element by index and replaces it.
+  - target:
+      version: v1
+      kind: Service
+      name: tasklane-api
+    patch: |-
+      - op: replace
+        path: /spec/ports/0/port
+        value: 8080
+
+# The route must keep pointing at whatever port the Service exposes. A
+# replacement copies the live value instead of repeating it, so the two can
+# never drift.
+replacements:
+  - source:
+      version: v1
+      kind: Service
+      name: tasklane-api
+      fieldPath: spec.ports.[name=http].port
+    targets:
+      - select:
+          group: gateway.networking.k8s.io
+          kind: HTTPRoute
+          name: tasklane-api
+        fieldPaths:
+          - spec.rules.0.backendRefs.0.port

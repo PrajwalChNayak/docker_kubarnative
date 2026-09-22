@@ -1,0 +1,70 @@
+# FAULT: the Service selector does not match the pod labels. The Deployment's
+# pods carry app.kubernetes.io/name: sample-app, but the Service selects
+# app.kubernetes.io/name: sample-app-typo. No pod matches, so the Service's
+# EndpointSlices stay empty and every request to the Service gets connection
+# refused (or times out). The pods themselves are healthy and Ready.
+#
+# Other causes of an empty EndpointSlice with the same symptom: pods that are
+# running but not Ready (a failing readiness probe), or a targetPort that does
+# not match a container port. Endpoints/EndpointSlice is the first thing to
+# check for a Service that "cannot be reached".
+#
+# FIX: make the Service selector equal the pod labels (change sample-app-typo
+# back to sample-app).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  namespace: troubleshoot
+  labels:
+    case: service-no-endpoints
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sample-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sample-app
+        case: service-no-endpoints
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "sleep 3600"]
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-app
+  namespace: troubleshoot
+  labels:
+    case: service-no-endpoints
+spec:
+  selector:
+    app.kubernetes.io/name: sample-app-typo   # WRONG: matches no pod
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

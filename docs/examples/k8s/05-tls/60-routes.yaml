@@ -1,0 +1,84 @@
+# Stage 5, step 6: routes.
+#
+# Three things are demonstrated here: an HTTP -> HTTPS redirect, weighted
+# traffic splitting, and header-based routing.
+
+# Anything arriving on the plain HTTP listener for tasklane.localhost is bounced
+# to HTTPS. A RequestRedirect filter is terminal: a rule that uses it must not
+# have backendRefs, because the Gateway answers by itself.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-https-redirect
+  namespace: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: http
+  hostnames:
+    - tasklane.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            # The lab reaches the HTTPS listener through kind's host mapping on
+            # 8443, so the redirect has to name that port. On a cluster whose
+            # Gateway really listens on 443, drop this field: the scheme then
+            # implies 443. Valid statusCode values are 301, 302, 303, 307, 308.
+            port: 8443
+            statusCode: 301
+---
+# The application route. It is attached to BOTH listeners with no hostname of
+# its own, so it still serves http://localhost:8080/ (stage 4's entry point)
+# while the redirect route above wins for tasklane.localhost - across routes,
+# a more specific hostname match takes precedence.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+spec:
+  parentRefs:
+    - name: tasklane
+      sectionName: http
+    - name: tasklane
+      sectionName: https
+  rules:
+    # Header matching: an opt-in escape hatch for testing the canary directly.
+    # Rule precedence is computed from the match, not from list order, and a
+    # rule with a header match beats a bare path match on the same path.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+          headers:
+            - name: x-tasklane-track
+              value: canary       # type defaults to Exact
+      filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: x-tasklane-track
+                value: canary
+      backendRefs:
+        - name: tasklane-api-canary
+          port: 80
+    # Traffic splitting. Weights are relative, not percentages: the Gateway
+    # divides each backend's weight by the sum. 9 and 1 is a 90/10 split.
+    # A backendRef with weight 0 receives nothing but stays a valid reference.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: tasklane-api
+          port: 80
+          weight: 9
+        - name: tasklane-api-canary
+          port: 80
+          weight: 1

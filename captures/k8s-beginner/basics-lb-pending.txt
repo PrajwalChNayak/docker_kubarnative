@@ -1,0 +1,23 @@
+$ kubectl -n tasklane-basics get svc hello-api-lb -o wide; kubectl -n tasklane-basics describe svc hello-api-lb
+NAME           TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+hello-api-lb   LoadBalancer   10.96.70.158   <pending>     80:30177/TCP   2m42s   app.kubernetes.io/name=hello-api
+Name:                     hello-api-lb
+Namespace:                tasklane-basics
+Labels:                   app.kubernetes.io/component=api
+                          app.kubernetes.io/name=hello-api
+                          app.kubernetes.io/part-of=tasklane
+Annotations:              <none>
+Selector:                 app.kubernetes.io/name=hello-api
+Type:                     LoadBalancer
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.70.158
+IPs:                      10.96.70.158
+Port:                     http  80/TCP
+TargetPort:               http/TCP
+NodePort:                 http  30177/TCP
+Endpoints:                10.244.2.34:8080,10.244.2.35:8080,10.244.2.36:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Internal Traffic Policy:  Cluster
+Events:                   <none>

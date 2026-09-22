@@ -1,0 +1,19 @@
+# Patterns are gitignore-style and are applied when the chart is packaged.
+# Anything matched here never reaches the .tgz, the OCI registry or the
+# cluster.
+.DS_Store
+.git/
+.gitignore
+.idea/
+.vscode/
+*.tmproj
+*.swp
+*.bak
+*.orig
+*~
+# Local value files that may hold secrets or per-developer overrides.
+values.local.yaml
+ci/
+# Test output and rendered manifests.
+*.tgz
+rendered/

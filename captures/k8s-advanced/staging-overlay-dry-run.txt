@@ -1,0 +1,17 @@
+$ kubectl kustomize examples/kustomize/overlays/staging | kubectl apply --dry-run=client -f - -o name
+namespace/tasklane-staging
+serviceaccount/tasklane-api
+serviceaccount/tasklane-worker
+configmap/tasklane-config-b4mmc26f8f
+service/postgres
+service/tasklane-api
+service/tasklane-worker-metrics
+deployment.apps/tasklane-api
+deployment.apps/tasklane-worker
+statefulset.apps/postgres
+httproute.gateway.networking.k8s.io/tasklane-api
+networkpolicy.networking.k8s.io/allow-api-from-gateway
+networkpolicy.networking.k8s.io/allow-app-egress-to-postgres
+networkpolicy.networking.k8s.io/allow-dns-egress
+networkpolicy.networking.k8s.io/allow-postgres
+networkpolicy.networking.k8s.io/default-deny

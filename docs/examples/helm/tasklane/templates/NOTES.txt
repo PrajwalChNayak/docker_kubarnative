@@ -1,0 +1,33 @@
+{{ .Chart.Name }} {{ .Chart.Version }} (app {{ .Chart.AppVersion }}) installed as release
+"{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+API replicas:    {{ if .Values.api.autoscaling.enabled }}autoscaled {{ .Values.api.autoscaling.minReplicas }}-{{ .Values.api.autoscaling.maxReplicas }}{{ else }}{{ .Values.api.replicaCount }}{{ end }}
+Worker replicas: {{ .Values.worker.replicaCount }}
+Database:        {{ include "tasklane.dbHost" . }}:{{ .Values.database.port }}{{ if .Values.postgresql.enabled }} (in-chart StatefulSet, not for production){{ end }}
+Password from:   Secret/{{ .Values.database.existingSecret }} key {{ .Values.database.existingSecretKey }}
+
+Check the rollout and run the chart tests:
+
+  kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "tasklane.api.fullname" . }}
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }} --logs
+
+Reach the API from inside the cluster:
+
+  http://{{ include "tasklane.api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.api.service.port }}/healthz
+
+{{- if .Values.httpRoute.enabled }}
+
+An HTTPRoute was created for Gateway {{ .Values.httpRoute.parentRef.namespace | default .Release.Namespace }}/{{ .Values.httpRoute.parentRef.name }}.
+If that Gateway is in another namespace, its listener must allow routes from
+{{ .Release.Namespace }}, or the route will report Accepted=False:
+
+  kubectl -n {{ .Values.httpRoute.parentRef.namespace | default .Release.Namespace }} get gateway {{ .Values.httpRoute.parentRef.name }} -o yaml
+  kubectl -n {{ .Release.Namespace }} get httproute {{ include "tasklane.api.fullname" . }} -o yaml
+{{- end }}
+{{- if and .Values.migrations.enabled .Values.postgresql.enabled .Release.IsInstall }}
+
+WARNING: migrations.enabled and postgresql.enabled are both true. The
+pre-install hook runs before any chart resource exists, so on a FIRST install
+there is no database for it to migrate. Install with
+--set migrations.enabled=false, then `helm upgrade` with it back on.
+{{- end }}

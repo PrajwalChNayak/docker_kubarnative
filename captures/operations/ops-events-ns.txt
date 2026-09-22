@@ -1,0 +1,26 @@
+$ kubectl -n tasklane get events --sort-by=.lastTimestamp | tail -25
+14m         Normal    Pulled                         pod/cleanup-manual-ngnvj                    Container image "postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae" already present on machine and can be accessed by the pod
+14m         Normal    Created                        pod/cleanup-manual-ngnvj                    Container created
+14m         Normal    Started                        pod/cleanup-manual-ngnvj                    Container started
+14m         Warning   UnexpectedJob                  cronjob/tasklane-cleanup                    Saw a job that the controller did not create or forgot: cleanup-manual
+14m         Normal    Completed                      job/cleanup-manual                          Job completed
+14m         Normal    Pulled                         pod/netcheck                                Container image "postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae" already present on machine and can be accessed by the pod
+14m         Normal    Started                        pod/netcheck                                Container started
+14m         Normal    Created                        pod/netcheck                                Container created
+14m         Normal    Requested                      certificate/tasklane-tls                    Created new CertificateRequest resource "tasklane-tls-1"
+14m         Normal    Issuing                        certificate/tasklane-tls                    The certificate has been successfully issued
+14m         Normal    WaitingForApproval             certificaterequest/tasklane-tls-1           Not signing CertificateRequest until it is Approved
+14m         Normal    WaitingForApproval             certificaterequest/tasklane-tls-1           Not signing CertificateRequest until it is Approved
+14m         Normal    cert-manager.io                certificaterequest/tasklane-tls-1           Certificate request has been approved by cert-manager.io
+14m         Normal    CertificateIssued              certificaterequest/tasklane-tls-1           Certificate fetched from issuer successfully
+14m         Normal    Issuing                        certificate/tasklane-tls                    Issuing certificate as Secret does not exist
+14m         Normal    Generated                      certificate/tasklane-tls                    Stored new private key in temporary Secret resource "tasklane-tls-4w65d"
+14m         Normal    WaitingForApproval             certificaterequest/tasklane-tls-1           Not signing CertificateRequest until it is Approved
+14m         Normal    WaitingForApproval             certificaterequest/tasklane-tls-1           Not signing CertificateRequest until it is Approved
+14m         Normal    WaitingForApproval             certificaterequest/tasklane-tls-1           Not signing CertificateRequest until it is Approved
+14m         Normal    Pulled                         pod/tasklane-api-canary-6f5fb6c977-2hgth    Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+14m         Normal    Created                        pod/tasklane-api-canary-6f5fb6c977-2hgth    Container created
+14m         Normal    Started                        pod/tasklane-api-canary-6f5fb6c977-2hgth    Container started
+14m         Normal    SuccessfulCreate               replicaset/tasklane-api-canary-6f5fb6c977   Created pod: tasklane-api-canary-6f5fb6c977-2hgth
+14m         Normal    ScalingReplicaSet              deployment/tasklane-api-canary              Scaled up replica set tasklane-api-canary-6f5fb6c977 from 0 to 1
+13m         Normal    Killing                        pod/netcheck                                Stopping container netcheck

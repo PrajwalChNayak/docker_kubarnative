@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: kubectl apply -f examples/multi-tenancy/ >/dev/null && kubectl apply -f examples/multi-tenancy/verify/no-resources-pod.yaml --dry-run=server -o yaml 2>&1 | grep -A 7 '^      resources:'
+# reason: Command failed: kubectl apply -f examples/multi-tenancy/ >/dev/null && kubectl apply -f examples/multi-tenancy/verify/no-resources-pod.yaml --dry-run=server -o yaml 2>&1 | grep -A 7 '^      resources:'

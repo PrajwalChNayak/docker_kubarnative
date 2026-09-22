@@ -1,0 +1,7 @@
+$ kubectl api-resources --api-group=resource.k8s.io
+NAME                     SHORTNAMES   APIVERSION           NAMESPACED   KIND
+deviceclasses                         resource.k8s.io/v1   false        DeviceClass
+devicetaintrules                      resource.k8s.io/v1   false        DeviceTaintRule
+resourceclaims                        resource.k8s.io/v1   true         ResourceClaim
+resourceclaimtemplates                resource.k8s.io/v1   true         ResourceClaimTemplate
+resourceslices                        resource.k8s.io/v1   false        ResourceSlice

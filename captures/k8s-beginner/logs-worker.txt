@@ -1,0 +1,4 @@
+$ kubectl -n tasklane logs deploy/tasklane-worker --tail=15
+{"time":"2026-09-22T06:16:41.734899723Z","level":"INFO","msg":"worker started","svc":"worker","version":"dev","work_ms":2000,"poll_ms":1000}
+{"time":"2026-09-22T06:17:01.81007537Z","level":"WARN","msg":"claim failed, retrying","svc":"worker","version":"dev","err":"failed to connect to `user=tasklane database=tasklane`: hostname resolving error: lookup postgres on 10.96.0.10:53: read udp 10.244.2.4:38475->10.96.0.10:53: i/o timeout"}
+{"time":"2026-09-22T06:17:18.819470523Z","level":"WARN","msg":"claim failed, retrying","svc":"worker","version":"dev","err":"failed to connect to `user=tasklane database=tasklane`: hostname resolving error: lookup postgres on 10.96.0.10:53: read udp 10.244.2.4:46945->10.96.0.10:53: i/o timeout"}

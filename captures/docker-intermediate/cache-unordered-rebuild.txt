@@ -1,0 +1,4 @@
+$ docker build -q -t di-unordered -f examples/dockerfiles/cache-ordering/Dockerfile.unordered examples/dockerfiles/cache-ordering >/dev/null; echo '# print("touched")' >> examples/dockerfiles/cache-ordering/app.py; docker build -t di-unordered -f examples/dockerfiles/cache-ordering/Dockerfile.unordered examples/dockerfiles/cache-ordering 2>&1 | grep -iE 'RUN|pip|CACHED|=> ' | head -12; git checkout examples/dockerfiles/cache-ordering/app.py 2>/dev/null
+#3 CACHED
+#8 CACHED
+#10 [4/4] RUN sleep 10 && cp requirements.txt /app/.deps-installed

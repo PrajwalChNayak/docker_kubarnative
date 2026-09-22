@@ -1,0 +1,60 @@
+$ kubectl -n tasklane describe deployment tasklane-api
+Name:                   tasklane-api
+Namespace:              tasklane
+CreationTimestamp:      Mon, 21 Sep 2026 13:08:57 +0530
+Labels:                 app.kubernetes.io/component=api
+                        app.kubernetes.io/name=tasklane-api
+                        app.kubernetes.io/part-of=tasklane
+Annotations:            deployment.kubernetes.io/revision: 2
+Selector:               app.kubernetes.io/name=tasklane-api
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:           app.kubernetes.io/component=api
+                    app.kubernetes.io/name=tasklane-api
+                    app.kubernetes.io/part-of=tasklane
+  Annotations:      kubectl.kubernetes.io/restartedAt: 2026-09-22T12:53:07+05:30
+  Service Account:  tasklane-api
+  Init Containers:
+   migrate:
+    Image:      tasklane-api:0.1.0
+    Port:       <none>
+    Host Port:  <none>
+    Args:
+      migrate
+    Limits:
+      memory:  64Mi
+    Requests:
+      cpu:     50m
+      memory:  32Mi
+    Environment Variables from:
+      tasklane-config  ConfigMap  Optional: false
+    Environment:       <none>
+    Mounts:
+      /etc/tasklane/db from db-secret (ro)
+  Containers:
+   api:
+    Image:      tasklane-api:0.1.0
+    Port:       8080/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      memory:  128Mi
+    Requests:
+      cpu:      100m
+      memory:   64Mi
+    Liveness:   http-get http://:http/healthz delay=0s timeout=2s period=10s successThreshold=1 failureThreshold=3
+    Readiness:  http-get http://:http/readyz delay=0s timeout=2s period=5s successThreshold=1 failureThreshold=2
+    Startup:    http-get http://:http/healthz delay=0s timeout=1s period=2s successThreshold=1 failureThreshold=15
+    Environment Variables from:
+      tasklane-config  ConfigMap  Optional: false
+    Environment:       <none>
+    Mounts:
+      /etc/tasklane/db from db-secret (ro)
+  Volumes:
+   db-secret:
+    Type:                       Secret (a volume populated by a Secret)
+    SecretName:                 tasklane-db
+    Optional:                   false
+  Topology Spread Constraints:  topology.kubernetes.io/zone:ScheduleAnyway when max skew 1 is exceeded for selector app.kubernetes.io/name=tasklane-api

@@ -1,0 +1,2 @@
+$ kubectl -n tasklane port-forward svc/tasklane-worker-metrics 19090:9090 >/tmp/pf-worker.log 2>&1 & sleep 4 && curl -s localhost:19090/metrics | grep -E '^tasklane_' | head -30 ; kill %1
+tasklane_worker_errors_total 2

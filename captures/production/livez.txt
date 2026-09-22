@@ -1,0 +1,11 @@
+$ kubectl get --raw='/livez?verbose' | head
+[+]ping ok
+[+]log ok
+[+]loopback-serving-certificate ok
+[+]etcd ok
+[+]poststarthook/start-apiserver-admission-initializer ok
+[+]poststarthook/generic-apiserver-start-informers ok
+[+]poststarthook/priority-and-fairness-config-consumer ok
+[+]poststarthook/priority-and-fairness-filter ok
+[+]poststarthook/storage-object-count-tracker-hook ok
+[+]poststarthook/start-apiextensions-informers ok

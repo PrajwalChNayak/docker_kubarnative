@@ -56,8 +56,9 @@ date. This book is explicit where that matters:
   `ingress-nginx` controller was **retired and archived in March 2026** and
   receives no further fixes. The Ingress API is taught only as Legacy, with a
   full [migration guide](migration/ingress-to-gateway-api.md).
-- **PodSecurityPolicy is gone** (removed 1.25). Use Pod Security Admission and
-  admission policies.
+- **Pod Security Admission and admission policies** are how you constrain
+  workloads now; the old cluster-wide pod-security resource they replaced was
+  removed in 1.25.
 - **cgroup v2** is the baseline. **Compose v5** uses the `docker compose`
   plugin and has no top-level `version:` key. **Helm 4** changes several
   defaults from Helm 3.
@@ -77,10 +78,15 @@ whether it is on by default, and — for Alpha — that it is not for production
 - **Skipping Foundations because you already use Docker.** The later security
   and troubleshooting chapters assume you understand namespaces, cgroups and
   capabilities. Twenty minutes there saves hours later.
-- **Copying manifests from old tutorials.** If a manifest uses
-  `extensions/v1beta1`, `PodSecurityPolicy` or an Ingress annotation for traffic
-  splitting, it predates this book's baseline. The [reference](reference/removed-api-versions.md)
-  and [migration](migration/) sections show the current form.
+- **Copying manifests from old tutorials.** A manifest that predates this
+  book's baseline shows it — see the callout below.
+
+:::legacy Signs a manifest is out of date
+If it uses `extensions/v1beta1`, `PodSecurityPolicy`, or an Ingress annotation
+for traffic splitting, it predates the 1.37 baseline. The
+[removed API versions](migration/removed-api-versions.md) and
+[migration](migration/ingress-to-gateway-api.md) sections show the current form.
+:::
 
 ## Related topics
 

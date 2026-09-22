@@ -1,0 +1,23 @@
+$ kubectl create deployment demo --image=tasklane-api:0.1.0 --dry-run=client -o yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: demo
+  name: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - image: tasklane-api:0.1.0
+        name: tasklane-api
+        resources: {}
+status: {}

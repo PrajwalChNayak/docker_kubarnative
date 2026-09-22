@@ -1,0 +1,6 @@
+$ kubectl apply -f examples/scheduling/pod-anti-affinity.yaml && sleep 20 && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-anti-affinity
+deployment.apps/sched-anti-affinity unchanged
+NAME                                   READY   STATUS    RESTARTS        AGE    IP            NODE               NOMINATED NODE   READINESS GATES
+sched-anti-affinity-868d6cb8cc-5g2s4   0/1     Pending   0               128m   <none>        <none>             <none>           <none>
+sched-anti-affinity-868d6cb8cc-fmlg9   1/1     Running   2 (8m32s ago)   128m   10.244.2.18   tasklane-worker2   <none>           <none>
+sched-anti-affinity-868d6cb8cc-r24ns   0/1     Pending   0               128m   <none>        <none>             <none>           <none>

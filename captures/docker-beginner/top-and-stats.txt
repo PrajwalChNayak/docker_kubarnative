@@ -1,0 +1,5 @@
+$ docker rm -f top-demo >/dev/null 2>&1; docker run -d --name top-demo alpine:3.22 sleep 300 >/dev/null; docker top top-demo; docker stats --no-stream top-demo; docker rm -f top-demo >/dev/null
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+root                149515              149492              3                   07:01               ?                   00:00:00            sleep 300
+CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT   MEM %     NET I/O       BLOCK I/O   PIDS
+0df678d7cdc0   top-demo   0.00%     340KiB / 7.518GiB   0.00%     872B / 126B   0B / 0B     1

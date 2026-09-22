@@ -1,0 +1,7 @@
+$ kubectl -n tasklane-basics get svc -o wide
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP                           PORT(S)        AGE     SELECTOR
+hello-api            ClusterIP      10.96.104.15   <none>                                80/TCP         2m42s   app.kubernetes.io/name=hello-api
+hello-api-headless   ClusterIP      None           <none>                                80/TCP         2m41s   app.kubernetes.io/name=hello-api
+hello-api-lb         LoadBalancer   10.96.70.158   <pending>                             80:30177/TCP   2m41s   app.kubernetes.io/name=hello-api
+hello-api-nodeport   NodePort       10.96.147.32   <none>                                80:30586/TCP   2m41s   app.kubernetes.io/name=hello-api
+tasklane-db          ExternalName   <none>         postgres.tasklane.svc.cluster.local   <none>         2m41s   <none>

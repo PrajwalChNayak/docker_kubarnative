@@ -1,0 +1,37 @@
+$ kubectl -n tasklane describe endpointslice -l kubernetes.io/service-name=tasklane-api
+Name:         tasklane-api-th45r
+Namespace:    tasklane
+Labels:       app.kubernetes.io/component=api
+              app.kubernetes.io/name=tasklane-api
+              app.kubernetes.io/part-of=tasklane
+              endpointslice.kubernetes.io/managed-by=endpointslice-controller.k8s.io
+              kubernetes.io/service-name=tasklane-api
+Annotations:  endpoints.kubernetes.io/last-change-trigger-time: 2026-09-22T07:23:18Z
+AddressType:  IPv4
+Ports:
+  Name  Port  Protocol
+  ----  ----  --------
+  http  8080  TCP
+Endpoints:
+  - Addresses:  10.244.1.8
+    Conditions:
+      Ready:    false
+    Hostname:   <unset>
+    TargetRef:  Pod/tasklane-api-86876d58cf-4dp97
+    NodeName:   tasklane-worker
+    Zone:       zone-a
+  - Addresses:  10.244.2.37
+    Conditions:
+      Ready:    true
+    Hostname:   <unset>
+    TargetRef:  Pod/tasklane-api-9dddb5cf6-98hls
+    NodeName:   tasklane-worker2
+    Zone:       zone-b
+  - Addresses:  10.244.2.38
+    Conditions:
+      Ready:    true
+    Hostname:   <unset>
+    TargetRef:  Pod/tasklane-api-9dddb5cf6-t8px5
+    NodeName:   tasklane-worker2
+    Zone:       zone-b
+Events:         <none>

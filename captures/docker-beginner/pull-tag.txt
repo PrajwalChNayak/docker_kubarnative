@@ -1,0 +1,5 @@
+$ docker pull alpine:3.22
+3.22: Pulling from library/alpine
+Digest: sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8
+Status: Image is up to date for alpine:3.22
+docker.io/library/alpine:3.22

@@ -1,0 +1,3 @@
+$ kubectl apply -f examples/k8s/pod-security/namespace.yaml && kubectl apply -f examples/k8s/pod-security/compliant-pod.yaml
+namespace/psa-demo unchanged
+pod/compliant unchanged

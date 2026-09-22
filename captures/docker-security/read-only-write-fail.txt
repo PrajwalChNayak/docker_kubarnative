@@ -1,0 +1,2 @@
+$ docker run --rm --read-only alpine:3.22 sh -c 'echo x > /root/x'; echo "exit=$?"
+exit=1

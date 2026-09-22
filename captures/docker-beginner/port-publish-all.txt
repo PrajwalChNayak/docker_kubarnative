@@ -1,0 +1,2 @@
+$ docker rm -f portall-demo >/dev/null 2>&1; docker run -d --name portall-demo -P tasklane-api:0.1.0 >/dev/null; sleep 2; docker port portall-demo; docker rm -f portall-demo >/dev/null
+8080/tcp -> 0.0.0.0:32769

@@ -1,0 +1,75 @@
+# Priority and preemption demo.
+#
+# Two PriorityClasses and one workload that uses the non-preempting one.
+# Neither class sets globalDefault: true, so pods without a
+# priorityClassName keep priority 0. The built-in system-cluster-critical
+# (2000000000) and system-node-critical (2000001000) classes are reserved
+# for control-plane and node add-ons; never use them for application pods.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: tasklane-critical
+value: 1000000
+globalDefault: false
+# The default policy. Pods of this class may evict lower-priority pods.
+preemptionPolicy: PreemptLowerPriority
+description: "Tasklane request path (API and database). May preempt batch work."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: tasklane-batch
+value: 100
+globalDefault: false
+# Queue-jumps ahead of priority 0 pods but never evicts anything: it waits
+# for capacity to free up naturally.
+preemptionPolicy: Never
+description: "Tasklane background work. Scheduled early, but never preempts."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sched-batch
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: sched-batch
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/part-of: tasklane
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sched-batch
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sched-batch
+        app.kubernetes.io/component: demo
+        app.kubernetes.io/part-of: tasklane
+    spec:
+      priorityClassName: tasklane-batch
+      automountServiceAccountToken: false
+      # Preemption victims only get their grace period to exit. Batch pods
+      # that can restart cheaply should keep it short.
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+          command: ["sleep", "3600"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

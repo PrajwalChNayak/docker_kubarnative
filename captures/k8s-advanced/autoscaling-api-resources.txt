@@ -1,0 +1,3 @@
+$ kubectl api-resources --api-group=autoscaling
+NAME                       SHORTNAMES   APIVERSION       NAMESPACED   KIND
+horizontalpodautoscalers   hpa          autoscaling/v2   true         HorizontalPodAutoscaler

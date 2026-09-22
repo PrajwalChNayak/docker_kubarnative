@@ -1,0 +1,5 @@
+$ kubectl -n tasklane exec netcheck -- getent hosts postgres tasklane-api postgres.tasklane.svc.cluster.local postgres-0.postgres.tasklane.svc.cluster.local
+10.244.2.3      postgres.tasklane.svc.cluster.local
+10.96.231.209   tasklane-api.tasklane.svc.cluster.local
+10.244.2.3      postgres.tasklane.svc.cluster.local
+10.244.2.3      postgres-0.postgres.tasklane.svc.cluster.local

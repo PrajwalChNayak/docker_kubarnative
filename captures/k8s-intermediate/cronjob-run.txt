@@ -1,0 +1,5 @@
+$ kubectl -n tasklane delete job cleanup-manual --ignore-not-found && kubectl -n tasklane create job --from=cronjob/tasklane-cleanup cleanup-manual && kubectl -n tasklane wait --for=condition=Complete job/cleanup-manual --timeout=180s && kubectl -n tasklane get job cleanup-manual -o wide && kubectl -n tasklane logs job/cleanup-manual
+job.batch/cleanup-manual created
+job.batch/cleanup-manual condition met
+NAME             STATUS     COMPLETIONS   DURATION   AGE   CONTAINERS   IMAGES                                                                                       SELECTOR
+cleanup-manual   Complete   1/1           4s         6s    cleanup      postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae   batch.kubernetes.io/controller-uid=0ea23e9d-98c3-47f8-90df-7adbc5861619

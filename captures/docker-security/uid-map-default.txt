@@ -1,0 +1,2 @@
+$ docker run --rm alpine:3.22 cat /proc/self/uid_map
+         0          0 4294967295

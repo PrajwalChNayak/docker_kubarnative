@@ -1,0 +1,4 @@
+$ docker exec tasklane-control-plane sh -c 'stat -fc %T /sys/fs/cgroup; echo "controllers at the root: $(cat /sys/fs/cgroup/cgroup.controllers)"; echo "delegated to children: $(cat /sys/fs/cgroup/cgroup.subtree_control)"'
+cgroup2fs
+controllers at the root: cpuset cpu io memory hugetlb pids rdma
+delegated to children: cpuset cpu io memory hugetlb pids rdma

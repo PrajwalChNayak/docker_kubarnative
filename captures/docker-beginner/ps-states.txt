@@ -1,0 +1,7 @@
+$ docker rm -f state-created state-running state-paused state-exited >/dev/null 2>&1; docker create --name state-created alpine:3.22 sleep 300 >/dev/null; docker run -d --name state-running alpine:3.22 sleep 300 >/dev/null; docker run -d --name state-paused alpine:3.22 sleep 300 >/dev/null; docker pause state-paused >/dev/null; docker run --name state-exited alpine:3.22 sh -c 'exit 3' >/dev/null 2>&1; docker ps -a --filter name=state- --format 'table {{.Names}}\t{{.State}}\t{{.Status}}'; docker inspect --format '{{.Name}} status={{.State.Status}} exitcode={{.State.ExitCode}}' state-exited; docker unpause state-paused >/dev/null; docker rm -f state-created state-running state-paused state-exited >/dev/null
+NAMES           STATE     STATUS
+state-exited    exited    Exited (3) 1 second ago
+state-paused    paused    Up 3 seconds (Paused)
+state-running   running   Up 4 seconds
+state-created   created   Created
+/state-exited status=exited exitcode=3

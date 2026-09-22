@@ -1,0 +1,2 @@
+$ docker run --rm --cap-drop ALL alpine:3.22 chown nobody /etc/hostname; echo "exit=$?"
+exit=1

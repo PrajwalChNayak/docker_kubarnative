@@ -1,0 +1,24 @@
+# expect=reject
+# This pod violates the restricted profile in several ways at once:
+#   - no runAsNonRoot / no seccompProfile,
+#   - allowPrivilegeEscalation is not set to false,
+#   - capabilities are not dropped,
+#   - it requests privileged mode.
+# Applying it to psa-demo MUST fail at admission. The harness treats a
+# successful apply as a test failure. It exists only to prove the control
+# works; it is never meant to run.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: noncompliant
+  namespace: psa-demo
+  labels:
+    app.kubernetes.io/name: psa-noncompliant
+spec:
+  containers:
+    # This example deliberately runs as root to be rejected by PSA.
+    - name: root-shell
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        privileged: true

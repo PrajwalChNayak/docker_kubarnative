@@ -1,0 +1,4 @@
+$ kubectl -n tasklane get pod -l app.kubernetes.io/name=tasklane-api -o jsonpath='{range .items[*]}{.metadata.name}{"\tinit: "}{.spec.initContainers[*].name}{"\tmain: "}{.spec.containers[*].name}{"\n"}{end}'
+tasklane-api-86876d58cf-4dp97	init: migrate	main: api
+tasklane-api-9dddb5cf6-98hls	init: migrate	main: api
+tasklane-api-9dddb5cf6-t8px5	init: migrate	main: api

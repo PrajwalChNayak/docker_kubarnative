@@ -1,0 +1,7 @@
+$ kubectl -n tasklane-basics exec config-demo -- nslookup hello-api.tasklane-basics.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	hello-api.tasklane-basics.svc.cluster.local
+Address: 10.96.104.15

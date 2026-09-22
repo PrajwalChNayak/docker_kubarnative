@@ -1,0 +1,5 @@
+$ kubectl get nodes -L topology.kubernetes.io/zone
+NAME                     STATUS     ROLES           AGE   VERSION   ZONE
+tasklane-control-plane   Ready      control-plane   25h   v1.37.0   
+tasklane-worker          NotReady   <none>          25h   v1.37.0   zone-a
+tasklane-worker2         Ready      <none>          25h   v1.37.0   zone-b

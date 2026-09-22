@@ -1,0 +1,61 @@
+{{- if .Values.migrations.enabled }}
+# Schema migration, run by Helm before the rest of the release is applied.
+#
+#   helm.sh/hook              pre-install and pre-upgrade
+#   helm.sh/hook-weight       "-5": hooks of one event run in ascending weight,
+#                             ties broken by resource kind then name. Negative
+#                             weights simply sort before the default 0.
+#   helm.sh/hook-delete-policy
+#     before-hook-creation    delete the previous Job with this name before
+#                             creating it again, so the second upgrade does not
+#                             fail on an immutable Job spec
+#     hook-succeeded          delete it once it completes, keeping the
+#                             namespace clean. A failed Job is kept for
+#                             `kubectl logs`, which is usually what you want.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "tasklane.fullname" . }}-migrate
+  labels:
+    {{- include "tasklane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "tasklane.labels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "tasklane.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "tasklane.image" .Values.api.image | quote }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          args: ["migrate"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "tasklane.fullname" . }}-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/tasklane/db
+              readOnly: true
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+          securityContext:
+            {{- include "tasklane.containerSecurityContext" . | nindent 12 }}
+      volumes:
+        {{- include "tasklane.dbSecretVolume" . | nindent 8 }}
+{{- end }}

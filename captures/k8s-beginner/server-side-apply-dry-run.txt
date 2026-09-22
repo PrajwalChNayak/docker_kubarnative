@@ -1,0 +1,2 @@
+$ kubectl apply --server-side --dry-run=server --field-manager=handbook-demo -f examples/k8s/03-app/config.yaml
+configmap/tasklane-config serverside-applied (server dry run)

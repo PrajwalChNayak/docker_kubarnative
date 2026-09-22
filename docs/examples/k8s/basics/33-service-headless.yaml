@@ -1,0 +1,21 @@
+# Headless: clusterIP None. No virtual IP and no kube-proxy rules. DNS
+# returns one A record per ready pod IP, so the client chooses the pod.
+# StatefulSets use this for stable per-pod DNS; see the postgres Service in
+# examples/k8s/02-database/postgres.yaml.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-api-headless
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: hello-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

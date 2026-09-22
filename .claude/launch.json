@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/Users/nprajwal/AppData/Local/Temp/claude/C--project-docker-kubarnative/7b087c21-9ee3-496d-8b00-154db9a5c051/scratchpad/serve.mjs"],
+      "port": 4173
+    }
+  ]
+}

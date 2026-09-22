@@ -1,0 +1,21 @@
+# A ConfigMap with two kinds of keys:
+#   short scalar keys  -> good as environment variables
+#   one file-like key  -> good as a file in a volume
+# The same object can be consumed both ways at once, which 42-config-demo.yaml
+# does.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-config
+  namespace: tasklane-basics
+  labels:
+    app.kubernetes.io/name: hello-config
+    app.kubernetes.io/part-of: tasklane
+data:
+  GREETING: "hello from a ConfigMap"
+  LOG_LEVEL: "info"
+  # A whole file. Keys may contain dots; environment variable names may not,
+  # which is one reason to mount file-shaped config instead of exporting it.
+  app.properties: |
+    poll.interval.ms=1000
+    work.duration.ms=2000

@@ -1,0 +1,15 @@
+# A TaskQueue that drives the Tasklane worker Deployment from stage 3.
+# workers is deliberately 2, the replica count that Deployment already has, so
+# applying this sample in the lab changes nothing until you edit it.
+apiVersion: tasklane.example.com/v1alpha1
+kind: TaskQueue
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/part-of: tasklane
+spec:
+  workers: 2
+  # deploymentName is omitted on purpose: the CRD defaults it to
+  # "tasklane-worker" during admission, so the stored object has it set.

@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: export MSYS_NO_PATHCONV=1; docker rm -f hb-registry >/dev/null 2>&1; docker run -d --name hb-registry -p 127.0.0.1:5000:5000 registry:3 >/dev/null; sleep 3; docker tag alpine:3.22 localhost:5000/handbook/alpine:3.22; docker push localhost:5000/handbook/alpine:3.22; docker image rm localhost:5000/handbook/alpine:3.22 >/dev/null; docker pull localhost:5000/handbook/alpine:3.22; docker rm -f hb-registry >/dev/null; docker image rm localhost:5000/handbook/alpine:3.22 >/dev/null
+# reason: Unable to find image 'registry:3' locally 3: Pulling from library/registry 884de165200c: Pulling fs layer

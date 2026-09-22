@@ -1,0 +1,5 @@
+$ kubectl get nodes -o custom-columns=NAME:.metadata.name,RUNTIME:.status.nodeInfo.containerRuntimeVersion,KUBELET:.status.nodeInfo.kubeletVersion,OS:.status.nodeInfo.osImage,KERNEL:.status.nodeInfo.kernelVersion
+NAME                     RUNTIME              KUBELET   OS                             KERNEL
+tasklane-control-plane   containerd://2.3.4   v1.37.0   Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2
+tasklane-worker          containerd://2.3.4   v1.37.0   Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2
+tasklane-worker2         containerd://2.3.4   v1.37.0   Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2

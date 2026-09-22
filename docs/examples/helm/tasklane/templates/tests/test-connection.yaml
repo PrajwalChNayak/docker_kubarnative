@@ -1,0 +1,44 @@
+# `helm test <release>` runs every resource annotated helm.sh/hook: test and
+# reports the pod's exit code. hook-delete-policy keeps a failed pod around so
+# `kubectl logs` still works, and deletes the previous one before a re-run.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "tasklane.fullname" . }}-test-connection
+  labels:
+    {{- include "tasklane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: wget
+      image: {{ .Values.tests.image | quote }}
+      command:
+        - wget
+      args:
+        - --spider
+        - --timeout=5
+        - --tries=3
+        - http://{{ include "tasklane.api.fullname" . }}:{{ .Values.api.service.port }}/healthz
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

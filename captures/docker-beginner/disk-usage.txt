@@ -1,0 +1,8 @@
+$ docker system df; docker image ls --filter dangling=true
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          44        25        36.85GB   28.65GB (77%)
+Containers      26        9         2.409GB   383.9MB (15%)
+Local Volumes   28        20        9.919GB   274.7MB (2%)
+Build Cache     57        0         2.213GB   1.168GB
+IMAGE        ID             DISK USAGE   CONTENT SIZE   EXTRA
+<untagged>   7d6e7e750c4d        644MB          157MB

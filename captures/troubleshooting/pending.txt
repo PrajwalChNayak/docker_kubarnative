@@ -1,0 +1,26 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/pending-unschedulable.yaml && sleep 12 && kubectl -n troubleshoot get pod pending -o wide && echo "--- describe ---" && kubectl -n troubleshoot describe pod pending | tail -20; kubectl delete -f examples/troubleshooting/pending-unschedulable.yaml
+pod/pending created
+NAME      READY   STATUS    RESTARTS   AGE   IP       NODE     NOMINATED NODE   READINESS GATES
+pending   0/1     Pending   0          14s   <none>   <none>   <none>           <none>
+--- describe ---
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ms47w (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-ms47w:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  14s   default-scheduler  0/3 nodes are available: 1 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+pod "pending" deleted from troubleshoot namespace

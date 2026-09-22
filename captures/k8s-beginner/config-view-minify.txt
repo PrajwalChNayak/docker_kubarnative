@@ -1,0 +1,19 @@
+$ kubectl config view --minify
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:60917
+  name: kind-tasklane
+contexts:
+- context:
+    cluster: kind-tasklane
+    user: kind-tasklane
+  name: kind-tasklane
+current-context: kind-tasklane
+kind: Config
+users:
+- name: kind-tasklane
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED

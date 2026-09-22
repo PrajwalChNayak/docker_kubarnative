@@ -1,0 +1,6 @@
+$ kubectl -n kube-system get pods -l tier=control-plane -o wide
+NAME                                             READY   STATUS    RESTARTS      AGE   IP           NODE                     NOMINATED NODE   READINESS GATES
+etcd-tasklane-control-plane                      1/1     Running   0             63m   172.19.0.2   tasklane-control-plane   <none>           <none>
+kube-apiserver-tasklane-control-plane            1/1     Running   0             63m   172.19.0.2   tasklane-control-plane   <none>           <none>
+kube-controller-manager-tasklane-control-plane   1/1     Running   2 (63m ago)   23h   172.19.0.2   tasklane-control-plane   <none>           <none>
+kube-scheduler-tasklane-control-plane            1/1     Running   2 (63m ago)   23h   172.19.0.2   tasklane-control-plane   <none>           <none>

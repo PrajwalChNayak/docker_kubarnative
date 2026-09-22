@@ -1,0 +1,50 @@
+# OPA Gatekeeper. Requires Gatekeeper installed (gatekeeper.sh, v3.23.1).
+# A ConstraintTemplate defines a reusable rule in Rego and generates a new CRD
+# (kind: K8sDisallowedTags); a Constraint is an instance of that CRD that says
+# where the rule applies. Same effect as the Kyverno policy: reject :latest.
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdisallowedtags
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDisallowedTags
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdisallowedtags
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          tag := split(container.image, ":")[1]
+          input.parameters.tags[_] == tag
+          msg := sprintf("container <%v> uses a disallowed tag <%v>", [container.name, tag])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not contains(container.image, ":")
+          msg := sprintf("container <%v> has no image tag", [container.name])
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowedTags
+metadata:
+  name: no-latest-tag
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    tags: ["latest"]

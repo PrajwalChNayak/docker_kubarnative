@@ -1,0 +1,4 @@
+$ kubectl -n tasklane label pod netcheck app.kubernetes.io/component=api --overwrite && kubectl -n tasklane exec netcheck -- pg_isready -h postgres -t 5; echo "pg_isready exit code: $?"
+pod/netcheck labeled
+postgres:5432 - accepting connections
+pg_isready exit code: 0

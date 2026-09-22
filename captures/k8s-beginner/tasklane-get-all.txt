@@ -1,0 +1,50 @@
+$ kubectl -n tasklane get deploy,rs,pods,svc,statefulset -o wide
+NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                                                                                      SELECTOR
+deployment.apps/sched-anti-affinity   1/3     3            1           6m7s    sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-anti-affinity
+deployment.apps/sched-batch           2/2     2            2           4m8s    sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-batch
+deployment.apps/sched-node-affinity   4/4     4            4           6m20s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-node-affinity
+deployment.apps/sched-spread          1/4     4            1           5m38s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-spread
+deployment.apps/sched-toleration      2/2     2            2           5m43s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-toleration
+deployment.apps/tasklane-api          2/2     2            2           23h     api          tasklane-api:0.1.0                                                                          app.kubernetes.io/name=tasklane-api
+deployment.apps/tasklane-worker       2/2     2            2           23h     worker       tasklane-worker:0.1.0                                                                       app.kubernetes.io/name=tasklane-worker
+
+NAME                                             DESIRED   CURRENT   READY   AGE     CONTAINERS   IMAGES                                                                                      SELECTOR
+replicaset.apps/sched-anti-affinity-868d6cb8cc   3         3         1       6m7s    sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-anti-affinity,pod-template-hash=868d6cb8cc
+replicaset.apps/sched-batch-566df5c77b           2         2         2       4m8s    sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-batch,pod-template-hash=566df5c77b
+replicaset.apps/sched-node-affinity-5bffb9f8fc   4         4         4       6m20s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-node-affinity,pod-template-hash=5bffb9f8fc
+replicaset.apps/sched-spread-5467d59fb6          4         4         1       5m38s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-spread,pod-template-hash=5467d59fb6
+replicaset.apps/sched-toleration-85f76767b       2         2         2       5m43s   sleep        busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23   app.kubernetes.io/name=sched-toleration,pod-template-hash=85f76767b
+replicaset.apps/tasklane-api-86876d58cf          2         2         2       23h     api          tasklane-api:0.1.0                                                                          app.kubernetes.io/name=tasklane-api,pod-template-hash=86876d58cf
+replicaset.apps/tasklane-worker-cc4f995df        2         2         2       23h     worker       tasklane-worker:0.1.0                                                                       app.kubernetes.io/name=tasklane-worker,pod-template-hash=cc4f995df
+
+NAME                                       READY   STATUS        RESTARTS      AGE     IP            NODE               NOMINATED NODE   READINESS GATES
+pod/postgres-0                             1/1     Running       1 (98m ago)   23h     10.244.2.3    tasklane-worker2   <none>           <none>
+pod/sched-anti-affinity-868d6cb8cc-5g2s4   0/1     Pending       0             6m7s    <none>        <none>             <none>           <none>
+pod/sched-anti-affinity-868d6cb8cc-fmlg9   1/1     Running       0             6m7s    10.244.2.18   tasklane-worker2   <none>           <none>
+pod/sched-anti-affinity-868d6cb8cc-r24ns   0/1     Pending       0             6m7s    <none>        <none>             <none>           <none>
+pod/sched-batch-566df5c77b-6ztql           1/1     Running       0             4m7s    10.244.2.22   tasklane-worker2   <none>           <none>
+pod/sched-batch-566df5c77b-k9zc9           1/1     Running       0             4m7s    10.244.2.23   tasklane-worker2   <none>           <none>
+pod/sched-node-affinity-5bffb9f8fc-8tcmh   1/1     Running       0             6m20s   10.244.2.15   tasklane-worker2   <none>           <none>
+pod/sched-node-affinity-5bffb9f8fc-jtvpm   1/1     Running       0             6m20s   10.244.2.17   tasklane-worker2   <none>           <none>
+pod/sched-node-affinity-5bffb9f8fc-mb6c2   1/1     Running       0             6m20s   10.244.2.16   tasklane-worker2   <none>           <none>
+pod/sched-node-affinity-5bffb9f8fc-snjdx   1/1     Running       0             6m20s   10.244.2.14   tasklane-worker2   <none>           <none>
+pod/sched-spread-5467d59fb6-s77vk          1/1     Running       0             5m38s   10.244.2.21   tasklane-worker2   <none>           <none>
+pod/sched-spread-5467d59fb6-sfmln          0/1     Pending       0             5m38s   <none>        <none>             <none>           <none>
+pod/sched-spread-5467d59fb6-sv9nv          0/1     Pending       0             5m38s   <none>        <none>             <none>           <none>
+pod/sched-spread-5467d59fb6-t9n76          0/1     Pending       0             5m38s   <none>        <none>             <none>           <none>
+pod/sched-toleration-85f76767b-5psbl       1/1     Running       0             5m43s   10.244.2.20   tasklane-worker2   <none>           <none>
+pod/sched-toleration-85f76767b-p2knn       1/1     Running       0             5m43s   10.244.2.19   tasklane-worker2   <none>           <none>
+pod/tasklane-api-86876d58cf-4dp97          1/1     Terminating   0             62m     10.244.1.8    tasklane-worker    <none>           <none>
+pod/tasklane-api-86876d58cf-9jxxr          1/1     Running       0             11m     10.244.2.11   tasklane-worker2   <none>           <none>
+pod/tasklane-api-86876d58cf-vlxfp          1/1     Running       0             62m     10.244.2.7    tasklane-worker2   <none>           <none>
+pod/tasklane-worker-cc4f995df-8lbcl        1/1     Running       1 (98m ago)   23h     10.244.2.4    tasklane-worker2   <none>           <none>
+pod/tasklane-worker-cc4f995df-c55hs        1/1     Terminating   1 (98m ago)   23h     10.244.1.7    tasklane-worker    <none>           <none>
+pod/tasklane-worker-cc4f995df-rfjkc        1/1     Running       0             11m     10.244.2.9    tasklane-worker2   <none>           <none>
+
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/postgres                  ClusterIP   None            <none>        5432/TCP   23h   app.kubernetes.io/name=postgres
+service/tasklane-api              ClusterIP   10.96.231.209   <none>        80/TCP     23h   app.kubernetes.io/name=tasklane-api
+service/tasklane-worker-metrics   ClusterIP   10.96.228.21    <none>        9090/TCP   23h   app.kubernetes.io/name=tasklane-worker
+
+NAME                        READY   AGE   CONTAINERS   IMAGES
+statefulset.apps/postgres   1/1     23h   postgres     postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae

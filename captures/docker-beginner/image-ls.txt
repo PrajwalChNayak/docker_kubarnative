@@ -1,0 +1,6 @@
+$ docker image ls alpine; docker image ls tasklane-api
+IMAGE         ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:3.22   5291449c3df7       12.8MB         3.88MB        
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+tasklane-api:0.1.0   ca9c347d1d97       22.6MB          5.2MB        
+tasklane-api:dev     ca9c347d1d97       22.6MB          5.2MB

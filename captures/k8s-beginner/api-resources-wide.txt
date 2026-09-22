@@ -1,0 +1,26 @@
+$ kubectl api-resources --namespaced=true -o wide --sort-by=name |head -25
+NAME                        SHORTNAMES        APIVERSION                             NAMESPACED   KIND                       VERBS                                                        CATEGORIES
+backends                    be                gateway.envoyproxy.io/v1alpha1         true         Backend                    delete,deletecollection,get,list,patch,create,update,watch   envoy-gateway
+backendtlspolicies          btlspolicy        gateway.networking.k8s.io/v1           true         BackendTLSPolicy           delete,deletecollection,get,list,patch,create,update,watch   gateway-api
+backendtrafficpolicies      btp               gateway.envoyproxy.io/v1alpha1         true         BackendTrafficPolicy       delete,deletecollection,get,list,patch,create,update,watch   envoy-gateway
+bindings                                      v1                                     true         Binding                    create                                                       
+certificaterequests         cr,crs            cert-manager.io/v1                     true         CertificateRequest         delete,deletecollection,get,list,patch,create,update,watch   cert-manager
+certificates                cert,certs        cert-manager.io/v1                     true         Certificate                delete,deletecollection,get,list,patch,create,update,watch   cert-manager
+challenges                                    acme.cert-manager.io/v1                true         Challenge                  delete,deletecollection,get,list,patch,create,update,watch   cert-manager,cert-manager-acme
+clienttrafficpolicies       ctp               gateway.envoyproxy.io/v1alpha1         true         ClientTrafficPolicy        delete,deletecollection,get,list,patch,create,update,watch   envoy-gateway
+configmaps                  cm                v1                                     true         ConfigMap                  create,delete,deletecollection,get,list,patch,update,watch   
+controllerrevisions                           apps/v1                                true         ControllerRevision         create,delete,deletecollection,get,list,patch,update,watch   
+cronjobs                    cj                batch/v1                               true         CronJob                    create,delete,deletecollection,get,list,patch,update,watch   all
+csistoragecapacities                          storage.k8s.io/v1                      true         CSIStorageCapacity         create,delete,deletecollection,get,list,patch,update,watch   
+daemonsets                  ds                apps/v1                                true         DaemonSet                  create,delete,deletecollection,get,list,patch,update,watch   all
+deployments                 deploy            apps/v1                                true         Deployment                 create,delete,deletecollection,get,list,patch,update,watch   all
+endpoints                   ep                v1                                     true         Endpoints                  create,delete,deletecollection,get,list,patch,update,watch   
+endpointslices                                discovery.k8s.io/v1                    true         EndpointSlice              create,delete,deletecollection,get,list,patch,update,watch   
+envoyextensionpolicies      eep               gateway.envoyproxy.io/v1alpha1         true         EnvoyExtensionPolicy       delete,deletecollection,get,list,patch,create,update,watch   
+envoypatchpolicies          epp               gateway.envoyproxy.io/v1alpha1         true         EnvoyPatchPolicy           delete,deletecollection,get,list,patch,create,update,watch   envoy-gateway
+envoyproxies                eproxy            gateway.envoyproxy.io/v1alpha1         true         EnvoyProxy                 delete,deletecollection,get,list,patch,create,update,watch   envoy-gateway
+events                      ev                v1                                     true         Event                      create,delete,deletecollection,get,list,patch,update,watch   
+events                      ev                events.k8s.io/v1                       true         Event                      create,delete,deletecollection,get,list,patch,update,watch   
+gateways                    gtw               gateway.networking.k8s.io/v1           true         Gateway                    delete,deletecollection,get,list,patch,create,update,watch   gateway-api
+grpcroutes                                    gateway.networking.k8s.io/v1           true         GRPCRoute                  delete,deletecollection,get,list,patch,create,update,watch   gateway-api
+horizontalpodautoscalers    hpa               autoscaling/v2                         true         HorizontalPodAutoscaler    create,delete,deletecollection,get,list,patch,update,watch   all

@@ -1,0 +1,69 @@
+# ILLUSTRATION ONLY — do not apply this to a cluster you care about.
+#
+# It points at a Service (tasklane-system/tasklane-admission) that does not
+# exist and a caBundle that is a placeholder. The API server will happily
+# store this object, and will then start calling a webhook that is not there.
+# With failurePolicy: Fail, that means every matching write is rejected.
+#
+# It lives in its own directory so that
+#   kubectl apply --dry-run=server -f examples/admission/
+# does not pick it up.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: tasklane-admission.tasklane.example.com
+webhooks:
+  - name: workloads.tasklane.example.com
+    # Which requests the API server sends to the webhook at all.
+    rules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments", "statefulsets"]
+        scope: "Namespaced"
+    clientConfig:
+      service:
+        namespace: tasklane-system
+        name: tasklane-admission
+        path: /validate-workloads
+        port: 443
+      # The serving certificate must be valid for
+      # tasklane-admission.tasklane-system.svc. In practice cert-manager issues
+      # it and its CA injector rewrites this field, via the annotation
+      # cert-manager.io/inject-ca-from on this object.
+      caBundle: REPLACE_WITH_BASE64_PEM_CA_BUNDLE
+    # Fail rejects the write when the webhook is unreachable or times out.
+    # Ignore admits it. Fail is correct for a security control and is the
+    # default; it is also the setting that turns a crashed webhook into a
+    # cluster-wide write outage.
+    failurePolicy: Fail
+    # Default 10, maximum 30. Short timeouts are a feature: every webhook call
+    # is on the critical path of an API write.
+    timeoutSeconds: 5
+    # None promises the webhook changes no state outside the AdmissionReview.
+    # It is what lets the API server call the webhook during a dry run.
+    sideEffects: None
+    admissionReviewVersions: ["v1"]
+    # Equivalent means a request that arrives under a different served version
+    # of the same resource is converted and still matched. Exact is the default
+    # and is a common way to accidentally let writes through.
+    matchPolicy: Equivalent
+    # Never intercept the namespaces that hold the control plane and the
+    # webhook itself. Without this, a webhook that is down cannot be fixed by
+    # redeploying it, because the redeploy is itself a write it must approve.
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values: ["kube-system", "tasklane-system"]
+    objectSelector:
+      matchExpressions:
+        - key: tasklane.example.com/skip-admission
+          operator: DoesNotExist
+    # matchConditions are CEL, evaluated by the API server before the network
+    # call. Every request filtered out here is a round trip that never happens.
+    matchConditions:
+      - name: exclude-system-serviceaccounts
+        expression: '!request.userInfo.username.startsWith("system:serviceaccount:kube-system:")'
+      - name: exclude-tasklane-operator
+        expression: 'request.userInfo.username != "system:serviceaccount:tasklane-system:tasklane-operator"'

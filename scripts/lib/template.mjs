@@ -188,7 +188,7 @@ export const CSS = `/* Handbook stylesheet — hand-written, no external fonts. 
 :root {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
-  --prose: 48rem;
+  --prose: none;
   --toc-w: 13rem;
   --gap: 2.25rem;
   --topbar-h: 56px;
@@ -330,11 +330,11 @@ a:hover { text-decoration: underline; }
 .drawer-part a:hover { background: var(--accent-soft); color: var(--text); text-decoration: none; }
 
 /* Layout */
-.layout { max-width: calc(1.5rem + var(--prose) + var(--gap) + var(--toc-w) + 1.5rem); margin: 0 auto; padding: 1.5rem 1.5rem 4rem; display: grid; grid-template-columns: minmax(0, var(--prose)) var(--toc-w); gap: var(--gap); justify-content: center; }
-.layout.no-toc { grid-template-columns: minmax(0, var(--prose)); }
+.layout { max-width: 90rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; display: grid; grid-template-columns: minmax(0, 1fr) var(--toc-w); gap: var(--gap); }
+.layout.no-toc { grid-template-columns: minmax(0, 1fr); }
 .content { min-width: 0; }
-.prose { max-width: var(--prose); }
-.landing { max-width: 62rem; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.prose { max-width: var(--prose); font-size: 1.0625rem; line-height: 1.72; }
+.landing { max-width: 90rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
 
 /* Page header */
 .page-header { margin-bottom: 1.5rem; }
@@ -474,7 +474,7 @@ a:hover { text-decoration: underline; }
 
 /* Responsive */
 @media (max-width: 1180px) {
-  .layout { grid-template-columns: minmax(0, var(--prose)); }
+  .layout { grid-template-columns: minmax(0, 1fr); }
   .toc-rail { display: none; }
 }
 @media (max-width: 1040px) {

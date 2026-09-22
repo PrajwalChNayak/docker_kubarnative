@@ -1,0 +1,7 @@
+$ kubectl -n tasklane get events --field-selector reason=Scheduled --sort-by=.lastTimestamp | tail -n 6
+2m2s        Normal   Scheduled   pod/sched-toleration-85f76767b-5psbl       Successfully assigned tasklane/sched-toleration-85f76767b-5psbl to tasklane-worker2
+2m2s        Normal   Scheduled   pod/sched-toleration-85f76767b-p2knn       Successfully assigned tasklane/sched-toleration-85f76767b-p2knn to tasklane-worker2
+58m         Normal   Scheduled   pod/tasklane-api-86876d58cf-4dp97          Successfully assigned tasklane/tasklane-api-86876d58cf-4dp97 to tasklane-worker
+8m1s        Normal   Scheduled   pod/tasklane-api-86876d58cf-9jxxr          Successfully assigned tasklane/tasklane-api-86876d58cf-9jxxr to tasklane-worker2
+58m         Normal   Scheduled   pod/tasklane-api-86876d58cf-vlxfp          Successfully assigned tasklane/tasklane-api-86876d58cf-vlxfp to tasklane-worker2
+8m1s        Normal   Scheduled   pod/tasklane-worker-cc4f995df-rfjkc        Successfully assigned tasklane/tasklane-worker-cc4f995df-rfjkc to tasklane-worker2

@@ -1,0 +1,21 @@
+$ docker image history tasklane-api:0.1.0
+IMAGE          CREATED        CREATED BY                                      SIZE      COMMENT
+ca9c347d1d97   23 hours ago   ENTRYPOINT ["/api"]                             0B        buildkit.dockerfile.v0
+<missing>      23 hours ago   HEALTHCHECK {Test:[CMD /api healthcheck] Int…   0B        buildkit.dockerfile.v0
+<missing>      23 hours ago   EXPOSE [8080/tcp]                               0B        buildkit.dockerfile.v0
+<missing>      23 hours ago   USER 65532:65532                                0B        buildkit.dockerfile.v0
+<missing>      23 hours ago   COPY /out/api /api # buildkit                   11.6MB    buildkit.dockerfile.v0
+<missing>      23 hours ago   LABEL org.opencontainers.image.title=tasklan…   0B        buildkit.dockerfile.v0
+<missing>      N/A            bazel build //common:cacerts_debian13_amd64_…   319kB     
+<missing>      N/A            bazel build //common:os_release_debian13        16.4kB    
+<missing>      N/A            bazel build //static:nsswitch                   12.3kB    
+<missing>      N/A            bazel build //common:tmp                        8.19kB    
+<missing>      N/A            bazel build //common:group                      12.3kB    
+<missing>      N/A            bazel build //common:home                       16.4kB    
+<missing>      N/A            bazel build //common:passwd                     12.3kB    
+<missing>      N/A            bazel build //common:rootfs                     4.1kB     
+<missing>      N/A            bazel build @trixie//media-types/amd64:data_…   160kB     
+<missing>      N/A            bazel build @trixie//tzdata-legacy/amd64:dat…   2.15MB    
+<missing>      N/A            bazel build @trixie//tzdata/amd64:data_statu…   2.24MB    
+<missing>      N/A            bazel build @trixie//netbase/amd64:data_stat…   86kB      
+<missing>      N/A            bazel build @trixie//base-files/amd64:data_s…   745kB

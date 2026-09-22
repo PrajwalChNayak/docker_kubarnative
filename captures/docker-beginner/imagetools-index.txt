@@ -1,0 +1,60 @@
+$ docker buildx imagetools inspect postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+Name:      docker.io/library/postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+           
+Manifests: 
+  Name:        docker.io/library/postgres:18-trixie@sha256:0377e72c5289ed2f98cf61b1a9c2db9eb9d300317fe14244492fbc94343b3d04
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+  Annotations: 
+    org.opencontainers.image.revision:        e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc
+    org.opencontainers.image.source:          https://github.com/docker-library/postgres.git#e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc:18/trixie
+    org.opencontainers.image.url:             https://hub.docker.com/_/postgres
+    org.opencontainers.image.version:         18.6
+    com.docker.official-images.bashbrew.arch: amd64
+    org.opencontainers.image.base.digest:     sha256:7792b1f7702a86946cd518db72b6a407302c3e9bc1635634368b878189e8221c
+    org.opencontainers.image.base.name:       debian:trixie-slim
+    org.opencontainers.image.created:         2026-09-19T00:35:37Z
+               
+  Name:        docker.io/library/postgres:18-trixie@sha256:42b85885528604a1e329d7e5d7475f9bf7b1ebb530d2a7e4add1aca54f3c2382
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    com.docker.official-images.bashbrew.arch: amd64
+    vnd.docker.reference.digest:              sha256:0377e72c5289ed2f98cf61b1a9c2db9eb9d300317fe14244492fbc94343b3d04
+    vnd.docker.reference.type:                attestation-manifest
+               
+  Name:        docker.io/library/postgres:18-trixie@sha256:a10c740727809bfbb0c95f9ef7602298591bc949f8605477a1be1f797413ce49
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm/v5
+  Annotations: 
+    org.opencontainers.image.base.name:       debian:trixie-slim
+    org.opencontainers.image.created:         2026-09-19T00:41:04Z
+    org.opencontainers.image.revision:        e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc
+    org.opencontainers.image.source:          https://github.com/docker-library/postgres.git#e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc:18/trixie
+    org.opencontainers.image.url:             https://hub.docker.com/_/postgres
+    org.opencontainers.image.version:         18.6
+    com.docker.official-images.bashbrew.arch: arm32v5
+    org.opencontainers.image.base.digest:     sha256:3405f5ef07b562ef1977c29a729f4b800f5565c96c7c7593780ac3729029f9f8
+               
+  Name:        docker.io/library/postgres:18-trixie@sha256:f21b2e74ce869432e914280ecd23f9fb04f29580be77be5f66d368d94a2f3e7d
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    com.docker.official-images.bashbrew.arch: arm32v5
+    vnd.docker.reference.digest:              sha256:a10c740727809bfbb0c95f9ef7602298591bc949f8605477a1be1f797413ce49
+    vnd.docker.reference.type:                attestation-manifest
+               
+  Name:        docker.io/library/postgres:18-trixie@sha256:d49ba730932410f34374902b1fe8a73e5a142cd4c0519e3a11f7872810e13d6d
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm/v7
+  Annotations: 
+    org.opencontainers.image.created:         2026-09-19T01:10:12Z
+    org.opencontainers.image.revision:        e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc
+    org.opencontainers.image.source:          https://github.com/docker-library/postgres.git#e00e1bd34ec5c8a8e7ad89b273b3d42efaf6d5bc:18/trixie
+    org.opencontainers.image.url:             https://hub.docker.com/_/postgres
+    org.opencontainers.image.version:         18.6
+    com.docker.official-images.bashbrew.arch: arm32v7
+    org.opencontainers.image.base.digest:     sha256:36fb0164b892c70d3f7e84d2650f0550276f6099381cce5f2d15de87271709f4
+    org.opencontainers.image.base.name:       debian:trixie-slim

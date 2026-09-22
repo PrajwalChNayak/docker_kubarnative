@@ -1,0 +1,6 @@
+$ kubectl get gatewayclass,gateway -A
+NAME                                        CONTROLLER                                      ACCEPTED   AGE
+gatewayclass.gateway.networking.k8s.io/eg   gateway.envoyproxy.io/gatewayclass-controller   True       23h
+
+NAMESPACE   NAME                                         CLASS   ADDRESS      PROGRAMMED   AGE
+tasklane    gateway.gateway.networking.k8s.io/tasklane   eg      172.19.0.2   True         23h

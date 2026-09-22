@@ -1,0 +1,29 @@
+# VULNERABLE. A workload ServiceAccount bound to cluster-admin.
+#
+# cluster-admin is the built-in super-user role: every verb on every resource
+# in every namespace, cluster-wide. Binding it to an application's
+# ServiceAccount means the application's token is a cluster super-user token.
+#
+# Any compromise of a pod using this ServiceAccount is a full cluster
+# compromise: the token can read every Secret in every namespace, create
+# workloads anywhere, and grant itself persistence. A ClusterRoleBinding also
+# ignores namespace boundaries entirely, so "it's just one app's account" is
+# no comfort.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app
+  namespace: rbac-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: app-cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: app
+    namespace: rbac-demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin          # the super-user role — never bind this to a workload

@@ -1,0 +1,5 @@
+$ kubectl apply -f examples/k8s/07-reliability/20-cronjob.yaml && kubectl -n tasklane get cronjob -o wide
+serviceaccount/tasklane-cleanup created
+cronjob.batch/tasklane-cleanup created
+NAME               SCHEDULE     TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE   CONTAINERS   IMAGES                                                                                       SELECTOR
+tasklane-cleanup   30 2 * * *   Etc/UTC    False     0        <none>          2s    cleanup      postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae   <none>

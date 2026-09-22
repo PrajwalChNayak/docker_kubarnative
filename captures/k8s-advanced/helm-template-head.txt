@@ -1,0 +1,60 @@
+$ helm template t examples/helm/tasklane | head -80
+---
+# Source: tasklane/templates/pdb.yaml
+# policy/v1. policy/v1beta1 PodDisruptionBudget was removed in 1.25.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: t-tasklane-api
+  labels:
+    helm.sh/chart: tasklane-0.1.0
+    app.kubernetes.io/part-of: tasklane
+    app.kubernetes.io/instance: t
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api
+      app.kubernetes.io/instance: t
+
+---
+# Source: tasklane/templates/serviceaccounts.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: t-tasklane-api
+  labels:
+    helm.sh/chart: tasklane-0.1.0
+    app.kubernetes.io/part-of: tasklane
+    app.kubernetes.io/instance: t
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+# The API never calls the Kubernetes API, so no token is projected into it.
+automountServiceAccountToken: false
+
+---
+# Source: tasklane/templates/serviceaccounts.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: t-tasklane-worker
+  labels:
+    helm.sh/chart: tasklane-0.1.0
+    app.kubernetes.io/part-of: tasklane
+    app.kubernetes.io/instance: t
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+automountServiceAccountToken: false
+
+---
+# Source: tasklane/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap

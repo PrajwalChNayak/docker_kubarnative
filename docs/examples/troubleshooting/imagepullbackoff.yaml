@@ -1,0 +1,42 @@
+# FAULT: the image tag does not exist. tasklane-api:0.1.0 is loaded into the
+# kind nodes, but :9.9.9-nope is not, so the kubelet falls back to pulling it
+# from the default registry (docker.io/library), where it does not exist. The
+# first failure shows as ErrImagePull; subsequent retries back off and show as
+# ImagePullBackOff.
+#
+# imagePullPolicy is spelled out here. With the :9.9.9-nope tag the default
+# policy is IfNotPresent (only :latest defaults to Always), but the node has
+# no such image cached, so it still tries to pull.
+#
+# FIX: reference a tag that exists (tasklane-api:0.1.0) and, for a local
+# image, load it with `kind load docker-image tasklane-api:0.1.0 --name tasklane`.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: imagepull
+  namespace: troubleshoot
+  labels:
+    case: imagepull
+spec:
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: tasklane-api:9.9.9-nope
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

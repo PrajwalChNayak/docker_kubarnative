@@ -1,0 +1,14 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null && docker network inspect tasklane-net --format 'driver={{.Driver}} subnet={{range .IPAM.Config}}{{.Subnet}}{{end}}{{println}}{{range .Containers}}{{.Name}} {{.IPv4Address}}{{println}}{{end}}' && docker run --rm --network tasklane-net busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23 nslookup tasklane-db; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+driver=bridge subnet=172.20.0.0/16
+tasklane-db 172.20.0.2/16
+tasklane-api 172.20.0.3/16
+tasklane-worker 172.20.0.4/16
+
+Server:		127.0.0.11
+Address:	127.0.0.11:53
+
+Non-authoritative answer:
+
+Non-authoritative answer:
+Name:	tasklane-db
+Address: 172.20.0.2

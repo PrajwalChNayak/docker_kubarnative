@@ -1,0 +1,6 @@
+$ docker run --rm --cap-drop ALL alpine:3.22 grep Cap /proc/1/status
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000000000000000
+CapAmb:	0000000000000000

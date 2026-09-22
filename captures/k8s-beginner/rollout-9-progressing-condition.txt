@@ -1,0 +1,54 @@
+$ kubectl -n tasklane-basics describe deploy hello-api
+Name:                   hello-api
+Namespace:              tasklane-basics
+CreationTimestamp:      Tue, 22 Sep 2026 12:50:32 +0530
+Labels:                 app.kubernetes.io/component=api
+                        app.kubernetes.io/name=hello-api
+                        app.kubernetes.io/part-of=tasklane
+Annotations:            deployment.kubernetes.io/revision: 3
+                        kubernetes.io/change-cause: set RELEASE=2
+Selector:               app.kubernetes.io/name=hello-api
+Replicas:               3 desired | 1 updated | 4 total | 3 available | 1 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        5
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:  app.kubernetes.io/component=api
+           app.kubernetes.io/name=hello-api
+           app.kubernetes.io/part-of=tasklane
+  Containers:
+   api:
+    Image:      tasklane-api:0.9.9-does-not-exist
+    Port:       8080/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      memory:  64Mi
+    Requests:
+      cpu:      50m
+      memory:   32Mi
+    Readiness:  http-get http://:http/healthz delay=0s timeout=1s period=2s successThreshold=1 failureThreshold=2
+    Environment:
+      RELEASE:                 2
+      SHUTDOWN_DELAY_SECONDS:  2
+    Mounts:                    <none>
+  Volumes:                     <none>
+  Node-Selectors:              <none>
+  Tolerations:                 <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    False   ProgressDeadlineExceeded
+OldReplicaSets:  hello-api-59869b57ff (0/0 replicas created), hello-api-5465458575 (3/3 replicas created)
+NewReplicaSet:   hello-api-7ddcff8968 (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  2m9s  deployment-controller  Scaled up replica set hello-api-59869b57ff from 0 to 3
+  Normal  ScalingReplicaSet  114s  deployment-controller  Scaled up replica set hello-api-5465458575 from 0 to 1
+  Normal  ScalingReplicaSet  109s  deployment-controller  Scaled down replica set hello-api-59869b57ff from 3 to 2
+  Normal  ScalingReplicaSet  109s  deployment-controller  Scaled up replica set hello-api-5465458575 from 1 to 2
+  Normal  ScalingReplicaSet  104s  deployment-controller  Scaled down replica set hello-api-59869b57ff from 2 to 1
+  Normal  ScalingReplicaSet  104s  deployment-controller  Scaled up replica set hello-api-5465458575 from 2 to 3
+  Normal  ScalingReplicaSet  99s   deployment-controller  Scaled down replica set hello-api-59869b57ff from 1 to 0
+  Normal  ScalingReplicaSet  93s   deployment-controller  Scaled up replica set hello-api-7ddcff8968 from 0 to 1

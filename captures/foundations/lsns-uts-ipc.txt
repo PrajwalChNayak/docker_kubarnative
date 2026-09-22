@@ -1,0 +1,18 @@
+$ docker exec tasklane-control-plane sh -c 'lsns -t uts; echo; lsns -t ipc'
+        NS TYPE NPROCS   PID USER  COMMAND
+4026532836 uts      27     1 root  /sbin/init
+4026534098 uts       2  1022 65535 /pause
+4026534106 uts       2  1042 65535 /pause
+4026534110 uts       2  1054 65535 /pause
+
+        NS TYPE NPROCS   PID USER  COMMAND
+4026532837 ipc      15     1 root  /sbin/init
+4026533060 ipc       2   407 65535 /pause
+4026533063 ipc       2   420 65535 /pause
+4026533066 ipc       2   427 65535 /pause
+4026533069 ipc       2   434 65535 /pause
+4026533740 ipc       2   822 65535 /pause
+4026533743 ipc       2   824 65535 /pause
+4026534099 ipc       2  1022 65535 /pause
+4026534107 ipc       2  1042 65535 /pause
+4026534111 ipc       2  1054 65535 /pause

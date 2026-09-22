@@ -1,0 +1,67 @@
+# Flagger is the alternative to Argo Rollouts: instead of replacing the
+# Deployment, it wraps it. On first reconciliation Flagger copies
+# Deployment/tasklane-api to tasklane-api-primary, scales the original to
+# zero, and creates the Services and the HTTPRoute itself. You keep writing
+# a normal Deployment; the canary machinery is a separate object.
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  # Overrides the provider Flagger was installed with, so one installation
+  # can drive Gateway API here and something else elsewhere.
+  provider: gatewayapi:v1
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-api
+  progressDeadlineSeconds: 300
+  service:
+    port: 80
+    targetPort: http
+    # Flagger creates and owns the HTTPRoute attached to this Gateway.
+    gatewayRefs:
+      - name: tasklane
+        namespace: tasklane
+  analysis:
+    # One promotion step per interval, up to maxWeight, then a full switch.
+    interval: 1m
+    threshold: 5           # failed checks tolerated before rollback
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+      - name: success-rate
+        templateRef:
+          name: tasklane-success-rate
+          namespace: tasklane
+        thresholdRange:
+          min: 99
+        interval: 1m
+---
+apiVersion: flagger.app/v1beta1
+kind: MetricTemplate
+metadata:
+  name: tasklane-success-rate
+  namespace: tasklane
+spec:
+  provider:
+    type: prometheus
+    address: http://prometheus-operated.monitoring.svc.cluster.local:9090
+  # Flagger substitutes {{ namespace }}, {{ target }} and {{ interval }}.
+  # Canary pods are named <target>-<rs>-<id>; the primary Deployment Flagger
+  # created is <target>-primary, so it has to be excluded explicitly.
+  query: |
+    100 * sum(rate(tasklane_http_requests_total{
+      namespace="{{ namespace }}",
+      pod=~"{{ target }}-[0-9a-z]+-[0-9a-z]+",
+      pod!~"{{ target }}-primary-.*",
+      code!~"5.."}[{{ interval }}]))
+    /
+    sum(rate(tasklane_http_requests_total{
+      namespace="{{ namespace }}",
+      pod=~"{{ target }}-[0-9a-z]+-[0-9a-z]+",
+      pod!~"{{ target }}-primary-.*"}[{{ interval }}]))

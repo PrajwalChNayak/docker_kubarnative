@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: docker run --rm --privileged -v "$PWD/examples/foundations/container-from-scratch:/work:ro" debian:trixie-slim bash -c 'apt-get update -qq && apt-get install -y -qq busybox-static >/dev/null && (HOLD=1 bash /work/from-scratch.sh >/tmp/run.log 2>&1 &) && sleep 20 && echo "== lsns as the host of the demo sees it" && lsns && echo && echo "== the demo process" && p=$(pgrep -f "sleep 3600" | head -n 1) && sh /work/inspect-process.sh "$p"'
+# reason: debconf: unable to initialize frontend: Dialog debconf: (TERM is not set, so the dialog frontend is not usable.) debconf: falling back to frontend: Readline

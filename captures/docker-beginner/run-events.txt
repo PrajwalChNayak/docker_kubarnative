@@ -1,0 +1,6 @@
+$ S=$(date +%s); docker run --rm --name events-demo alpine:3.22 true >/dev/null; docker events --since "$S" --until "$(date +%s)" --filter container=events-demo --format '{{.Time}} {{.Type}} {{.Action}}'
+1790060388 container create
+1790060388 container attach
+1790060389 container start
+1790060389 container die
+1790060389 container destroy

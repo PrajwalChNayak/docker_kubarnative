@@ -1,0 +1,23 @@
+$ kubectl -n tasklane get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].image}{"\n"}{end}'
+postgres-0	postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+sched-anti-affinity-868d6cb8cc-5g2s4	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-anti-affinity-868d6cb8cc-fmlg9	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-anti-affinity-868d6cb8cc-r24ns	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-batch-566df5c77b-6ztql	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-batch-566df5c77b-k9zc9	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-node-affinity-5bffb9f8fc-8tcmh	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-node-affinity-5bffb9f8fc-jtvpm	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-node-affinity-5bffb9f8fc-mb6c2	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-node-affinity-5bffb9f8fc-snjdx	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-spread-5467d59fb6-s77vk	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-spread-5467d59fb6-sfmln	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-spread-5467d59fb6-sv9nv	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-spread-5467d59fb6-t9n76	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-toleration-85f76767b-5psbl	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+sched-toleration-85f76767b-p2knn	busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+tasklane-api-86876d58cf-4dp97	tasklane-api:0.1.0
+tasklane-api-86876d58cf-9jxxr	tasklane-api:0.1.0
+tasklane-api-86876d58cf-vlxfp	tasklane-api:0.1.0
+tasklane-worker-cc4f995df-8lbcl	tasklane-worker:0.1.0
+tasklane-worker-cc4f995df-c55hs	tasklane-worker:0.1.0
+tasklane-worker-cc4f995df-rfjkc	tasklane-worker:0.1.0

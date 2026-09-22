@@ -1,0 +1,14 @@
+$ kubectl describe namespace tasklane
+Name:         tasklane
+Labels:       app.kubernetes.io/part-of=tasklane
+              kubernetes.io/metadata.name=tasklane
+              pod-security.kubernetes.io/audit=restricted
+              pod-security.kubernetes.io/enforce=restricted
+              pod-security.kubernetes.io/enforce-version=v1.37
+              pod-security.kubernetes.io/warn=restricted
+Annotations:  <none>
+Status:       Active
+
+No resource quota.
+
+No LimitRange resource.

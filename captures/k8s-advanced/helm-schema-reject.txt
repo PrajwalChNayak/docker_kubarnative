@@ -1,0 +1,4 @@
+$ helm template t examples/helm/tasklane --set api.replicas=3 2>&1 || true
+Error: values don't meet the specifications of the schema(s) in the following chart(s):
+tasklane:
+- at '/api': additional properties 'replicas' not allowed

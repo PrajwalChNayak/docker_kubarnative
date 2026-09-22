@@ -1,0 +1,11 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/stuck-terminating.yaml && sleep 5 && kubectl -n troubleshoot delete pod stuck-terminating --wait=false && sleep 5 && echo "--- stuck in Terminating ---" && kubectl -n troubleshoot get pod stuck-terminating && echo "--- finalizers ---" && kubectl -n troubleshoot get pod stuck-terminating -o jsonpath='{.metadata.finalizers}{"\n"}' && echo "--- removing the finalizer ---" && kubectl -n troubleshoot patch pod stuck-terminating --type=merge -p '{"metadata":{"finalizers":null}}' && sleep 3 && kubectl -n troubleshoot get pod stuck-terminating 2>&1; kubectl -n troubleshoot delete pod stuck-terminating --ignore-not-found --force --grace-period=0 >/dev/null 2>&1
+pod/stuck-terminating created
+pod "stuck-terminating" deleted from troubleshoot namespace
+--- stuck in Terminating ---
+NAME                READY   STATUS   RESTARTS   AGE
+stuck-terminating   0/1     Error    0          13s
+--- finalizers ---
+["example.com/holdme"]
+--- removing the finalizer ---
+pod/stuck-terminating patched
+Error from server (NotFound): pods "stuck-terminating" not found

@@ -1,0 +1,5 @@
+$ kubectl auth whoami
+ATTRIBUTE                                           VALUE
+Username                                            kubernetes-admin
+Groups                                              [kubeadm:cluster-admins system:authenticated]
+Extra: authentication.kubernetes.io/credential-id   [X509SHA256=aeaacd7d31db55c9aeb04faf67490aef05960c4b1b131c796c16fa5528c5d273]

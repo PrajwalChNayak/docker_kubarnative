@@ -1,0 +1,21 @@
+$ docker exec tasklane-control-plane kubeadm certs check-expiration
+[check-expiration] Reading configuration from the "kubeadm-config" ConfigMap in namespace "kube-system"...
+[check-expiration] Use 'kubeadm init phase upload-config kubeadm --config your-config-file' to re-upload it.
+
+CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
+admin.conf                 Sep 21, 2027 07:33 UTC   363d            ca                      no      
+apiserver                  Sep 22, 2027 06:16 UTC   364d            ca                      no      
+apiserver-etcd-client      Sep 21, 2027 07:33 UTC   363d            etcd-ca                 no      
+apiserver-kubelet-client   Sep 21, 2027 07:33 UTC   363d            ca                      no      
+controller-manager.conf    Sep 21, 2027 07:33 UTC   363d            ca                      no      
+etcd-healthcheck-client    Sep 21, 2027 07:33 UTC   363d            etcd-ca                 no      
+etcd-peer                  Sep 21, 2027 07:33 UTC   363d            etcd-ca                 no      
+etcd-server                Sep 21, 2027 07:33 UTC   363d            etcd-ca                 no      
+front-proxy-client         Sep 21, 2027 07:33 UTC   363d            front-proxy-ca          no      
+scheduler.conf             Sep 21, 2027 07:33 UTC   363d            ca                      no      
+super-admin.conf           Sep 21, 2027 07:33 UTC   363d            ca                      no      
+
+CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED
+ca                      Sep 18, 2036 07:33 UTC   9y              no      
+etcd-ca                 Sep 18, 2036 07:33 UTC   9y              no      
+front-proxy-ca          Sep 18, 2036 07:33 UTC   9y              no

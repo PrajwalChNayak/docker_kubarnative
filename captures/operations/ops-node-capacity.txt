@@ -1,0 +1,5 @@
+$ kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU:.status.capacity.cpu,MEM:.status.capacity.memory,PODS:.status.capacity.pods
+NAME                     CPU   MEM         PODS
+tasklane-control-plane   14    7883456Ki   110
+tasklane-worker          14    7883456Ki   110
+tasklane-worker2         14    7883456Ki   110

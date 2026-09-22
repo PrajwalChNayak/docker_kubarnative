@@ -1,0 +1,24 @@
+$ kubectl -n tasklane get pods -o custom-columns='NAME:.metadata.name,QOS:.status.qosClass,NODE:.spec.nodeName,CPU_REQ:.spec.containers[0].resources.requests.cpu,MEM_LIM:.spec.containers[0].resources.limits.memory'
+NAME                                   QOS         NODE               CPU_REQ   MEM_LIM
+postgres-0                             Burstable   tasklane-worker2   100m      512Mi
+sched-anti-affinity-868d6cb8cc-5g2s4   Burstable   <none>             10m       32Mi
+sched-anti-affinity-868d6cb8cc-fmlg9   Burstable   tasklane-worker2   10m       32Mi
+sched-anti-affinity-868d6cb8cc-r24ns   Burstable   <none>             10m       32Mi
+sched-batch-566df5c77b-6ztql           Burstable   tasklane-worker2   10m       32Mi
+sched-batch-566df5c77b-k9zc9           Burstable   tasklane-worker2   10m       32Mi
+sched-node-affinity-5bffb9f8fc-8tcmh   Burstable   tasklane-worker2   10m       32Mi
+sched-node-affinity-5bffb9f8fc-jtvpm   Burstable   tasklane-worker2   10m       32Mi
+sched-node-affinity-5bffb9f8fc-mb6c2   Burstable   tasklane-worker2   10m       32Mi
+sched-node-affinity-5bffb9f8fc-snjdx   Burstable   tasklane-worker2   10m       32Mi
+sched-spread-5467d59fb6-s77vk          Burstable   tasklane-worker2   10m       32Mi
+sched-spread-5467d59fb6-sfmln          Burstable   <none>             10m       32Mi
+sched-spread-5467d59fb6-sv9nv          Burstable   <none>             10m       32Mi
+sched-spread-5467d59fb6-t9n76          Burstable   <none>             10m       32Mi
+sched-toleration-85f76767b-5psbl       Burstable   tasklane-worker2   10m       32Mi
+sched-toleration-85f76767b-p2knn       Burstable   tasklane-worker2   10m       32Mi
+tasklane-api-86876d58cf-4dp97          Burstable   tasklane-worker    100m      128Mi
+tasklane-api-9dddb5cf6-98hls           Burstable   tasklane-worker2   100m      128Mi
+tasklane-api-9dddb5cf6-t8px5           Burstable   tasklane-worker2   100m      128Mi
+tasklane-worker-cc4f995df-8lbcl        Burstable   tasklane-worker2   50m       64Mi
+tasklane-worker-cc4f995df-c55hs        Burstable   tasklane-worker    50m       64Mi
+tasklane-worker-cc4f995df-rfjkc        Burstable   tasklane-worker2   50m       64Mi

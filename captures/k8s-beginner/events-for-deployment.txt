@@ -1,0 +1,6 @@
+$ kubectl -n tasklane events --for deploy/tasklane-api --types=Normal,Warning
+LAST SEEN   TYPE     REASON              OBJECT                    MESSAGE
+2m22s       Normal   ScalingReplicaSet   Deployment/tasklane-api   Scaled up replica set tasklane-api-9dddb5cf6 from 0 to 1
+2m20s       Normal   ScalingReplicaSet   Deployment/tasklane-api   Scaled down replica set tasklane-api-86876d58cf from 2 to 1
+2m19s       Normal   ScalingReplicaSet   Deployment/tasklane-api   Scaled up replica set tasklane-api-9dddb5cf6 from 1 to 2
+2m17s       Normal   ScalingReplicaSet   Deployment/tasklane-api   Scaled down replica set tasklane-api-86876d58cf from 1 to 0

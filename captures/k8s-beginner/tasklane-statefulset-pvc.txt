@@ -1,0 +1,9 @@
+$ kubectl -n tasklane get statefulset,pvc,pv -o wide
+NAME                        READY   AGE   CONTAINERS   IMAGES
+statefulset.apps/postgres   1/1     23h   postgres     postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565   1Gi        RWO            standard       <unset>                 23h   Filesystem
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                      STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE   VOLUMEMODE
+persistentvolume/pvc-d24f3f5d-1a0e-46a3-827c-651ad7f21565   1Gi        RWO            Delete           Bound    tasklane/data-postgres-0   standard       <unset>                          23h   Filesystem

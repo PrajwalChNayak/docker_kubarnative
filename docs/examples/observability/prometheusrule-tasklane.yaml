@@ -1,0 +1,60 @@
+# Alerting and recording rules for Tasklane. The Prometheus Operator loads
+# every PrometheusRule that matches its ruleSelector into the Prometheus it
+# manages and evaluates them on the group interval.
+#
+# These alerts are symptom-based: they fire on things a user would feel (work
+# not getting done, errors climbing), not on internal causes. Each carries a
+# runbook_url annotation so the responder has a starting point.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tasklane-rules
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: tasklane.recording
+      interval: 30s
+      rules:
+        # Pre-compute the fleet-wide request and processing rates so dashboards
+        # and alerts read a cheap single series instead of re-aggregating.
+        - record: tasklane:http_requests:rate5m
+          expr: sum(rate(tasklane_http_requests_total[5m]))
+        - record: tasklane:tasks_processed:rate5m
+          expr: sum(rate(tasklane_tasks_processed_total[5m]))
+        - record: tasklane:worker_errors:rate5m
+          expr: sum(rate(tasklane_worker_errors_total[5m]))
+    - name: tasklane.alerts
+      rules:
+        # tasklane_tasks_pending is a gauge each API replica reports from the
+        # same database, so max() collapses the duplicate series to one value.
+        - alert: TasklaneTasksBacklogHigh
+          expr: max(tasklane_tasks_pending) > 50
+          for: 10m
+          labels:
+            severity: warning
+            team: tasklane
+          annotations:
+            summary: Task backlog above 50 for 10 minutes
+            description: >-
+              The pending-task queue has stayed above 50 for 10 minutes.
+              Workers are falling behind task creation. Check worker replica
+              count, worker errors, and database health.
+            runbook_url: https://runbooks.example.com/tasklane/backlog-high
+        # Any sustained worker DB error rate is actionable: the worker cannot
+        # claim or complete tasks, which is what feeds the backlog above.
+        - alert: TasklaneWorkerErrors
+          expr: tasklane:worker_errors:rate5m > 0
+          for: 10m
+          labels:
+            severity: warning
+            team: tasklane
+          annotations:
+            summary: Worker database errors are ongoing
+            description: >-
+              Workers have reported database errors continuously for 10
+              minutes. New tasks may not be processed. Inspect worker logs and
+              PostgreSQL availability.
+            runbook_url: https://runbooks.example.com/tasklane/worker-errors

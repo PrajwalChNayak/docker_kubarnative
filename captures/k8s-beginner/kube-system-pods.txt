@@ -1,0 +1,16 @@
+$ kubectl get pods -n kube-system -o wide
+NAME                                             READY   STATUS        RESTARTS      AGE   IP            NODE                     NOMINATED NODE   READINESS GATES
+coredns-559f6c778d-58k5h                         1/1     Running       1 (98m ago)   23h   10.244.0.4    tasklane-control-plane   <none>           <none>
+coredns-559f6c778d-5kq8c                         1/1     Running       1 (98m ago)   23h   10.244.0.2    tasklane-control-plane   <none>           <none>
+etcd-tasklane-control-plane                      1/1     Running       0             63m   172.19.0.2    tasklane-control-plane   <none>           <none>
+kindnet-l6vjs                                    1/1     Running       1 (98m ago)   23h   172.19.0.2    tasklane-control-plane   <none>           <none>
+kindnet-mrp5n                                    1/1     Running       1 (98m ago)   23h   172.19.0.3    tasklane-worker          <none>           <none>
+kindnet-tszjm                                    1/1     Running       1 (98m ago)   23h   172.19.0.4    tasklane-worker2         <none>           <none>
+kube-apiserver-tasklane-control-plane            1/1     Running       0             63m   172.19.0.2    tasklane-control-plane   <none>           <none>
+kube-controller-manager-tasklane-control-plane   1/1     Running       2 (63m ago)   23h   172.19.0.2    tasklane-control-plane   <none>           <none>
+kube-proxy-bg9p9                                 1/1     Running       1 (98m ago)   23h   172.19.0.2    tasklane-control-plane   <none>           <none>
+kube-proxy-h2m7c                                 1/1     Running       1 (98m ago)   23h   172.19.0.3    tasklane-worker          <none>           <none>
+kube-proxy-w58sw                                 1/1     Running       1 (98m ago)   23h   172.19.0.4    tasklane-worker2         <none>           <none>
+kube-scheduler-tasklane-control-plane            1/1     Running       2 (63m ago)   23h   172.19.0.2    tasklane-control-plane   <none>           <none>
+metrics-server-6b975bf9bc-kzrsn                  1/1     Terminating   2 (62m ago)   23h   10.244.1.2    tasklane-worker          <none>           <none>
+metrics-server-6b975bf9bc-p9ksx                  1/1     Running       0             11m   10.244.2.12   tasklane-worker2         <none>           <none>

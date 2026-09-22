@@ -1,0 +1,12 @@
+$ kubectl apply -f examples/security/k8s/missing-networkpolicy/namespace.yaml && kubectl apply -f examples/security/k8s/missing-networkpolicy/workloads.yaml && kubectl apply -f examples/security/k8s/missing-networkpolicy/fixed-networkpolicy.yaml && kubectl -n netpol-demo wait --for=condition=Ready pod/client-denied --timeout=90s && kubectl -n netpol-demo exec client-denied -- wget -qO- --timeout=3 http://server:8080/ ; echo "exit=$?"
+namespace/netpol-demo unchanged
+service/server unchanged
+deployment.apps/server unchanged
+pod/client-allowed unchanged
+pod/client-denied unchanged
+networkpolicy.networking.k8s.io/default-deny unchanged
+networkpolicy.networking.k8s.io/allow-dns-egress unchanged
+networkpolicy.networking.k8s.io/allow-client-to-server unchanged
+networkpolicy.networking.k8s.io/allow-client-egress-to-server unchanged
+pod/client-denied condition met
+exit=1

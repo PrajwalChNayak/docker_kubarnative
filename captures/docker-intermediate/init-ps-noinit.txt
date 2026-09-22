@@ -1,0 +1,5 @@
+$ docker build -q -t di-noinit -f examples/dockerfiles/init-and-zombies/Dockerfile.noinit examples/dockerfiles/init-and-zombies >/dev/null && docker run -d --name di-noinit di-noinit >/dev/null 2>&1; sleep 2; docker exec di-noinit ps -o pid,ppid,args 2>/dev/null | head; docker rm -f di-noinit >/dev/null 2>&1
+PID   PPID  COMMAND
+    1     0 {spawner.sh} /bin/sh /app/spawner.sh
+   15     1 sleep 1
+   16     0 ps -o pid,ppid,args

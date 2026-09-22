@@ -1,0 +1,4 @@
+$ export MSYS_NO_PATHCONV=1; docker rm -f logrot-demo >/dev/null 2>&1; docker run -d --name logrot-demo --log-driver json-file --log-opt max-size=8k --log-opt max-file=3 alpine:3.22 sh -c 'i=0; while [ $i -lt 2000 ]; do i=$((i+1)); echo "log line $i aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; done; sleep 2' >/dev/null; sleep 5; docker inspect --format 'driver={{.HostConfig.LogConfig.Type}} opts={{json .HostConfig.LogConfig.Config}}' logrot-demo; docker logs --tail 2 logrot-demo; docker rm -f logrot-demo >/dev/null
+driver=json-file opts={"max-file":"3","max-size":"8k"}
+log line 1999 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+log line 2000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

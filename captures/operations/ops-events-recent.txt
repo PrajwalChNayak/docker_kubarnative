@@ -1,0 +1,26 @@
+$ kubectl get events -A --sort-by=.lastTimestamp | tail -25
+troubleshoot           9m13s       Normal    Created                        pod/failing-probes                                      Container created
+troubleshoot           9m13s       Normal    Started                        pod/failing-probes                                      Container started
+troubleshoot           8m45s       Normal    Killing                        pod/failing-probes                                      Stopping container api
+troubleshoot           8m40s       Warning   Unhealthy                      pod/failing-probes                                      Readiness probe failed: HTTP probe failed with statuscode: 404
+troubleshoot           8m36s       Normal    SuccessfulCreate               replicaset/sample-app-c68857f8f                         Created pod: sample-app-c68857f8f-jrbq4
+troubleshoot           8m36s       Normal    SuccessfulCreate               replicaset/sample-app-c68857f8f                         Created pod: sample-app-c68857f8f-9gqcx
+troubleshoot           8m36s       Normal    ScalingReplicaSet              deployment/sample-app                                   Scaled up replica set sample-app-c68857f8f from 0 to 2
+troubleshoot           8m36s       Normal    Created                        pod/sample-app-c68857f8f-jrbq4                          Container created
+troubleshoot           8m36s       Normal    Pulled                         pod/sample-app-c68857f8f-9gqcx                          Container image "busybox:1.37" already present on machine and can be accessed by the pod
+troubleshoot           8m36s       Normal    Created                        pod/sample-app-c68857f8f-9gqcx                          Container created
+troubleshoot           8m36s       Normal    Pulled                         pod/sample-app-c68857f8f-jrbq4                          Container image "busybox:1.37" already present on machine and can be accessed by the pod
+troubleshoot           8m35s       Normal    Started                        pod/sample-app-c68857f8f-jrbq4                          Container started
+troubleshoot           8m35s       Normal    Started                        pod/sample-app-c68857f8f-9gqcx                          Container started
+troubleshoot           8m16s       Normal    Killing                        pod/sample-app-c68857f8f-jrbq4                          Stopping container app
+troubleshoot           8m16s       Normal    Killing                        pod/sample-app-c68857f8f-9gqcx                          Stopping container app
+troubleshoot           7m58s       Warning   ProvisioningFailed             persistentvolumeclaim/pvc-pending                       storageclass.storage.k8s.io "fast-ssd-that-does-not-exist" not found
+troubleshoot           7m54s       Normal    Pulled                         pod/stuck-terminating                                   Container image "busybox:1.37" already present on machine and can be accessed by the pod
+troubleshoot           7m54s       Normal    Started                        pod/stuck-terminating                                   Container started
+troubleshoot           7m54s       Normal    Created                        pod/stuck-terminating                                   Container created
+troubleshoot           7m48s       Normal    Killing                        pod/stuck-terminating                                   Stopping container app
+troubleshoot           7m17s       Normal    Pulling                        pod/imagepull                                           Pulling image "tasklane-api:9.9.9-nope"
+troubleshoot           7m15s       Warning   Failed                         pod/imagepull                                           Error: ErrImagePull
+troubleshoot           7m15s       Warning   Failed                         pod/imagepull                                           Failed to pull image "tasklane-api:9.9.9-nope": failed to pull and unpack image "docker.io/library/tasklane-api:9.9.9-nope": failed to resolve reference "docker.io/library/tasklane-api:9.9.9-nope": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+troubleshoot           7m2s        Normal    BackOff                        pod/imagepull                                           Back-off pulling image "tasklane-api:9.9.9-nope"
+troubleshoot           7m2s        Warning   Failed                         pod/imagepull                                           Error: ImagePullBackOff

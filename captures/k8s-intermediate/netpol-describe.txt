@@ -1,0 +1,19 @@
+$ kubectl -n tasklane describe networkpolicy api-ingress
+Name:         api-ingress
+Namespace:    tasklane
+Created on:   2026-09-22 13:00:17 +0530 IST
+Labels:       app.kubernetes.io/part-of=tasklane
+Annotations:  <none>
+Spec:
+  PodSelector:     app.kubernetes.io/component=api
+  Allowing ingress traffic:
+    To Port: 8080/TCP
+    From:
+      NamespaceSelector: kubernetes.io/metadata.name=envoy-gateway-system
+      PodSelector: app.kubernetes.io/name=envoy
+    ----------
+    To Port: 8080/TCP
+    From:
+      NamespaceSelector: kubernetes.io/metadata.name=monitoring
+  Not affecting egress traffic
+  Policy Types: Ingress

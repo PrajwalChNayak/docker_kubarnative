@@ -1,0 +1,2 @@
+$ docker info --format 'LoggingDriver={{ .LoggingDriver }} CgroupDriver={{ .CgroupDriver }} CgroupVersion={{ .CgroupVersion }} Rootless={{ .SecurityOptions }}'
+LoggingDriver=json-file CgroupDriver=cgroupfs CgroupVersion=2 Rootless=[name=seccomp,profile=builtin name=cgroupns]

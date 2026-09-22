@@ -1,0 +1,8 @@
+$ kubectl -n tasklane-basics exec config-demo -- nslookup tasklane-db.tasklane-basics.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+tasklane-db.tasklane-basics.svc.cluster.local	canonical name = postgres.tasklane.svc.cluster.local
+Name:	postgres.tasklane.svc.cluster.local
+Address: 10.244.2.3

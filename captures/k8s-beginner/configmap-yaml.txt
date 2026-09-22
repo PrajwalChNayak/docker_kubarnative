@@ -1,0 +1,21 @@
+$ kubectl -n tasklane-basics get configmap hello-config -o yaml
+apiVersion: v1
+data:
+  GREETING: hello from a ConfigMap
+  LOG_LEVEL: info
+  app.properties: |
+    poll.interval.ms=1000
+    work.duration.ms=2000
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"GREETING":"hello from a ConfigMap","LOG_LEVEL":"info","app.properties":"poll.interval.ms=1000\nwork.duration.ms=2000\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"hello-config","app.kubernetes.io/part-of":"tasklane"},"name":"hello-config","namespace":"tasklane-basics"}}
+  creationTimestamp: "2026-09-22T07:20:33Z"
+  labels:
+    app.kubernetes.io/name: hello-config
+    app.kubernetes.io/part-of: tasklane
+  name: hello-config
+  namespace: tasklane-basics
+  resourceVersion: "41893"
+  uid: 6784c383-09d4-4384-be54-226ab9d70630

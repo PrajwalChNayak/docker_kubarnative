@@ -1,0 +1,36 @@
+$ docker exec tasklane-control-plane sh -c 'ps -e -o pid,ppid,comm --forest | head -n 40'
+    PID    PPID COMMAND
+   2200       0 sh
+   2206    2200  \_ ps
+   2207    2200  \_ head
+      1       0 systemd
+    121       1 systemd-journal
+    157       1 containerd
+    244       1 kubelet
+    300       1 containerd-shim
+    427     300  \_ pause
+    513     300  \_ etcd
+    304       1 containerd-shim
+    420     304  \_ pause
+    522     304  \_ kube-apiserver
+    323       1 containerd-shim
+    407     323  \_ pause
+    538     323  \_ kube-controller
+    389       1 containerd-shim
+    434     389  \_ pause
+    530     389  \_ kube-scheduler
+    731       1 containerd-shim
+    824     731  \_ pause
+   1063     731  \_ kindnetd
+    752       1 containerd-shim
+    822     752  \_ pause
+    919     752  \_ kube-proxy
+    935       1 containerd-shim
+   1042     935  \_ pause
+   1453     935  \_ local-path-prov
+    953       1 containerd-shim
+   1022     953  \_ pause
+   1163     953  \_ coredns
+    995       1 containerd-shim
+   1054     995  \_ pause
+   1172     995  \_ coredns

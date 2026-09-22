@@ -1,0 +1,6 @@
+$ docker run --rm alpine:3.22 grep Cap /proc/1/status
+CapInh:	0000000000000000
+CapPrm:	00000000a80425fb
+CapEff:	00000000a80425fb
+CapBnd:	00000000a80425fb
+CapAmb:	0000000000000000

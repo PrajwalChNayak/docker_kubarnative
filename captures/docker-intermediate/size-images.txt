@@ -1,0 +1,4 @@
+$ docker build -q -t di-naive -f examples/dockerfiles/size-naive-vs-optimised/Dockerfile.naive examples/dockerfiles/size-naive-vs-optimised >/dev/null; docker build -q -t di-optimised -f examples/dockerfiles/size-naive-vs-optimised/Dockerfile.optimised examples/dockerfiles/size-naive-vs-optimised >/dev/null; docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | grep -E 'di-naive|di-optimised|REPOSITORY'
+REPOSITORY                                      TAG                            SIZE
+di-optimised                                    latest                         15MB
+di-naive                                        latest                         1.43GB

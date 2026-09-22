@@ -1,0 +1,31 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/imagepullbackoff.yaml && sleep 25 && kubectl -n troubleshoot get pods -l case=imagepull && echo "--- describe ---" && kubectl -n troubleshoot describe pod -l case=imagepull | tail -25; kubectl delete -f examples/troubleshooting/imagepullbackoff.yaml
+pod/imagepull created
+NAME        READY   STATUS             RESTARTS   AGE
+imagepull   0/1     ImagePullBackOff   0          27s
+--- describe ---
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-vvfkc:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  27s                default-scheduler  Successfully assigned troubleshoot/imagepull to tasklane-worker2
+  Normal   BackOff    25s                kubelet            spec.containers{app}: Back-off pulling image "tasklane-api:9.9.9-nope"
+  Warning  Failed     25s                kubelet            spec.containers{app}: Error: ImagePullBackOff
+  Normal   Pulling    11s (x2 over 27s)  kubelet            spec.containers{app}: Pulling image "tasklane-api:9.9.9-nope"
+  Warning  Failed     9s (x2 over 25s)   kubelet            spec.containers{app}: Failed to pull image "tasklane-api:9.9.9-nope": failed to pull and unpack image "docker.io/library/tasklane-api:9.9.9-nope": failed to resolve reference "docker.io/library/tasklane-api:9.9.9-nope": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     9s (x2 over 25s)   kubelet            spec.containers{app}: Error: ErrImagePull
+pod "imagepull" deleted from troubleshoot namespace

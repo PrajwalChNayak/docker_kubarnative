@@ -1,0 +1,19 @@
+$ docker build -q -t di-optimised -f examples/dockerfiles/size-naive-vs-optimised/Dockerfile.optimised examples/dockerfiles/size-naive-vs-optimised >/dev/null && docker history --format 'table {{.CreatedBy}}\t{{.Size}}' di-optimised | head -20
+CREATED BY                                      SIZE
+ENTRYPOINT ["/sizedemo"]                        0B
+USER 65532:65532                                0B
+EXPOSE [8080/tcp]                               0B
+COPY --chown=65532:65532 /out/sizedemo /size…   5.83MB
+bazel build //common:cacerts_debian13_amd64_…   319kB
+bazel build //common:os_release_debian13        16.4kB
+bazel build //static:nsswitch                   12.3kB
+bazel build //common:tmp                        8.19kB
+bazel build //common:group                      12.3kB
+bazel build //common:home                       16.4kB
+bazel build //common:passwd                     12.3kB
+bazel build //common:rootfs                     4.1kB
+bazel build @trixie//media-types/amd64:data_…   160kB
+bazel build @trixie//tzdata-legacy/amd64:dat…   2.15MB
+bazel build @trixie//tzdata/amd64:data_statu…   2.24MB
+bazel build @trixie//netbase/amd64:data_stat…   86kB
+bazel build @trixie//base-files/amd64:data_s…   745kB

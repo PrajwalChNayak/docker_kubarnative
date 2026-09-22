@@ -1,0 +1,44 @@
+# FAULT: the pod requests more memory than any node in the lab has (900Gi),
+# so the scheduler can place it nowhere and it stays Pending forever. The
+# scheduler records a FailedScheduling event: "0/3 nodes are available: 3
+# Insufficient memory." Nothing is wrong with the image or the container; the
+# pod is simply unschedulable.
+#
+# The same symptom appears with an unsatisfiable nodeSelector, a taint with no
+# matching toleration, or a PVC that never binds. The nodeSelector line below
+# is commented out; swap the cause to reproduce that variant.
+#
+# FIX: request a realistic amount (this pod only needs a few MiB), or add
+# nodes / capacity, or fix the affinity, toleration or volume that blocks it.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pending
+  namespace: troubleshoot
+  labels:
+    case: pending
+spec:
+  # nodeSelector:
+  #   disktype: nvme-that-no-node-has   # alternative cause: unsatisfiable selector
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 100m
+          memory: 900Gi      # larger than any lab node -> unschedulable
+        limits:
+          memory: 900Gi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

@@ -1,0 +1,4 @@
+$ export MSYS_NO_PATHCONV=1; docker rm -f logs-demo >/dev/null 2>&1; docker run -d --name logs-demo alpine:3.22 sh -c 'i=0; while [ $i -lt 5 ]; do i=$((i+1)); echo "line $i on stdout"; echo "line $i on stderr" >&2; sleep 1; done' >/dev/null; sleep 6; docker logs --timestamps --tail 4 logs-demo; docker inspect --format 'driver={{.HostConfig.LogConfig.Type}} opts={{json .HostConfig.LogConfig.Config}} path={{.LogPath}}' logs-demo; docker rm -f logs-demo >/dev/null
+2026-09-22T07:01:22.049373302Z line 4 on stdout
+2026-09-22T07:01:23.051515612Z line 5 on stdout
+driver=json-file opts={} path=/var/lib/docker/containers/358e0bc9bae8e114a7694ad0b249208a22b206726cf2db7090fe8df4b69f7986/358e0bc9bae8e114a7694ad0b249208a22b206726cf2db7090fe8df4b69f7986-json.log

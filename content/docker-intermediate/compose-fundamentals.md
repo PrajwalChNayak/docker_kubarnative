@@ -17,8 +17,8 @@ volumes on one Docker host. You describe the desired state in `compose.yaml`
 and run `docker compose up`; Compose creates what is missing, recreates what
 changed and leaves the rest alone.
 
-The command is `docker compose`, a CLI plugin. The old Python `docker-compose`
-binary is Compose v1 and has been end-of-life for years. Compose v5 skipped
+The command is `docker compose`, a CLI plugin. The old Python Compose v1 binary
+— the hyphenated command — is end-of-life and should not be used. Compose v5 skipped
 major versions 3 and 4 so that its version number could never be confused with
 the old compose-*file* format versions `2.x` and `3.x`.
 
@@ -195,7 +195,7 @@ profile is not active.
 
 ## Common mistakes
 
-- Writing `docker-compose` (the v1 binary) instead of `docker compose`.
+- Using the hyphenated Compose v1 command instead of the `docker compose` plugin.
 - Keeping a top-level `version:` key. It is obsolete.
 - Publishing ports for service-to-service traffic that never leaves the host.
 - Using `container_name`, which breaks scaling and collides between projects.

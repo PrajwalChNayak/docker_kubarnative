@@ -1,0 +1,20 @@
+$ docker exec tasklane-control-plane sh -c 'ls /var/lib/containerd; echo; ls /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots | head -n 5; echo; du -sh /var/lib/containerd/io.containerd.content.v1.content 2>/dev/null'
+io.containerd.content.v1.content
+io.containerd.grpc.v1.cri
+io.containerd.grpc.v1.introspection
+io.containerd.metadata.v1.bolt
+io.containerd.runtime.v2.task
+io.containerd.sandbox.controller.v1.shim
+io.containerd.snapshotter.v1.blockfile
+io.containerd.snapshotter.v1.erofs
+io.containerd.snapshotter.v1.native
+io.containerd.snapshotter.v1.overlayfs
+tmpmounts
+
+1
+10
+100
+101
+102
+
+416M	/var/lib/containerd/io.containerd.content.v1.content

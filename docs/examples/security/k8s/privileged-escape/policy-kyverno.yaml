@@ -1,0 +1,45 @@
+# Defence in depth on top of PSA. Requires Kyverno installed.
+# PSA already blocks privileged pods in restricted namespaces; this policy
+# blocks them cluster-wide, including in namespaces someone forgot to label,
+# and gives a clearer, centrally-audited denial message. Belt and braces:
+# PSA is the built-in floor, the policy engine is the organisation-wide rule.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-and-host-namespaces
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: no-privileged
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: "Privileged containers are not allowed."
+        pattern:
+          spec:
+            =(ephemeralContainers):
+              - =(securityContext):
+                  =(privileged): "false"
+            containers:
+              - =(securityContext):
+                  =(privileged): "false"
+            =(initContainers):
+              - =(securityContext):
+                  =(privileged): "false"
+    - name: no-host-namespaces
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: "Sharing the host PID, IPC or network namespace is not allowed."
+        pattern:
+          spec:
+            =(hostPID): "false"
+            =(hostIPC): "false"
+            =(hostNetwork): "false"

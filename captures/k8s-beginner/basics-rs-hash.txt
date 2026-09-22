@@ -1,0 +1,8 @@
+$ kubectl -n tasklane-basics get rs,pods -l app.kubernetes.io/name=hello-api --show-labels
+NAME                                   DESIRED   CURRENT   READY   AGE   LABELS
+replicaset.apps/hello-api-59869b57ff   3         3         3       9s    app.kubernetes.io/component=api,app.kubernetes.io/name=hello-api,app.kubernetes.io/part-of=tasklane,pod-template-hash=59869b57ff
+
+NAME                             READY   STATUS    RESTARTS   AGE   LABELS
+pod/hello-api-59869b57ff-sgcpk   1/1     Running   0          9s    app.kubernetes.io/component=api,app.kubernetes.io/name=hello-api,app.kubernetes.io/part-of=tasklane,pod-template-hash=59869b57ff,topology.kubernetes.io/zone=zone-b
+pod/hello-api-59869b57ff-tt7nl   1/1     Running   0          9s    app.kubernetes.io/component=api,app.kubernetes.io/name=hello-api,app.kubernetes.io/part-of=tasklane,pod-template-hash=59869b57ff,topology.kubernetes.io/zone=zone-b
+pod/hello-api-59869b57ff-xzjgz   1/1     Running   0          9s    app.kubernetes.io/component=api,app.kubernetes.io/name=hello-api,app.kubernetes.io/part-of=tasklane,pod-template-hash=59869b57ff,topology.kubernetes.io/zone=zone-b

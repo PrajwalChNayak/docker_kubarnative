@@ -1,0 +1,3 @@
+$ kubectl get apiservices | grep -v Local | head
+NAME                                   SERVICE                      AVAILABLE   AGE
+v1beta1.metrics.k8s.io                 kube-system/metrics-server   True        23h

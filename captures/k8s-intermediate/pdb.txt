@@ -1,0 +1,6 @@
+$ kubectl apply -f examples/k8s/07-reliability/10-pdb.yaml && kubectl -n tasklane get poddisruptionbudget
+poddisruptionbudget.policy/tasklane-api created
+poddisruptionbudget.policy/tasklane-worker created
+NAME              MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+tasklane-api      1               N/A               1                     1s
+tasklane-worker   N/A             1                 1                     1s

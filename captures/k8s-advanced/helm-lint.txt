@@ -1,0 +1,5 @@
+$ helm lint examples/helm/tasklane --strict
+==> Linting examples/helm/tasklane
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed

@@ -1,0 +1,3 @@
+$ kubectl debug --help |grep -A2 -- '--profile'
+    --profile='general':
+	Options are "general", "baseline", "restricted", "netadmin" or "sysadmin". Defaults to "general"

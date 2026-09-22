@@ -1,0 +1,17 @@
+$ kubectl -n tasklane top pods --containers
+POD                                    NAME       CPU(cores)   MEMORY(bytes)   
+postgres-0                             postgres   28m          51Mi            
+sched-anti-affinity-868d6cb8cc-fmlg9   sleep      0m           0Mi             
+sched-batch-566df5c77b-6ztql           sleep      0m           0Mi             
+sched-batch-566df5c77b-k9zc9           sleep      0m           0Mi             
+sched-node-affinity-5bffb9f8fc-8tcmh   sleep      0m           0Mi             
+sched-node-affinity-5bffb9f8fc-jtvpm   sleep      0m           0Mi             
+sched-node-affinity-5bffb9f8fc-mb6c2   sleep      0m           0Mi             
+sched-node-affinity-5bffb9f8fc-snjdx   sleep      0m           0Mi             
+sched-spread-5467d59fb6-s77vk          sleep      0m           0Mi             
+sched-toleration-85f76767b-5psbl       sleep      0m           0Mi             
+sched-toleration-85f76767b-p2knn       sleep      0m           0Mi             
+tasklane-api-9dddb5cf6-98hls           api        1m           2Mi             
+tasklane-api-9dddb5cf6-t8px5           api        1m           2Mi             
+tasklane-worker-cc4f995df-8lbcl        worker     2m           8Mi             
+tasklane-worker-cc4f995df-rfjkc        worker     2m           5Mi

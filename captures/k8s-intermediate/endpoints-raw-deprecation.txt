@@ -1,0 +1,2 @@
+$ kubectl get --raw /api/v1/namespaces/tasklane/endpoints 2>&1 | head -c 600
+Error from server (NotFound): the server could not find the requested resource

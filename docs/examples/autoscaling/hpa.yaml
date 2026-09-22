@@ -1,0 +1,59 @@
+# Horizontal autoscaling for the Tasklane API on CPU utilisation.
+#
+# This is the only file in this directory that works with nothing installed
+# but metrics-server: Resource metrics are served by metrics.k8s.io, which
+# metrics-server provides in the lab cluster.
+#
+#   kubectl apply -f examples/autoscaling/hpa.yaml
+#   kubectl -n tasklane get hpa tasklane-api --watch
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # averageUtilization is a percentage of the container's CPU *request*
+    # (100m for the api container), not of a core. 70% of 100m is 70m.
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      # React immediately to a load spike, but never more than doubling
+      # or +4 pods within 30 seconds, whichever is larger (selectPolicy: Max).
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+      selectPolicy: Max
+    scaleDown:
+      # Shed one pod per minute, and only after five minutes during which
+      # no higher recommendation was seen.
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+      selectPolicy: Min
+      # tolerance is per-direction and GA in Kubernetes 1.37 (KEP-4951).
+      # Without it, the cluster-wide 10% tolerance applies in both
+      # directions. 5% here makes scale-down slightly more eager.
+      tolerance: "0.05"

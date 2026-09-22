@@ -1,0 +1,4 @@
+$ docker exec tasklane-control-plane sh -c 'crictl pods --namespace tasklane; echo; crictl ps --namespace tasklane'
+POD ID              CREATED             STATE               NAME                NAMESPACE           ATTEMPT             RUNTIME
+
+CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD                 NAMESPACE

@@ -1,0 +1,7 @@
+$ docker compose -f examples/compose/compose.yaml --profile load --profile observability config --services | sort
+api
+db
+loadgen
+migrate
+prometheus
+worker

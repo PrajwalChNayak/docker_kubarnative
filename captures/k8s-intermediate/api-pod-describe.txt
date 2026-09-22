@@ -1,0 +1,60 @@
+$ kubectl -n tasklane describe pod -l app.kubernetes.io/name=tasklane-api
+Name:                      tasklane-api-86876d58cf-4dp97
+Namespace:                 tasklane
+Priority:                  0
+Service Account:           tasklane-api
+Node:                      tasklane-worker/172.19.0.3
+Start Time:                Tue, 22 Sep 2026 11:47:28 +0530
+Labels:                    app.kubernetes.io/component=api
+                           app.kubernetes.io/name=tasklane-api
+                           app.kubernetes.io/part-of=tasklane
+                           pod-template-hash=86876d58cf
+                           topology.kubernetes.io/zone=zone-a
+Annotations:               <none>
+Status:                    Terminating (lasts 19m)
+Termination Grace Period:  30s
+SeccompProfile:            RuntimeDefault
+IP:                        10.244.1.8
+IPs:
+  IP:           10.244.1.8
+Controlled By:  ReplicaSet/tasklane-api-86876d58cf
+Init Containers:
+  migrate:
+    Container ID:  containerd://3c13587a7d73af10239affed6fba9517ec865d674c722cb3721054e3e67e848b
+    Image:         tasklane-api:0.1.0
+    Image ID:      docker.io/library/import-2026-09-21@sha256:45d80eb450722437cf383b94fa4dc268a4f6765b3ea4fafbc7294e37d0304729
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      migrate
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Tue, 22 Sep 2026 11:47:29 +0530
+      Finished:     Tue, 22 Sep 2026 11:47:29 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  64Mi
+    Requests:
+      cpu:     50m
+      memory:  32Mi
+    Environment Variables from:
+      tasklane-config  ConfigMap  Optional: false
+    Environment:       <none>
+    Mounts:
+      /etc/tasklane/db from db-secret (ro)
+Containers:
+  api:
+    Container ID:   containerd://8b16698628b0ad18f22c08ddb1b22b20193ffa9d84df3334e98c36f6f37a8038
+    Image:          tasklane-api:0.1.0
+    Image ID:       docker.io/library/import-2026-09-21@sha256:45d80eb450722437cf383b94fa4dc268a4f6765b3ea4fafbc7294e37d0304729
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Running
+      Started:      Tue, 22 Sep 2026 11:47:30 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  128Mi
+    Requests:

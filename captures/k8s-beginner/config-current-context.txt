@@ -1,0 +1,2 @@
+$ kubectl config current-context
+kind-tasklane

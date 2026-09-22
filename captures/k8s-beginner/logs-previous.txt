@@ -1,0 +1,2 @@
+$ kubectl -n tasklane logs deploy/tasklane-api --previous --tail=5; echo "exit: $?"
+exit: 1

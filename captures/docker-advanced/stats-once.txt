@@ -1,0 +1,11 @@
+$ docker stats --no-stream
+CONTAINER ID   NAME                     CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O         PIDS
+15f299a923e6   tasklane-worker2         4.12%     377.7MiB / 7.518GiB   4.91%     6.19MB / 3.06MB   376MB / 7.16MB    243
+fbe8cd0e7188   tasklane-worker          5.79%     390.2MiB / 7.518GiB   5.07%     5.27MB / 3.3MB    493MB / 8.52MB    297
+6dd217b020fe   tasklane-control-plane   18.54%    1.077GiB / 7.518GiB   14.33%    14.9MB / 152MB    542MB / 158MB     304
+8083190dd78d   cimcms-postgres          0.38%     195.8MiB / 7.518GiB   2.54%     16.2MB / 37.2MB   46.5MB / 236MB    44
+baa295284ff3   cimcms-emqx              70.85%    266.4MiB / 7.518GiB   3.46%     236kB / 4.71MB    81.3MB / 3.07MB   81
+9596b6c2d544   cimcms-redis             0.50%     10.76MiB / 7.518GiB   0.14%     5.44MB / 1.78MB   13.4MB / 4.58MB   6
+d6f5b582b16a   cimcms-minio             0.07%     127.6MiB / 7.518GiB   1.66%     9.17kB / 4.62kB   148MB / 4.57MB    19
+19a68e066115   dotnet-dev               7.71%     532.7MiB / 7.518GiB   6.92%     42MB / 2.03MB     249MB / 162MB     138
+6a203fd67403   sqlserver2019            2.00%     904.4MiB / 7.518GiB   11.75%    1.91MB / 943kB    1.28GB / 190MB    185

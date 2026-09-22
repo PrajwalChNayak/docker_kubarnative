@@ -1,0 +1,31 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/failing-probes.yaml && sleep 25 && kubectl -n troubleshoot get pod failing-probes && echo "--- describe ---" && kubectl -n troubleshoot describe pod failing-probes | tail -25; kubectl delete -f examples/troubleshooting/failing-probes.yaml
+pod/failing-probes created
+NAME             READY   STATUS    RESTARTS   AGE
+failing-probes   0/1     Running   0          26s
+--- describe ---
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-9kk8t:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  27s               default-scheduler  Successfully assigned troubleshoot/failing-probes to tasklane-worker2
+  Normal   Pulled     27s               kubelet            spec.containers{api}: Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+  Normal   Created    27s               kubelet            spec.containers{api}: Container created
+  Normal   Started    27s               kubelet            spec.containers{api}: Container started
+  Warning  Unhealthy  2s (x7 over 27s)  kubelet            spec.containers{api}: Readiness probe failed: HTTP probe failed with statuscode: 404
+pod "failing-probes" deleted from troubleshoot namespace

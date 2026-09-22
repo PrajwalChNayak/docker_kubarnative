@@ -1,0 +1,37 @@
+# Stage 7, step 4: a volume GROUP snapshot.
+#
+# Volume Group Snapshots went GA in Kubernetes 1.36; the API group is
+# groupsnapshot.storage.k8s.io/v1. Like plain snapshots these are CRDs from the
+# CSI external-snapshotter, and the CSI driver must implement the
+# GROUP_CONTROLLER service. The same lab caveat applies: local-path cannot do
+# this.
+#
+# What it buys you over N separate VolumeSnapshots: the driver takes ONE
+# crash-consistent snapshot across every selected volume at the same point in
+# time. For a database whose data and WAL live on different volumes, that
+# difference is the difference between a restorable copy and a puzzle.
+apiVersion: groupsnapshot.storage.k8s.io/v1
+kind: VolumeGroupSnapshotClass
+metadata:
+  name: tasklane-group-snapshots
+  labels:
+    app.kubernetes.io/part-of: tasklane
+driver: hostpath.csi.k8s.io
+deletionPolicy: Delete
+---
+apiVersion: groupsnapshot.storage.k8s.io/v1
+kind: VolumeGroupSnapshot
+metadata:
+  name: tasklane-storage
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  volumeGroupSnapshotClassName: tasklane-group-snapshots
+  source:
+    # Membership is by label on the PVCs, evaluated once when the group
+    # snapshot is taken. A PVC labelled later is not retro-fitted into an
+    # existing group snapshot.
+    selector:
+      matchLabels:
+        tasklane.example.com/backup-group: postgres

@@ -1,0 +1,4 @@
+$ kubectl get validatingadmissionpolicy
+NAME                                             VALIDATIONS   PARAMKIND   AGE
+safe-upgrades.gateway.networking.k8s.io          2             <unset>     24h
+tasklane-workload-hygiene.tasklane.example.com   3             <unset>     24m

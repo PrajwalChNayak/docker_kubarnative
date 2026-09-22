@@ -1,0 +1,83 @@
+# AFTER: the same stack as ./before.compose.yaml, modernised for Compose v5.
+#
+#   docker compose up -d --build        # build delegated to Bake in v5
+#   docker compose ps
+#   docker compose logs -f api
+#   docker compose watch                # live sync/rebuild (modern replacement)
+#   docker compose down
+#
+# Changes from the before file:
+#   - dropped the obsolete top-level `version:` key
+#   - `links:` removed; services reach each other by name on a shared network
+#   - the DB password moved from an inline env var to a file-based secret
+#   - `mem_limit:` -> `deploy.resources.limits.memory`
+#   - `depends_on` uses a healthcheck condition, so api waits for a ready DB
+#   - added a name, an internal backend network, and develop.watch
+name: tasklane-legacy-migrated
+
+services:
+  db:
+    image: postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+    environment:
+      POSTGRES_USER: tasklane
+      POSTGRES_DB: tasklane
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasklane -d tasklane"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ../../app
+      target: api
+    image: tasklane-api:dev
+    environment:
+      PGHOST: db
+      PGUSER: tasklane
+      PGDATABASE: tasklane
+      PGSSLMODE: disable
+      PGPASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks:
+      - frontend
+      - backend
+    develop:
+      watch:
+        - action: rebuild
+          path: ../../app/cmd
+        - action: rebuild
+          path: ../../app/internal
+
+networks:
+  frontend: {}
+  backend:
+    internal: true
+
+volumes:
+  db-data: {}
+
+secrets:
+  db_password:
+    file: ./db_password.txt

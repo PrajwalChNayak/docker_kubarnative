@@ -1,0 +1,5 @@
+$ kubectl get nodes --show-labels
+NAME                     STATUS     ROLES           AGE   VERSION   LABELS
+tasklane-control-plane   Ready      control-plane   23h   v1.37.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,ingress-ready=true,kubernetes.io/arch=amd64,kubernetes.io/hostname=tasklane-control-plane,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+tasklane-worker          NotReady   <none>          23h   v1.37.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=tasklane-worker,kubernetes.io/os=linux,topology.kubernetes.io/zone=zone-a
+tasklane-worker2         Ready      <none>          23h   v1.37.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=tasklane-worker2,kubernetes.io/os=linux,topology.kubernetes.io/zone=zone-b

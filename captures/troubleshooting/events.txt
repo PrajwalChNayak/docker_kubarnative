@@ -1,0 +1,33 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/imagepullbackoff.yaml >/dev/null && kubectl apply -f examples/troubleshooting/pending-unschedulable.yaml >/dev/null && sleep 25 && kubectl -n troubleshoot get events --sort-by=.lastTimestamp | tail -30; kubectl delete -f examples/troubleshooting/imagepullbackoff.yaml; kubectl delete -f examples/troubleshooting/pending-unschedulable.yaml
+2m39s       Normal    Pulled               pod/oomkilled                       Container image "busybox:1.37" already present on machine and can be accessed by the pod
+2m38s       Warning   BackOff              pod/oomkilled                       Back-off restarting failed container hog in pod oomkilled_troubleshoot(99af6cd3-ad9a-4cbe-97a4-448f21081fb1)
+2m19s       Warning   Failed               pod/cce                             Error: couldn't find key MISSING_KEY in ConfigMap troubleshoot/cce-config
+2m19s       Normal    Pulled               pod/cce                             Container image "busybox:1.37" already present on machine and can be accessed by the pod
+2m10s       Normal    Started              pod/failing-probes                  Container started
+2m10s       Normal    Pulled               pod/failing-probes                  Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+2m10s       Normal    Created              pod/failing-probes                  Container created
+102s        Normal    Killing              pod/failing-probes                  Stopping container api
+97s         Warning   Unhealthy            pod/failing-probes                  Readiness probe failed: HTTP probe failed with statuscode: 404
+93s         Normal    Pulled               pod/sample-app-c68857f8f-jrbq4      Container image "busybox:1.37" already present on machine and can be accessed by the pod
+93s         Normal    Created              pod/sample-app-c68857f8f-jrbq4      Container created
+93s         Normal    ScalingReplicaSet    deployment/sample-app               Scaled up replica set sample-app-c68857f8f from 0 to 2
+93s         Normal    SuccessfulCreate     replicaset/sample-app-c68857f8f     Created pod: sample-app-c68857f8f-9gqcx
+93s         Normal    Pulled               pod/sample-app-c68857f8f-9gqcx      Container image "busybox:1.37" already present on machine and can be accessed by the pod
+93s         Normal    Created              pod/sample-app-c68857f8f-9gqcx      Container created
+93s         Normal    SuccessfulCreate     replicaset/sample-app-c68857f8f     Created pod: sample-app-c68857f8f-jrbq4
+92s         Normal    Started              pod/sample-app-c68857f8f-jrbq4      Container started
+92s         Normal    Started              pod/sample-app-c68857f8f-9gqcx      Container started
+73s         Normal    Killing              pod/sample-app-c68857f8f-9gqcx      Stopping container app
+73s         Normal    Killing              pod/sample-app-c68857f8f-jrbq4      Stopping container app
+55s         Warning   ProvisioningFailed   persistentvolumeclaim/pvc-pending   storageclass.storage.k8s.io "fast-ssd-that-does-not-exist" not found
+51s         Normal    Pulled               pod/stuck-terminating               Container image "busybox:1.37" already present on machine and can be accessed by the pod
+51s         Normal    Created              pod/stuck-terminating               Container created
+51s         Normal    Started              pod/stuck-terminating               Container started
+45s         Normal    Killing              pod/stuck-terminating               Stopping container app
+24s         Warning   Failed               pod/imagepull                       Error: ImagePullBackOff
+24s         Normal    BackOff              pod/imagepull                       Back-off pulling image "tasklane-api:9.9.9-nope"
+14s         Normal    Pulling              pod/imagepull                       Pulling image "tasklane-api:9.9.9-nope"
+12s         Warning   Failed               pod/imagepull                       Error: ErrImagePull
+12s         Warning   Failed               pod/imagepull                       Failed to pull image "tasklane-api:9.9.9-nope": failed to pull and unpack image "docker.io/library/tasklane-api:9.9.9-nope": failed to resolve reference "docker.io/library/tasklane-api:9.9.9-nope": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+pod "imagepull" deleted from troubleshoot namespace
+pod "pending" deleted from troubleshoot namespace

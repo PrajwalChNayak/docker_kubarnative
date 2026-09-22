@@ -1,0 +1,47 @@
+# FAULT: the container's working set grows past its memory limit. `tail` on
+# /dev/zero has no newline to stop at, so it buffers an ever-growing "line" in
+# memory. When the cgroup's memory.max (16Mi here) is exceeded, the kernel OOM
+# killer terminates the process. The container's last State shows
+# reason: OOMKilled and exitCode: 137 (128 + SIGKILL/9), then it restarts and
+# eventually shows CrashLoopBackOff.
+#
+# This is a *container* OOM (cgroup limit hit by one container), not a *node*
+# memory-pressure eviction (kubelet reclaiming under node-wide pressure). The
+# two look different: OOMKilled has exit 137 and no Evicted status; eviction
+# deletes the pod with status Evicted. See oomkilled.md and evicted-pods.md.
+#
+# The memory hog is bounded: the cgroup limit caps it at 16Mi and the kernel
+# kills it within seconds. It never threatens the node.
+#
+# FIX: raise the limit to fit the real working set, or fix the leak. Measure
+# with `kubectl top pod` / container_memory_working_set_bytes before choosing.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oomkilled
+  namespace: troubleshoot
+  labels:
+    case: oomkilled
+spec:
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: hog
+      image: busybox:1.37
+      command: ["sh", "-c", "echo 'allocating until OOM'; tail /dev/zero"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 16Mi       # tiny cap; the hog trips it within seconds
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

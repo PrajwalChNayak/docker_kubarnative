@@ -1,0 +1,24 @@
+# A tenant namespace, created by the platform team, never by the tenant.
+#
+# The four things that make a namespace a boundary rather than a folder are
+# all applied here by the platform: Pod Security Admission labels (this
+# file), a ResourceQuota, a LimitRange, and a default-deny NetworkPolicy.
+# The tenant's own RoleBinding deliberately cannot change any of them.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-a
+  labels:
+    # Identity, so cluster-wide policy and NetworkPolicy peers can select it.
+    tenancy.example.com/tenant: team-a
+    kubernetes.io/metadata.name: team-a
+    # Pod Security Admission. enforce rejects, warn tells the person running
+    # kubectl, audit records it in the audit log. Pinning the version means a
+    # future Kubernetes release cannot silently tighten or loosen the rules
+    # under a running tenant.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: v1.37
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: v1.37

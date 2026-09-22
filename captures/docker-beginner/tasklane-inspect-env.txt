@@ -1,0 +1,12 @@
+$ bash examples/docker-run/tasklane-docker-run.sh >/dev/null && docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' tasklane-api && docker inspect --format '{{range .Mounts}}type={{.Type}} src={{.Name}} dst={{.Destination}} rw={{.RW}}{{println}}{{end}}' tasklane-api; bash examples/docker-run/tasklane-docker-cleanup.sh --volumes >/dev/null
+PGPASSWORD_FILE=/run/secrets/db_password
+SHUTDOWN_DELAY_SECONDS=1
+PGHOST=tasklane-db
+PGPORT=5432
+PGUSER=tasklane
+PGDATABASE=tasklane
+PGSSLMODE=disable
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
+type=volume src=tasklane-secrets dst=/run/secrets rw=false

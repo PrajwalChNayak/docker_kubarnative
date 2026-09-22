@@ -1,0 +1,5 @@
+$ docker compose -f examples/compose/compose.yaml config --services | sort
+api
+db
+migrate
+worker

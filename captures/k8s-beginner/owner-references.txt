@@ -1,0 +1,3 @@
+$ kubectl -n tasklane get rs -l app.kubernetes.io/name=tasklane-api -o custom-columns=RS:.metadata.name,OWNER_KIND:.metadata.ownerReferences[0].kind,OWNER:.metadata.ownerReferences[0].name,CONTROLLER:.metadata.ownerReferences[0].controller,BLOCK_DELETION:.metadata.ownerReferences[0].blockOwnerDeletion
+RS                        OWNER_KIND   OWNER          CONTROLLER   BLOCK_DELETION
+tasklane-api-86876d58cf   Deployment   tasklane-api   true         true

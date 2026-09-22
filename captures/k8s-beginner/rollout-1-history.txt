@@ -1,0 +1,4 @@
+$ kubectl -n tasklane-basics rollout history deploy/hello-api
+deployment.apps/hello-api 
+REVISION  CHANGE-CAUSE
+1         initial release: tasklane-api:0.1.0

@@ -1,0 +1,60 @@
+$ kubectl -n tasklane get endpointslices -l kubernetes.io/service-name=tasklane-api -o yaml
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 10.244.1.8
+    conditions:
+      ready: false
+      serving: false
+      terminating: true
+    nodeName: tasklane-worker
+    targetRef:
+      kind: Pod
+      name: tasklane-api-86876d58cf-4dp97
+      namespace: tasklane
+      uid: 0c8af553-26ce-4b27-8033-b1ee6f0e8acf
+    zone: zone-a
+  - addresses:
+    - 10.244.2.39
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: tasklane-worker2
+    targetRef:
+      kind: Pod
+      name: tasklane-api-77b7f55948-tztnd
+      namespace: tasklane
+      uid: 7e47a4d4-faf7-4ec9-ba9e-219321870a6b
+    zone: zone-b
+  - addresses:
+    - 10.244.2.40
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: tasklane-worker2
+    targetRef:
+      kind: Pod
+      name: tasklane-api-77b7f55948-tvcg4
+      namespace: tasklane
+      uid: a48ed506-2549-4c45-afff-dfe7a594187e
+    zone: zone-b
+  kind: EndpointSlice
+  metadata:
+    annotations:
+      endpoints.kubernetes.io/last-change-trigger-time: "2026-09-22T07:28:45Z"
+    creationTimestamp: "2026-09-21T07:38:57Z"
+    generateName: tasklane-api-
+    generation: 36
+    labels:
+      app.kubernetes.io/component: api
+      app.kubernetes.io/name: tasklane-api
+      app.kubernetes.io/part-of: tasklane
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      kubernetes.io/service-name: tasklane-api
+    name: tasklane-api-th45r
+    namespace: tasklane

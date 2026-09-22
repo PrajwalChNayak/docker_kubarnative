@@ -1,0 +1,5 @@
+$ curl -sS -o /dev/null -D - --resolve tasklane.localhost:8080:127.0.0.1 http://tasklane.localhost:8080/
+HTTP/1.1 301 Moved Permanently
+location: https://tasklane.localhost:8443/
+date: Tue, 22 Sep 2026 07:30:11 GMT
+content-length: 0

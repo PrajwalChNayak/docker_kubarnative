@@ -1,0 +1,2 @@
+$ export MSYS_NO_PATHCONV=1; docker rm -f anon-demo >/dev/null 2>&1; docker run -d --name anon-demo -v /data alpine:3.22 sleep 60 >/dev/null; docker inspect --format '{{range .Mounts}}type={{.Type}} name={{.Name}} dst={{.Destination}}{{println}}{{end}}' anon-demo; docker rm -fv anon-demo >/dev/null
+type=volume name=53127fdb159b6fb66cbb80f93bf48c8d19ef7e467cec6ce94cbabe5ed71097c5 dst=/data

@@ -1,0 +1,33 @@
+$ kubectl apply -f examples/troubleshooting/00-namespace.yaml >/dev/null && kubectl apply -f examples/troubleshooting/createcontainerconfigerror.yaml && sleep 15 && kubectl -n troubleshoot get pod cce && echo "--- describe ---" && kubectl -n troubleshoot describe pod cce | tail -25; kubectl delete -f examples/troubleshooting/createcontainerconfigerror.yaml
+configmap/cce-config created
+pod/cce created
+NAME   READY   STATUS                       RESTARTS   AGE
+cce    0/1     CreateContainerConfigError   0          16s
+--- describe ---
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v7ffw (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-v7ffw:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  17s               default-scheduler  Successfully assigned troubleshoot/cce to tasklane-worker2
+  Normal   Pulled     4s (x3 over 18s)  kubelet            spec.containers{app}: Container image "busybox:1.37" already present on machine and can be accessed by the pod
+  Warning  Failed     4s (x3 over 18s)  kubelet            spec.containers{app}: Error: couldn't find key MISSING_KEY in ConfigMap troubleshoot/cce-config
+configmap "cce-config" deleted from troubleshoot namespace
+pod "cce" deleted from troubleshoot namespace

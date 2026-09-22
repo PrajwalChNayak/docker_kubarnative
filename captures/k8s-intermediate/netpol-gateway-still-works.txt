@@ -1,0 +1,2 @@
+$ curl -sS -o /dev/null -w 'gateway->api HTTP %{http_code}\n' http://localhost:8080/
+gateway->api HTTP 200

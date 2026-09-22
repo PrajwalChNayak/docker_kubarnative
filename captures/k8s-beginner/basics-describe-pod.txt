@@ -1,0 +1,54 @@
+$ kubectl -n tasklane-basics describe pod hello-pod
+Name:             hello-pod
+Namespace:        tasklane-basics
+Priority:         0
+Service Account:  default
+Node:             tasklane-worker2/172.19.0.4
+Start Time:       Tue, 22 Sep 2026 12:50:32 +0530
+Labels:           app.kubernetes.io/component=api
+                  app.kubernetes.io/name=hello-pod
+                  app.kubernetes.io/part-of=tasklane
+                  topology.kubernetes.io/zone=zone-b
+Annotations:      <none>
+Status:           Running
+SeccompProfile:   RuntimeDefault
+IP:               10.244.2.25
+IPs:
+  IP:  10.244.2.25
+Containers:
+  api:
+    Container ID:   containerd://94c44a5dd2a98df23f8991559cac5a29cd308c33c6d7915b0005dd470249d9c3
+    Image:          tasklane-api:0.1.0
+    Image ID:       docker.io/library/import-2026-09-21@sha256:45d80eb450722437cf383b94fa4dc268a4f6765b3ea4fafbc7294e37d0304729
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Running
+      Started:      Tue, 22 Sep 2026 12:50:33 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  64Mi
+    Requests:
+      cpu:        50m
+      memory:     32Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  11s   default-scheduler  Successfully assigned tasklane-basics/hello-pod to tasklane-worker2
+  Normal  Pulled     11s   kubelet            spec.containers{api}: Container image "tasklane-api:0.1.0" already present on machine and can be accessed by the pod
+  Normal  Created    11s   kubelet            spec.containers{api}: Container created
+  Normal  Started    11s   kubelet            spec.containers{api}: Container started

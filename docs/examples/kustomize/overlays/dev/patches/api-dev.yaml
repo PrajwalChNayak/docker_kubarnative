@@ -1,0 +1,21 @@
+# Strategic merge patch: same apiVersion/kind/name as the target, and only the
+# fields that change. Lists of containers merge by the patchMergeKey `name`,
+# so naming the container is what makes this a merge and not a replace.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasklane-api
+spec:
+  template:
+    metadata:
+      annotations:
+        tasklane.example.com/environment: dev
+    spec:
+      containers:
+        - name: api
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              memory: 64Mi

@@ -1,0 +1,2 @@
+$ docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m alpine:3.22 sh -c 'echo ok > /tmp/ok && cat /tmp/ok'
+ok

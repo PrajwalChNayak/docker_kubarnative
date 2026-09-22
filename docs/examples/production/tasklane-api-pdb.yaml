@@ -1,0 +1,16 @@
+# PodDisruptionBudget for the Tasklane API (Part K lab solution).
+# With 2 replicas, minAvailable: 1 lets exactly one pod be evicted at a time
+# during a voluntary disruption (node drain, upgrade), never both.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasklane-api

@@ -1,0 +1,60 @@
+$ kubectl -n tasklane describe statefulset postgres
+Name:                   postgres
+Namespace:              tasklane
+CreationTimestamp:      Mon, 21 Sep 2026 13:08:56 +0530
+Selector:               app.kubernetes.io/name=postgres
+Labels:                 app.kubernetes.io/component=database
+                        app.kubernetes.io/name=postgres
+                        app.kubernetes.io/part-of=tasklane
+Annotations:            <none>
+Service Name:           postgres
+Pod Management Policy:  OrderedReady
+Replicas:               1 desired | 1 total
+Update Strategy:        RollingUpdate
+  Partition:            0
+  MaxUnavailable:       1
+Persistent Volume Claim Retention Policy:
+  WhenDeleted:  Retain
+  WhenScaled:   Retain
+Pods Status:    1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app.kubernetes.io/component=database
+           app.kubernetes.io/name=postgres
+           app.kubernetes.io/part-of=tasklane
+  Containers:
+   postgres:
+    Image:      postgres:18-trixie@sha256:86c951e05bf56c93d95d397747fb8820ac76cc3bedb78f43abd83eedbe3666ae
+    Port:       5432/TCP (postgres)
+    Host Port:  0/TCP (postgres)
+    Limits:
+      memory:  512Mi
+    Requests:
+      cpu:      100m
+      memory:   256Mi
+    Liveness:   exec [pg_isready -U tasklane -d tasklane -h 127.0.0.1] delay=30s timeout=5s period=10s successThreshold=1 failureThreshold=6
+    Readiness:  exec [pg_isready -U tasklane -d tasklane -h 127.0.0.1] delay=0s timeout=3s period=5s successThreshold=1 failureThreshold=3
+    Environment:
+      POSTGRES_USER:           tasklane
+      POSTGRES_DB:             tasklane
+      POSTGRES_PASSWORD_FILE:  /etc/tasklane/db/password
+    Mounts:
+      /etc/tasklane/db from db-secret (ro)
+      /tmp from tmp (rw)
+      /var/lib/postgresql from data (rw)
+      /var/run/postgresql from run (rw)
+  Volumes:
+   run:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+   tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+   db-secret:
+    Type:          Secret (a volume populated by a Secret)
+    SecretName:    tasklane-db
+    Optional:      false
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Volume Claims:

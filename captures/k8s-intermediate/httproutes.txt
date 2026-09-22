@@ -1,0 +1,60 @@
+$ kubectl -n tasklane get httproute -o wide && kubectl -n tasklane describe httproute tasklane-api
+NAME                      HOSTNAMES                AGE
+tasklane-api                                       23h
+tasklane-https-redirect   ["tasklane.localhost"]   19s
+Name:         tasklane-api
+Namespace:    tasklane
+Labels:       <none>
+Annotations:  <none>
+API Version:  gateway.networking.k8s.io/v1
+Kind:         HTTPRoute
+Metadata:
+  Creation Timestamp:  2026-09-21T07:38:57Z
+  Generation:          2
+  Resource Version:    44184
+  UID:                 4e55786b-5dae-4b42-8828-e8d4c04cdbb5
+Spec:
+  Parent Refs:
+    Group:         gateway.networking.k8s.io
+    Kind:          Gateway
+    Name:          tasklane
+    Section Name:  http
+    Group:         gateway.networking.k8s.io
+    Kind:          Gateway
+    Name:          tasklane
+    Section Name:  https
+  Rules:
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    tasklane-api-canary
+      Port:    80
+      Weight:  1
+    Filters:
+      Response Header Modifier:
+        Set:
+          Name:   x-tasklane-track
+          Value:  canary
+      Type:       ResponseHeaderModifier
+    Matches:
+      Headers:
+        Name:   x-tasklane-track
+        Type:   Exact
+        Value:  canary
+      Path:
+        Type:   PathPrefix
+        Value:  /
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    tasklane-api
+      Port:    80
+      Weight:  9
+      Group:   
+      Kind:    Service
+      Name:    tasklane-api-canary
+      Port:    80
+      Weight:  1
+    Matches:
+      Path:
+        Type:   PathPrefix

@@ -1,0 +1,43 @@
+# Traffic-router plugins are not compiled into the Argo Rollouts controller.
+# The controller reads this ConfigMap at start-up, downloads each plugin
+# binary to its local plugin directory and runs it as a subprocess over
+# go-plugin RPC. Change the ConfigMap and the controller must be restarted:
+#   kubectl rollout restart deployment -n argo-rollouts argo-rollouts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-rollouts-config
+  namespace: argo-rollouts
+data:
+  trafficRouterPlugins: |-
+    - name: "argoproj-labs/gatewayAPI"
+      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.17.0/gatewayapi-plugin-linux-amd64"
+---
+# The stock argo-rollouts ClusterRole does not include Gateway API objects,
+# so the plugin cannot patch HTTPRoute weights until you add this.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gateway-controller-role
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - httproutes
+    verbs:
+      - get
+      - patch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gateway-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gateway-controller-role
+subjects:
+  - kind: ServiceAccount
+    name: argo-rollouts
+    namespace: argo-rollouts

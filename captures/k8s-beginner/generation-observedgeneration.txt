@@ -1,0 +1,2 @@
+$ kubectl -n tasklane get deploy tasklane-api -o jsonpath='generation={.metadata.generation} observedGeneration={.status.observedGeneration}{"\n"}'
+generation=1 observedGeneration=1

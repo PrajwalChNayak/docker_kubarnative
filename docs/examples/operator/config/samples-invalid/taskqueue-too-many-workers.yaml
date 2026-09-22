@@ -1,0 +1,10 @@
+# Rejected by the OpenAPI bound in the CRD schema (maximum: 20), before any
+# controller sees it. Try it with:
+#   kubectl apply --dry-run=server -f this-file.yaml
+apiVersion: tasklane.example.com/v1alpha1
+kind: TaskQueue
+metadata:
+  name: tasklane-worker-too-big
+  namespace: tasklane
+spec:
+  workers: 99

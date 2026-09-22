@@ -1,0 +1,12 @@
+$ kubectl apply -f examples/k8s/basics/
+namespace/tasklane-basics unchanged
+pod/hello-pod created
+deployment.apps/hello-api created
+service/hello-api created
+service/hello-api-nodeport created
+service/hello-api-lb created
+service/hello-api-headless created
+service/tasklane-db created
+configmap/hello-config created
+secret/hello-secret created
+pod/config-demo created

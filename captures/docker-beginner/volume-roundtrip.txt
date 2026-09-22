@@ -1,0 +1,16 @@
+$ export MSYS_NO_PATHCONV=1; docker volume rm hb-demo >/dev/null 2>&1; docker volume create hb-demo >/dev/null; docker run --rm --mount type=volume,src=hb-demo,dst=/data alpine:3.22 sh -c 'echo "written inside $(hostname)" > /data/note'; docker run --rm --mount type=volume,src=hb-demo,dst=/data,readonly alpine:3.22 sh -c 'cat /data/note; touch /data/second || echo "write refused"'; docker volume inspect hb-demo; docker volume ls --filter name=hb-demo; docker volume rm hb-demo >/dev/null
+written inside 26c659b7f0c3
+write refused
+[
+    {
+        "CreatedAt": "2026-09-22T07:02:17Z",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/hb-demo/_data",
+        "Name": "hb-demo",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+DRIVER    VOLUME NAME
+local     hb-demo

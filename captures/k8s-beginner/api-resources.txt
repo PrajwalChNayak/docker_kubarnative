@@ -1,0 +1,60 @@
+$ kubectl api-resources --sort-by=name
+NAME                                SHORTNAMES        APIVERSION                             NAMESPACED   KIND
+apiservices                                           apiregistration.k8s.io/v1              false        APIService
+backends                            be                gateway.envoyproxy.io/v1alpha1         true         Backend
+backendtlspolicies                  btlspolicy        gateway.networking.k8s.io/v1           true         BackendTLSPolicy
+backendtrafficpolicies              btp               gateway.envoyproxy.io/v1alpha1         true         BackendTrafficPolicy
+bindings                                              v1                                     true         Binding
+certificaterequests                 cr,crs            cert-manager.io/v1                     true         CertificateRequest
+certificates                        cert,certs        cert-manager.io/v1                     true         Certificate
+certificatesigningrequests          csr               certificates.k8s.io/v1                 false        CertificateSigningRequest
+challenges                                            acme.cert-manager.io/v1                true         Challenge
+clienttrafficpolicies               ctp               gateway.envoyproxy.io/v1alpha1         true         ClientTrafficPolicy
+clusterissuers                      ciss              cert-manager.io/v1                     false        ClusterIssuer
+clusterrolebindings                                   rbac.authorization.k8s.io/v1           false        ClusterRoleBinding
+clusterroles                                          rbac.authorization.k8s.io/v1           false        ClusterRole
+clustertrustbundles                                   certificates.k8s.io/v1                 false        ClusterTrustBundle
+componentstatuses                   cs                v1                                     false        ComponentStatus
+configmaps                          cm                v1                                     true         ConfigMap
+controllerrevisions                                   apps/v1                                true         ControllerRevision
+cronjobs                            cj                batch/v1                               true         CronJob
+csidrivers                                            storage.k8s.io/v1                      false        CSIDriver
+csinodes                                              storage.k8s.io/v1                      false        CSINode
+csistoragecapacities                                  storage.k8s.io/v1                      true         CSIStorageCapacity
+customresourcedefinitions           crd,crds          apiextensions.k8s.io/v1                false        CustomResourceDefinition
+daemonsets                          ds                apps/v1                                true         DaemonSet
+deployments                         deploy            apps/v1                                true         Deployment
+deviceclasses                                         resource.k8s.io/v1                     false        DeviceClass
+devicetaintrules                                      resource.k8s.io/v1                     false        DeviceTaintRule
+endpoints                           ep                v1                                     true         Endpoints
+endpointslices                                        discovery.k8s.io/v1                    true         EndpointSlice
+envoyextensionpolicies              eep               gateway.envoyproxy.io/v1alpha1         true         EnvoyExtensionPolicy
+envoypatchpolicies                  epp               gateway.envoyproxy.io/v1alpha1         true         EnvoyPatchPolicy
+envoyproxies                        eproxy            gateway.envoyproxy.io/v1alpha1         true         EnvoyProxy
+events                              ev                v1                                     true         Event
+events                              ev                events.k8s.io/v1                       true         Event
+flowschemas                                           flowcontrol.apiserver.k8s.io/v1        false        FlowSchema
+gatewayclasses                      gc                gateway.networking.k8s.io/v1           false        GatewayClass
+gateways                            gtw               gateway.networking.k8s.io/v1           true         Gateway
+grpcroutes                                            gateway.networking.k8s.io/v1           true         GRPCRoute
+horizontalpodautoscalers            hpa               autoscaling/v2                         true         HorizontalPodAutoscaler
+httproutefilters                    hrf               gateway.envoyproxy.io/v1alpha1         true         HTTPRouteFilter
+httproutes                                            gateway.networking.k8s.io/v1           true         HTTPRoute
+ingressclasses                                        networking.k8s.io/v1                   false        IngressClass
+ingresses                           ing               networking.k8s.io/v1                   true         Ingress
+ipaddresses                         ip                networking.k8s.io/v1                   false        IPAddress
+issuers                             iss               cert-manager.io/v1                     true         Issuer
+jobs                                                  batch/v1                               true         Job
+leases                                                coordination.k8s.io/v1                 true         Lease
+limitranges                         limits            v1                                     true         LimitRange
+listenersets                        lset              gateway.networking.k8s.io/v1           true         ListenerSet
+localsubjectaccessreviews                             authorization.k8s.io/v1                true         LocalSubjectAccessReview
+mutatingadmissionpolicies                             admissionregistration.k8s.io/v1        false        MutatingAdmissionPolicy
+mutatingadmissionpolicybindings                       admissionregistration.k8s.io/v1        false        MutatingAdmissionPolicyBinding
+mutatingwebhookconfigurations                         admissionregistration.k8s.io/v1        false        MutatingWebhookConfiguration
+namespaces                          ns                v1                                     false        Namespace
+networkpolicies                     netpol            networking.k8s.io/v1                   true         NetworkPolicy
+nodes                               no                v1                                     false        Node
+nodes                                                 metrics.k8s.io/v1beta1                 false        NodeMetrics
+orders                                                acme.cert-manager.io/v1                true         Order
+persistentvolumeclaims              pvc               v1                                     true         PersistentVolumeClaim

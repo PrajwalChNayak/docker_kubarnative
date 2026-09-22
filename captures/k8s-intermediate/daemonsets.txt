@@ -1,0 +1,4 @@
+$ kubectl -n kube-system get daemonset -o wide
+NAME         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE   CONTAINERS    IMAGES                                          SELECTOR
+kindnet      3         3         2       3            2           kubernetes.io/os=linux   23h   kindnet-cni   docker.io/kindest/kindnetd:v20260820-69b56db7   app=kindnet
+kube-proxy   3         3         2       3            2           kubernetes.io/os=linux   23h   kube-proxy    registry.k8s.io/kube-proxy:v1.37.0              k8s-app=kube-proxy

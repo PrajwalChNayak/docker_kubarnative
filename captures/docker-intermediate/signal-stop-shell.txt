@@ -1,0 +1,2 @@
+$ docker build -q -t di-shell -f examples/dockerfiles/signal-forms/Dockerfile.shell examples/dockerfiles/signal-forms >/dev/null && docker run -d --name di-shell di-shell >/dev/null 2>&1; ( time docker stop di-shell >/dev/null ) 2>&1 | grep real; docker rm -f di-shell >/dev/null 2>&1
+real	0m0.832s

@@ -1,0 +1,7 @@
+$ kubectl -n tasklane-basics get events --field-selector involvedObject.name=config-demo --sort-by=.lastTimestamp
+LAST SEEN   TYPE     REASON      OBJECT            MESSAGE
+3m          Normal   Scheduled   pod/config-demo   Successfully assigned tasklane-basics/config-demo to tasklane-worker2
+3m          Normal   Pulling     pod/config-demo   Pulling image "busybox:1.37"
+2m54s       Normal   Pulled      pod/config-demo   Successfully pulled image "busybox:1.37" in 6.177s (6.177s including waiting). Image size: 2222111 bytes.
+2m54s       Normal   Created     pod/config-demo   Container created
+2m54s       Normal   Started     pod/config-demo   Container started

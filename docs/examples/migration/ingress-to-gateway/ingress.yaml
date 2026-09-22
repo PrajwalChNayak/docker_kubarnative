@@ -1,0 +1,44 @@
+# BEFORE: a legacy Ingress for tasklane-api, written for ingress-nginx.
+#
+# The Ingress API (networking.k8s.io/v1) is GA and still served by 1.37, but it
+# is frozen and ingress-nginx was retired on 2026-03-24. Everything that made
+# this Ingress do more than dumb path routing lives in nginx.ingress.kubernetes.io
+# annotations, which are controller-specific and are NOT portable.
+#
+# This file exists only to be migrated. See ./gateway.yaml for the equivalent
+# Gateway API resources and ./notes.md for the field-by-field mapping.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tasklane-api
+  namespace: tasklane
+  annotations:
+    # Force plain HTTP to HTTPS. -> Gateway API: a RequestRedirect filter.
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Strip the /api prefix before the backend sees it. -> URLRewrite filter.
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  # -> Gateway API: gatewayClassName on the Gateway + a parentRef on the route.
+  ingressClassName: nginx
+  # -> Gateway API: certificateRefs on an HTTPS listener.
+  tls:
+    - hosts:
+        - tasklane.localhost
+      secretName: tasklane-tls
+  # -> Gateway API: a catch-all rule on the Gateway or a low-priority HTTPRoute.
+  defaultBackend:
+    service:
+      name: tasklane-api
+      port:
+        number: 80
+  rules:
+    - host: tasklane.localhost      # -> HTTPRoute.spec.hostnames
+      http:
+        paths:
+          - path: /api(/|$)(.*)      # regex path needs ImplementationSpecific
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tasklane-api   # -> HTTPRoute backendRefs
+                port:
+                  number: 80

@@ -1,0 +1,52 @@
+$ kubectl -n tasklane describe certificate tasklane-tls
+Name:         tasklane-tls
+Namespace:    tasklane
+Labels:       app.kubernetes.io/part-of=tasklane
+Annotations:  <none>
+API Version:  cert-manager.io/v1
+Kind:         Certificate
+Metadata:
+  Creation Timestamp:  2026-09-22T07:29:32Z
+  Generation:          1
+  Resource Version:    44112
+  UID:                 6ed4e8c7-6f57-43dc-ad41-d7f8316941a1
+Spec:
+  Dns Names:
+    tasklane.localhost
+  Duration:  2160h
+  Issuer Ref:
+    Group:  cert-manager.io
+    Kind:   ClusterIssuer
+    Name:   tasklane-ca
+  Private Key:
+    Algorithm:        ECDSA
+    Rotation Policy:  Always
+    Size:             256
+  Renew Before:       360h
+  Secret Name:        tasklane-tls
+  Secret Template:
+    Labels:
+      app.kubernetes.io/part-of:  tasklane
+  Usages:
+    server auth
+    digital signature
+    key encipherment
+Status:
+  Conditions:
+    Last Transition Time:  2026-09-22T07:29:32Z
+    Message:               Certificate is up to date and has not expired
+    Observed Generation:   1
+    Reason:                Ready
+    Status:                True
+    Type:                  Ready
+  Not After:               2026-12-21T07:29:32Z
+  Not Before:              2026-09-22T07:29:32Z
+  Renewal Time:            2026-12-06T07:29:32Z
+  Revision:                1
+Events:
+  Type    Reason     Age   From                                       Message
+  ----    ------     ----  ----                                       -------
+  Normal  Issuing    38s   cert-manager-certificates-trigger          Issuing certificate as Secret does not exist
+  Normal  Generated  38s   cert-manager-certificates-key-manager      Stored new private key in temporary Secret resource "tasklane-tls-4w65d"
+  Normal  Requested  38s   cert-manager-certificates-request-manager  Created new CertificateRequest resource "tasklane-tls-1"
+  Normal  Issuing    38s   cert-manager-certificates-issuing          The certificate has been successfully issued

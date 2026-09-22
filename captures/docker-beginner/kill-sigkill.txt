@@ -1,0 +1,2 @@
+$ docker rm -f kill-demo >/dev/null 2>&1; docker run -d --name kill-demo -e SHUTDOWN_DELAY_SECONDS=2 tasklane-api:0.1.0 >/dev/null; sleep 3; docker kill kill-demo >/dev/null; docker inspect --format 'status={{.State.Status}} exitcode={{.State.ExitCode}} error={{.State.Error}}' kill-demo; docker rm -f kill-demo >/dev/null
+status=exited exitcode=137 error=

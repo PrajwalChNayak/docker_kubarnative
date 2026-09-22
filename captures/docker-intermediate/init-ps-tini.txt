@@ -1,0 +1,6 @@
+$ docker build -q -t di-tini -f examples/dockerfiles/init-and-zombies/Dockerfile.tini examples/dockerfiles/init-and-zombies >/dev/null && docker run -d --name di-tini di-tini >/dev/null 2>&1; sleep 2; docker exec di-tini ps -o pid,ppid,args 2>/dev/null | head; docker rm -f di-tini >/dev/null 2>&1
+PID   PPID  COMMAND
+    1     0 /sbin/tini -- /app/spawner.sh
+    7     1 {spawner.sh} /bin/sh /app/spawner.sh
+   16     7 sleep 1
+   17     0 ps -o pid,ppid,args

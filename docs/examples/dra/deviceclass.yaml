@@ -1,0 +1,36 @@
+# DRA DeviceClass (resource.k8s.io/v1, GA since Kubernetes 1.34).
+#
+# REQUIRES A DRA DRIVER. Nothing here allocates a device on its own: a
+# driver must be installed and publishing ResourceSlices for the driver name
+# selected below. These manifests use the driver name of the upstream
+# example driver, kubernetes-sigs/dra-example-driver (`gpu.example.com`),
+# which fakes GPUs. The lab cluster has no DRA driver installed, so these
+# objects are only server-side validated (`kubectl apply --dry-run=server`),
+# and a Pod that claims from this class stays Pending.
+#
+# DeviceClass is cluster-scoped. Cluster admins (or the driver's own
+# installer) create it; workload owners only reference it by name.
+apiVersion: resource.k8s.io/v1
+kind: DeviceClass
+metadata:
+  name: example-gpu
+spec:
+  # Selectors are ANDed with the selectors in each ResourceClaim request.
+  # A device must satisfy all of them to be a candidate.
+  selectors:
+    - cel:
+        expression: device.driver == "gpu.example.com"
+---
+# The same devices, exposed under an extended resource name so that
+# unmodified workloads can keep writing `resources.limits`
+# (extended resource allocation by DRA: GA in 1.37, feature gate
+# DRAExtendedResource, on by default).
+apiVersion: resource.k8s.io/v1
+kind: DeviceClass
+metadata:
+  name: example-gpu-extended
+spec:
+  selectors:
+    - cel:
+        expression: device.driver == "gpu.example.com"
+  extendedResourceName: example.com/gpu

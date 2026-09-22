@@ -1,0 +1,49 @@
+# FAULT: the pod carries a custom finalizer that nothing ever removes. A
+# finalizer is a key in metadata.finalizers that blocks deletion: when you
+# delete the object, the API server only sets deletionTimestamp and waits for
+# every finalizer to be removed before the object actually goes away. No
+# controller owns example.com/holdme here, so once deleted the pod is stuck in
+# Terminating indefinitely.
+#
+# The same mechanism strands a whole namespace: a namespace stays Terminating
+# while any resource in it still has a finalizer, or while its own spec
+# finalizers list is non-empty (often an orphaned APIService or webhook). See
+# stuck-terminating-namespace.md.
+#
+# FIX (safe): let the finalizer's controller finish. FIX (last resort, only
+# when you have confirmed nothing still needs the finalizer): remove it, e.g.
+#   kubectl -n troubleshoot patch pod stuck-terminating \
+#     --type=merge -p '{"metadata":{"finalizers":null}}'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stuck-terminating
+  namespace: troubleshoot
+  labels:
+    case: stuck-terminating
+  finalizers:
+    - example.com/holdme      # nothing removes this, so deletion hangs
+spec:
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 1
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

@@ -1,0 +1,38 @@
+# LimitRange does two different jobs in one object:
+#   - default / defaultRequest are MUTATING. They fill in requests and limits
+#     the tenant forgot, which is what makes the ResourceQuota workable.
+#   - max / min are VALIDATING. They cap a single object so one pod cannot
+#     swallow the whole namespace quota.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: team-a-limits
+  namespace: team-a
+spec:
+  limits:
+    - type: Container
+      default:            # becomes .resources.limits when absent
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:     # becomes .resources.requests when absent
+        cpu: 100m
+        memory: 128Mi
+      max:                # a single container may not ask for more
+        cpu: "2"
+        memory: 4Gi
+      min:
+        cpu: 10m
+        memory: 16Mi
+      # Limit may be at most 4x the request: stops a tenant reserving 128Mi
+      # and bursting to 16Gi, which is how a node runs out of memory.
+      maxLimitRequestRatio:
+        memory: "4"
+    - type: Pod
+      max:
+        cpu: "4"
+        memory: 8Gi
+    - type: PersistentVolumeClaim
+      max:
+        storage: 20Gi
+      min:
+        storage: 1Gi

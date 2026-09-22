@@ -1,0 +1,30 @@
+$ kubectl get apiservice v1beta1.metrics.k8s.io -o yaml | head -40
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apiregistration.k8s.io/v1","kind":"APIService","metadata":{"annotations":{},"labels":{"k8s-app":"metrics-server"},"name":"v1beta1.metrics.k8s.io"},"spec":{"group":"metrics.k8s.io","groupPriorityMinimum":100,"insecureSkipTLSVerify":true,"service":{"name":"metrics-server","namespace":"kube-system"},"version":"v1beta1","versionPriority":100}}
+  creationTimestamp: "2026-09-21T07:36:45Z"
+  labels:
+    k8s-app: metrics-server
+  name: v1beta1.metrics.k8s.io
+  resourceVersion: "40164"
+  uid: ca7c3d6d-ed3f-456f-b234-ddda7fa566d8
+spec:
+  group: metrics.k8s.io
+  groupPriorityMinimum: 100
+  insecureSkipTLSVerify: true
+  service:
+    name: metrics-server
+    namespace: kube-system
+    port: 443
+  version: v1beta1
+  versionPriority: 100
+status:
+  conditions:
+  - lastTransitionTime: "2026-09-22T07:09:28Z"
+    message: all checks passed
+    reason: Passed
+    status: "True"
+    type: Available

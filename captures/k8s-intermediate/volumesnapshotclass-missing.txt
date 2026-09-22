@@ -1,0 +1,2 @@
+$ kubectl get volumesnapshotclass 2>&1 | head -5
+error: the server doesn't have a resource type "volumesnapshotclass"

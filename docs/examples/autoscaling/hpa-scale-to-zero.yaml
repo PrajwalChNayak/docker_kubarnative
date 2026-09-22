@@ -1,0 +1,61 @@
+# Scaling the worker down to zero replicas.
+#
+# HPA scale-to-zero is Beta in Kubernetes 1.37 and the HPAScaleToZero
+# feature gate is ON by default (kube-apiserver and kube-controller-manager).
+# minReplicas: 0 is only accepted when at least one Object or External
+# metric is configured; an HPA with resource (CPU/memory) metrics alone is
+# rejected, because those can only be measured on running pods.
+#
+# The API server accepts this manifest without any metrics adapter, so
+# `kubectl apply --dry-run=server -f` succeeds in the lab. Actually scaling
+# needs something serving external.metrics.k8s.io (KEDA, the Prometheus
+# Adapter, a cloud adapter). Without it the HPA reports
+# FailedGetExternalMetric and leaves the replica count alone.
+#
+# The target is an AverageValue, so the controller derives the replica count
+# from the metric total (ceil(total / target)) rather than from the current
+# replica count, which is what lets it come back from zero.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: tasklane
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-worker
+  minReplicas: 0
+  maxReplicas: 10
+  metrics:
+    # Queue depth: the number of rows in tasks with status = 'pending',
+    # exported as an external metric. One worker per 5 pending tasks.
+    - type: External
+      external:
+        metric:
+          name: tasklane_tasks_pending
+          selector:
+            matchLabels:
+              namespace: tasklane
+        target:
+          type: AverageValue
+          averageValue: "5"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+    scaleDown:
+      # Going to zero is cheap here (tasks stay in PostgreSQL), but a cold
+      # start costs an image pull plus process start, so do not flap.
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120

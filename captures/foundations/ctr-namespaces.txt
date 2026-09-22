@@ -1,0 +1,12 @@
+$ docker exec tasklane-control-plane sh -c 'ctr namespaces list; echo; ctr -n k8s.io containers list | head -n 8'
+NAME   LABELS 
+k8s.io        
+
+CONTAINER                                                           IMAGE                                                          RUNTIME                  
+03d0abfd949a2eb049c6e808ae3b3d1b76ece534bf638470d37c7a83fc857921    registry.k8s.io/pause:3.10                                     io.containerd.runc.v2    
+0a031c03f8992ea3264832b787e2c67ea7d7a9c1fe53badee0cd51b39e4f397a    registry.k8s.io/coredns/coredns:v1.14.6                        io.containerd.runc.v2    
+0cbc0c7f8c02760e50303cb55629f36520990950a0d1b3da2b172b62c8af40cc    registry.k8s.io/pause:3.10                                     io.containerd.runc.v2    
+13382690f3894d74deae270c2efc30e24d661c90a0f5d26626ee1c97c2df0638    registry.k8s.io/coredns/coredns:v1.14.6                        io.containerd.runc.v2    
+18e6f80631ea00c3d24ee484fe6c13a172a5d6a675fdc2ed1ac59d3a38f26205    registry.k8s.io/kube-proxy-amd64:v1.37.0                       io.containerd.runc.v2    
+1e956e78e2bdc8632b79b2eb8f911dc4aef7b9bc0518db0424399915d53a754c    docker.io/kindest/local-path-provisioner:v20260820-69b56db7    io.containerd.runc.v2    
+2019f952fb8b292235bdd7ecbf782a2723419d70efb2bac1cf7d778c604c7173    registry.k8s.io/pause:3.10                                     io.containerd.runc.v2

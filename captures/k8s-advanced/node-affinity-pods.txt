@@ -1,0 +1,8 @@
+$ kubectl apply -f examples/scheduling/node-affinity.yaml && kubectl -n tasklane rollout status deployment/sched-node-affinity --timeout=120s && kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-node-affinity
+deployment.apps/sched-node-affinity unchanged
+deployment "sched-node-affinity" successfully rolled out
+NAME                                   READY   STATUS    RESTARTS        AGE    IP            NODE               NOMINATED NODE   READINESS GATES
+sched-node-affinity-5bffb9f8fc-8tcmh   1/1     Running   2 (8m16s ago)   128m   10.244.2.15   tasklane-worker2   <none>           <none>
+sched-node-affinity-5bffb9f8fc-jtvpm   1/1     Running   2 (8m11s ago)   128m   10.244.2.17   tasklane-worker2   <none>           <none>
+sched-node-affinity-5bffb9f8fc-mb6c2   1/1     Running   2 (8m13s ago)   128m   10.244.2.16   tasklane-worker2   <none>           <none>
+sched-node-affinity-5bffb9f8fc-snjdx   1/1     Running   2 (8m15s ago)   128m   10.244.2.14   tasklane-worker2   <none>           <none>

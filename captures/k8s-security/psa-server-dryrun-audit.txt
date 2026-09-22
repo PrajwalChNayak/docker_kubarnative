@@ -1,0 +1,2 @@
+$ kubectl label --dry-run=server --overwrite ns tasklane pod-security.kubernetes.io/enforce=restricted
+namespace/tasklane not labeled (server dry run)

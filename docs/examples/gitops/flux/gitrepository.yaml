@@ -1,0 +1,27 @@
+# The source-controller clones this repository on a timer, stores the result
+# as a tar artifact in its in-cluster storage, and records the commit SHA in
+# .status.artifact.revision. Nothing else in Flux talks to GitHub: the
+# kustomize-controller and helm-controller read the artifact, not the remote.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tasklane
+  namespace: flux-system
+spec:
+  # How often to poll. A Receiver (notification-controller) plus a GitHub
+  # webhook makes this a safety net rather than the primary trigger.
+  interval: 1m
+  timeout: 60s
+  url: https://github.com/PrajwalChNayak/docker_kubarnative
+  ref:
+    branch: main
+  # Clone only the directories Flux needs. Everything else (docs, Go source,
+  # captures) never reaches the artifact, which keeps it small and keeps an
+  # unrelated commit from re-triggering every downstream reconciliation.
+  sparseCheckout:
+    - examples/kustomize
+    - examples/helm
+  # For a private repository, create a Secret with a token or deploy key and
+  # reference it here:
+  # secretRef:
+  #   name: tasklane-git-auth

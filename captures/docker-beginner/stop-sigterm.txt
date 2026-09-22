@@ -1,0 +1,4 @@
+$ docker rm -f stop-demo >/dev/null 2>&1; docker run -d --name stop-demo -e SHUTDOWN_DELAY_SECONDS=2 tasklane-api:0.1.0 >/dev/null; sleep 3; docker stop stop-demo >/dev/null; docker inspect --format 'status={{.State.Status}} exitcode={{.State.ExitCode}} oomkilled={{.State.OOMKilled}}' stop-demo; docker logs stop-demo; docker rm -f stop-demo >/dev/null
+status=exited exitcode=137 oomkilled=false
+{"time":"2026-09-22T07:00:22.329908463Z","level":"INFO","msg":"listening","svc":"api","version":"dev","addr":":8080"}
+{"time":"2026-09-22T07:00:26.757457215Z","level":"INFO","msg":"shutdown signal received, draining","svc":"api","version":"dev","delay_seconds":2}

@@ -1,0 +1,47 @@
+# Vertical autoscaling for the Tasklane worker.
+#
+# REQUIRES the Vertical Pod Autoscaler (1.7.1) to be installed: it is a
+# separate project (github.com/kubernetes/autoscaler) with its own CRDs,
+# recommender, updater and admission controller. It is NOT part of the lab,
+# so this file is validated with kubeconform against the CRD schema only.
+#
+# There is deliberately no VPA for tasklane-api: an HPA already scales that
+# Deployment on CPU, and a VPA that also controls CPU would fight it.
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: tasklane-worker
+  namespace: tasklane
+  labels:
+    app.kubernetes.io/name: tasklane-worker
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: tasklane
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tasklane-worker
+  updatePolicy:
+    # Off        - recommend only, never change pods (start here)
+    # Initial    - apply recommendations at pod creation only
+    # Recreate   - also evict running pods to apply a new recommendation
+    # InPlaceOrRecreate - resize in place first, evict only if that fails.
+    #              Needs a cluster with in-place pod resize (GA in 1.35).
+    # Auto       - deprecated in the VPA API; today it behaves like Recreate
+    updateMode: InPlaceOrRecreate
+    # Never evict if it would leave fewer than two workers running.
+    minReplicas: 2
+  resourcePolicy:
+    containerPolicies:
+      - containerName: worker
+        mode: Auto
+        controlledResources: ["cpu", "memory"]
+        # RequestsOnly leaves the container's memory limit where the
+        # manifest put it and only moves requests.
+        controlledValues: RequestsOnly
+        minAllowed:
+          cpu: 25m
+          memory: 32Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 256Mi

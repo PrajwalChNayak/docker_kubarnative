@@ -1,0 +1,20 @@
+# A namespace that enforces the "restricted" Pod Security Standard.
+#
+# enforce  -> the API server REJECTS non-compliant pods at admission.
+# warn     -> the client (kubectl) gets a warning for non-compliant pods.
+# audit    -> a non-compliant pod is annotated in the audit log.
+#
+# The *-version pin means "evaluate against the restricted profile as it was
+# defined in v1.37". Pinning stops a cluster upgrade from silently tightening
+# the rules under your workloads.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: psa-demo
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: v1.37
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: v1.37

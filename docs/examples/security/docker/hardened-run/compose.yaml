@@ -1,0 +1,56 @@
+# Hardened runtime for the Tasklane API, expressed in Compose. Every setting
+# is defence in depth: the image already runs as UID 65532, and these keep an
+# attacker who compromises the process from doing anything useful next.
+#
+# No top-level `version:` key (obsolete in the Compose Specification).
+name: tasklane-hardened
+
+services:
+  api:
+    image: tasklane-api:0.1.0
+
+    # 1. Immutable root filesystem: no dropping tools or tampering with binaries.
+    read_only: true
+    # 2. The only writable path the process needs, on a locked-down tmpfs.
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+
+    # 3. Drop every Linux capability; the API needs none of them.
+    cap_drop: [ALL]
+
+    # 4. Block privilege escalation via setuid/setgid binaries and file caps.
+    security_opt:
+      - "no-new-privileges:true"
+      # 5. Keep the default seccomp profile explicit (this is also the default).
+      - "seccomp=default"
+
+    # 6. Run as an unprivileged, numeric, non-root UID/GID.
+    user: "65532:65532"
+
+    # 7. Bound the blast radius of a fork bomb or runaway goroutine leak.
+    pids_limit: 128
+
+    # 8. Resource limits. memory == memory-swap disables swap for the container.
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.50
+
+    # 9. Least-privilege config. The password comes from a file, not the image.
+    environment:
+      PGHOST: db
+      PGUSER: tasklane
+      PGDATABASE: tasklane
+      PGSSLMODE: require
+      PGPASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks: [frontend]
+
+networks:
+  frontend: {}
+
+secrets:
+  db_password:
+    file: ./db_password.txt   # dev-only placeholder; supply a real secret store

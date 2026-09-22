@@ -1,0 +1,142 @@
+LEGACY -> CURRENT: the same exposure, expressed as Ingress and as Gateway API.
+
+Left:  examples/ingress-legacy/ingress.yaml      (networking.k8s.io/v1 Ingress)
+Right: examples/k8s/05-tls/30-gateway.yaml + 60-routes.yaml (gateway.networking.k8s.io/v1)
+
+The shapes do not line up one-to-one, and that is the point: one Ingress object
+mixes listener configuration, TLS and routing, which Gateway API splits across
+Gateway (cluster operator) and HTTPRoute (application team). Read the diff as
+"what happens to each field", not as a mechanical rename.
+
+--- a/examples/ingress-legacy/ingress.yaml
++++ b/examples/k8s/05-tls/30-gateway.yaml
+@@
+-apiVersion: networking.k8s.io/v1
+-kind: IngressClass
+-metadata:
+-  name: traefik
+-spec:
+-  controller: traefik.io/ingress-controller
++# IngressClass -> GatewayClass. Same job: name the controller that owns this
++# traffic. GatewayClass adds parametersRef, a typed pointer to
++# implementation-specific settings, which on Ingress had to be annotations.
++apiVersion: gateway.networking.k8s.io/v1
++kind: GatewayClass
++metadata:
++  name: eg
++spec:
++  controllerName: gateway.envoyproxy.io/gatewayclass-controller
++  parametersRef:
++    group: gateway.envoyproxy.io
++    kind: EnvoyProxy
++    name: kind-nodeport
++    namespace: envoy-gateway-system
+@@
+-apiVersion: networking.k8s.io/v1
+-kind: Ingress
+-metadata:
+-  name: tasklane-api
+-  namespace: tasklane
+-  annotations:
+-    cert-manager.io/cluster-issuer: tasklane-ca
+-spec:
+-  ingressClassName: traefik
+-  tls:
+-    - hosts:
+-        - tasklane.localhost
+-      secretName: tasklane-tls-ingress
++# spec.tls -> a Gateway listener. Ports are explicit now: an Ingress never
++# said which port it listened on, the controller decided. TLS mode is explicit
++# too (Terminate vs Passthrough), and the certificate is a typed reference
++# rather than a bare secret name.
++apiVersion: gateway.networking.k8s.io/v1
++kind: Gateway
++metadata:
++  name: tasklane
++  namespace: tasklane
++spec:
++  gatewayClassName: eg
++  listeners:
++    - name: http
++      protocol: HTTP
++      port: 80
++      allowedRoutes:
++        namespaces:
++          from: Same
++    - name: https
++      protocol: HTTPS
++      port: 443
++      hostname: tasklane.localhost
++      tls:
++        mode: Terminate
++        certificateRefs:
++          - kind: Secret
++            group: ""
++            name: tasklane-tls
++      allowedRoutes:
++        namespaces:
++          from: Same
+
+--- a/examples/ingress-legacy/ingress.yaml
++++ b/examples/k8s/05-tls/60-routes.yaml
+@@
+-  rules:
+-    - host: tasklane.localhost
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: tasklane-api
+-                port:
+-                  number: 80
++# spec.rules -> HTTPRoute. hostnames is a list, parentRefs attaches the route
++# to one or more Gateways (and optionally a named listener), pathType: Prefix
++# becomes path.type: PathPrefix, and the backend becomes backendRefs - plural,
++# with weights.
++apiVersion: gateway.networking.k8s.io/v1
++kind: HTTPRoute
++metadata:
++  name: tasklane-api
++  namespace: tasklane
++spec:
++  parentRefs:
++    - name: tasklane
++      sectionName: http
++    - name: tasklane
++      sectionName: https
++  rules:
++    - matches:
++        - path:
++            type: PathPrefix
++            value: /
++      backendRefs:
++        - name: tasklane-api
++          port: 80
++          weight: 9
++        - name: tasklane-api-canary
++          port: 80
++          weight: 1
+
+What has no Ingress equivalent at all
+=====================================
+
+  Ingress                              Gateway API
+  -----------------------------------  ----------------------------------------
+  redirect-to-HTTPS annotation,        RequestRedirect filter, in the API, same
+  different in every controller        behaviour on every implementation
+  canary/weight annotations            backendRefs[].weight
+  header/method routing annotations    matches[].headers, matches[].method
+  rewrite annotations                  URLRewrite filter
+  (nothing)                            GRPCRoute, TLSRoute, TCPRoute, UDPRoute
+  (nothing)                            ReferenceGrant: cross-namespace consent
+  (nothing)                            BackendTLSPolicy: TLS to the backend
+  (nothing)                            typed status conditions per listener and
+                                       per parent (Accepted, Programmed,
+                                       ResolvedRefs)
+  cross-namespace backends impossible  allowedRoutes + ReferenceGrant
+
+Tooling: ingress2gateway (1.0, 2026-03-20) converts existing Ingress objects,
+including several controllers' annotations, into Gateway and HTTPRoute objects.
+Treat its output as a first draft - review every listener and hostname.

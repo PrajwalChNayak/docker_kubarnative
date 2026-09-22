@@ -1,0 +1,16 @@
+$ kubectl -n tasklane get sa tasklane-api -o yaml
+apiVersion: v1
+automountServiceAccountToken: false
+kind: ServiceAccount
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","automountServiceAccountToken":false,"kind":"ServiceAccount","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"tasklane-api","app.kubernetes.io/part-of":"tasklane"},"name":"tasklane-api","namespace":"tasklane"}}
+  creationTimestamp: "2026-09-21T07:38:57Z"
+  labels:
+    app.kubernetes.io/name: tasklane-api
+    app.kubernetes.io/part-of: tasklane
+  name: tasklane-api
+  namespace: tasklane
+  resourceVersion: "1631"
+  uid: 4f897099-a2b7-41dc-bf80-3e8677473170

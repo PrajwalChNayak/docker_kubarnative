@@ -1,0 +1,24 @@
+$ kubectl apply -f examples/operator/config/crd && kubectl explain taskqueue.spec --api-version=tasklane.example.com/v1alpha1
+customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com unchanged
+GROUP:      tasklane.example.com
+KIND:       TaskQueue
+VERSION:    v1alpha1
+
+FIELD: spec <Object>
+
+
+DESCRIPTION:
+    TaskQueueSpec is the desired state. Everything here is set by the user;
+    the controller never writes to spec.
+    
+FIELDS:
+  deploymentName	<string>
+    deploymentName is the Deployment, in the same namespace, whose replica
+    count this queue drives. It is immutable: a CEL transition rule on the
+    CRD rejects any update that changes it, so the controller cannot be
+    pointed at a second Deployment and leave the first one scaled up.
+
+  workers	<integer> -required-
+    workers is how many Tasklane worker replicas this queue wants.
+    The bounds are enforced by the API server from the CRD schema, so the
+    controller never has to defend against a negative or absurd value.

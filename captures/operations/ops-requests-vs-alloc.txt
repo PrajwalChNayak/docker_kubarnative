@@ -1,0 +1,4 @@
+$ kubectl -n tasklane describe resourcequota 2>/dev/null; kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.cpu}{"\t"}{.status.allocatable.memory}{"\n"}{end}'
+tasklane-control-plane	14	7883456Ki
+tasklane-worker	14	7883456Ki
+tasklane-worker2	14	7883456Ki

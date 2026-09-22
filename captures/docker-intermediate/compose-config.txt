@@ -1,0 +1,41 @@
+$ docker compose -f examples/compose/compose.yaml config | head -40
+name: tasklane
+services:
+  api:
+    build:
+      context: C:\project\docker_kubarnative\examples\app
+      dockerfile: Dockerfile
+      args:
+        VERSION: dev
+      target: api
+    develop:
+      watch:
+        - path: C:\project\docker_kubarnative\examples\app\cmd
+          action: rebuild
+        - path: C:\project\docker_kubarnative\examples\app\internal
+          action: rebuild
+        - path: C:\project\docker_kubarnative\examples\app\go.mod
+          action: rebuild
+    cap_drop:
+      - ALL
+    depends_on:
+      db:
+        condition: service_healthy
+        required: true
+      migrate:
+        condition: service_completed_successfully
+        required: true
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: "134217728"
+    environment:
+      PGDATABASE: tasklane
+      PGHOST: db
+      PGPASSWORD_FILE: /run/secrets/db_password
+      PGPORT: "5432"
+      PGSSLMODE: disable
+      PGUSER: tasklane
+      POLL_INTERVAL_MS: "1000"
+      SHUTDOWN_DELAY_SECONDS: "1"

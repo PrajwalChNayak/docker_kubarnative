@@ -1,0 +1,9 @@
+$ docker network create di-dns >/dev/null 2>&1; docker run -d --name di-db --network di-dns busybox:1.37-musl sleep 300 >/dev/null 2>&1; docker run --rm --network di-dns busybox:1.37-musl nslookup di-db 2>&1 | head -8; docker rm -f di-db >/dev/null 2>&1; docker network rm di-dns >/dev/null 2>&1
+Server:		127.0.0.11
+Address:	127.0.0.11:53
+
+Non-authoritative answer:
+
+Non-authoritative answer:
+Name:	di-db
+Address: 172.20.0.2

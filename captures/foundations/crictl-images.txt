@@ -1,0 +1,13 @@
+$ docker exec tasklane-control-plane sh -c 'crictl images | head -n 12'
+IMAGE                                           TAG                  IMAGE ID            SIZE
+docker.io/kindest/kindnetd                      v20260820-69b56db7   4626fe10df5b9       39.7MB
+docker.io/kindest/local-path-helper             v20260131-7181c60a   19aa6a21b42cb       2.87MB
+docker.io/kindest/local-path-provisioner        v20260820-69b56db7   c82008e2cd018       15.9MB
+docker.io/library/tasklane-api                  0.1.0                6b7185352b1ee       5.2MB
+docker.io/library/tasklane-api                  dev                  6b7185352b1ee       5.2MB
+docker.io/library/tasklane-worker               0.1.0                48a1f16b78d90       5.19MB
+docker.io/library/tasklane-worker               dev                  48a1f16b78d90       5.19MB
+registry.k8s.io/coredns/coredns                 v1.14.6              520212b8b0fcd       23.8MB
+registry.k8s.io/etcd                            3.7.0-0              270fbeb697171       22.3MB
+registry.k8s.io/kube-apiserver-amd64            v1.37.0              bec5f0e1e2eeb       104MB
+registry.k8s.io/kube-apiserver                  v1.37.0              bec5f0e1e2eeb       104MB

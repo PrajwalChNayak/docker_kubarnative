@@ -1,0 +1,18 @@
+$ kubectl apply -f examples/k8s/06-network-policy/00-default-deny.yaml -f examples/k8s/06-network-policy/10-allow-dns.yaml -f examples/k8s/06-network-policy/20-postgres.yaml -f examples/k8s/06-network-policy/30-api.yaml -f examples/k8s/06-network-policy/40-worker.yaml -f examples/k8s/06-network-policy/50-maintenance.yaml && kubectl -n tasklane get networkpolicy
+networkpolicy.networking.k8s.io/default-deny created
+networkpolicy.networking.k8s.io/allow-dns-egress created
+networkpolicy.networking.k8s.io/postgres-allow-app-ingress created
+networkpolicy.networking.k8s.io/api-ingress created
+networkpolicy.networking.k8s.io/api-egress-postgres created
+networkpolicy.networking.k8s.io/worker-ingress-metrics created
+networkpolicy.networking.k8s.io/worker-egress-postgres created
+networkpolicy.networking.k8s.io/maintenance-egress-postgres created
+NAME                          POD-SELECTOR                              AGE
+allow-dns-egress              <none>                                    2s
+api-egress-postgres           app.kubernetes.io/component=api           2s
+api-ingress                   app.kubernetes.io/component=api           2s
+default-deny                  <none>                                    2s
+maintenance-egress-postgres   app.kubernetes.io/component=maintenance   2s
+postgres-allow-app-ingress    app.kubernetes.io/component=database      2s
+worker-egress-postgres        app.kubernetes.io/component=worker        2s
+worker-ingress-metrics        app.kubernetes.io/component=worker        2s

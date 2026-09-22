@@ -1,0 +1,3 @@
+$ kubectl -n kube-system get pods -l component=kube-scheduler -o wide
+NAME                                    READY   STATUS    RESTARTS      AGE   IP           NODE                     NOMINATED NODE   READINESS GATES
+kube-scheduler-tasklane-control-plane   1/1     Running   2 (59m ago)   23h   172.19.0.2   tasklane-control-plane   <none>           <none>

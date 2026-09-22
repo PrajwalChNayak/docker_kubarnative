@@ -1,0 +1,4 @@
+$ kubectl -n tasklane-basics get rs -l app.kubernetes.io/name=hello-api -o wide
+NAME                   DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES               SELECTOR
+hello-api-5465458575   3         3         3       16s   api          tasklane-api:0.1.0   app.kubernetes.io/name=hello-api,pod-template-hash=5465458575
+hello-api-59869b57ff   0         0         0       31s   api          tasklane-api:0.1.0   app.kubernetes.io/name=hello-api,pod-template-hash=59869b57ff

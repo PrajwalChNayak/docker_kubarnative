@@ -1,0 +1,74 @@
+# Three Flux Kustomizations, one per environment, all reading the same
+# GitRepository artifact. Each is reconciled independently by the
+# kustomize-controller: build the overlay with Kustomize, server-side apply
+# it, garbage-collect anything it previously owned that has disappeared.
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tasklane-dev
+  namespace: flux-system
+spec:
+  interval: 10m          # full re-apply cadence; source changes trigger earlier
+  retryInterval: 1m      # back-off after a failed apply
+  timeout: 5m            # budget for build + apply + health checks
+  prune: true            # garbage-collect objects removed from Git
+  wait: true             # block Ready until every applied object is healthy
+  sourceRef:
+    kind: GitRepository
+    name: tasklane
+  path: ./examples/kustomize/overlays/dev
+  # SOPS-encrypted Secrets committed to Git are decrypted here, by the
+  # kustomize-controller, using an age key held in the cluster:
+  # decryption:
+  #   provider: sops
+  #   secretRef:
+  #     name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tasklane-staging
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  prune: true
+  wait: false            # wait: false, so only the named checks below gate Ready
+  sourceRef:
+    kind: GitRepository
+    name: tasklane
+  path: ./examples/kustomize/overlays/staging
+  # Explicit health checks are cheaper than wait: true on a large overlay,
+  # and they say exactly which objects define "this environment is up".
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: tasklane-api
+      namespace: tasklane-staging
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: tasklane-worker
+      namespace: tasklane-staging
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tasklane-prod
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 2m
+  timeout: 10m
+  prune: true
+  wait: true
+  # Ordering only: prod is not reconciled while staging is failing. This is
+  # not a promotion gate - prod still tracks whatever is in its own overlay
+  # directory on the tracked branch.
+  dependsOn:
+    - name: tasklane-staging
+  sourceRef:
+    kind: GitRepository
+    name: tasklane
+  path: ./examples/kustomize/overlays/prod

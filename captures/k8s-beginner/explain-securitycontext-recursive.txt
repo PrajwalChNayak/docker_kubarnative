@@ -1,0 +1,48 @@
+$ kubectl explain pod.spec.securityContext --recursive
+KIND:       Pod
+VERSION:    v1
+
+FIELD: securityContext <PodSecurityContext>
+
+
+DESCRIPTION:
+    SecurityContext holds pod-level security attributes and common container
+    settings. Optional: Defaults to empty.  See type description for default
+    values of each field.
+    PodSecurityContext holds pod-level security attributes and common container
+    settings. Some fields are also present in container.securityContext.  Field
+    values of container.securityContext take precedence over field values of
+    PodSecurityContext.
+    
+FIELDS:
+  appArmorProfile	<AppArmorProfile>
+    localhostProfile	<string>
+    type	<string> -required-
+    enum: Localhost, RuntimeDefault, Unconfined
+  fsGroup	<integer>
+  fsGroupChangePolicy	<string>
+  enum: Always, OnRootMismatch
+  runAsGroup	<integer>
+  runAsNonRoot	<boolean>
+  runAsUser	<integer>
+  seLinuxChangePolicy	<string>
+  seLinuxOptions	<SELinuxOptions>
+    level	<string>
+    role	<string>
+    type	<string>
+    user	<string>
+  seccompProfile	<SeccompProfile>
+    localhostProfile	<string>
+    type	<string> -required-
+    enum: Localhost, RuntimeDefault, Unconfined
+  supplementalGroups	<[]integer>
+  supplementalGroupsPolicy	<string>
+  enum: Merge, Strict
+  sysctls	<[]Sysctl>
+    name	<string> -required-
+    value	<string> -required-
+  windowsOptions	<WindowsSecurityContextOptions>
+    gmsaCredentialSpec	<string>
+    gmsaCredentialSpecName	<string>
+    hostProcess	<boolean>
+    runAsUserName	<string>

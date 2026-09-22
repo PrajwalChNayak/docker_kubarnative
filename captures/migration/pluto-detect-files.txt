@@ -1,0 +1,3 @@
+# not captured in this environment
+# command: docker run --rm -v "$PWD:/w" -w /w us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5.24.4 detect-files -d examples/migration/removed-apis --target-versions k8s=v1.37.0
+# reason: docker: Error response from daemon: the working directory 'W:/' is invalid, it needs to be an absolute path  Run 'docker run --help' for more information

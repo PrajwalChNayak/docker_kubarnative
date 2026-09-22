@@ -1,0 +1,2 @@
+$ kubectl get apiservices | grep metrics
+v1beta1.metrics.k8s.io                 kube-system/metrics-server   True        23h

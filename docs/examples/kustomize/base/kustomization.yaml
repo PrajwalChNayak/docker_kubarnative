@@ -1,0 +1,30 @@
+# Base: everything that is true in every environment, and nothing else.
+# No metadata.namespace, no replica counts worth arguing about, no image tags
+# other than the default, no environment names.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - api.yaml
+  - worker.yaml
+  - postgres.yaml
+  - services.yaml
+  - httproute.yaml
+
+# `labels:` replaces the deprecated `commonLabels:`. commonLabels always wrote
+# into selectors, which breaks on update because Deployment/StatefulSet
+# .spec.selector is immutable. Here the labels are metadata only.
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: tasklane
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+    includeTemplates: true
+
+# The ConfigMap is generated, not a resource file: kustomize appends a hash of
+# the contents to the name and rewrites every envFrom reference, so editing
+# config.env rolls the Deployments instead of silently changing running pods.
+configMapGenerator:
+  - name: tasklane-config
+    envs:
+      - config.env

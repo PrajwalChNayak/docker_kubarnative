@@ -1,0 +1,120 @@
+# A tiny server and two clients used to probe reachability.
+#   server   - listens on :8080 (busybox httpd serving an empty docroot).
+#   client-allowed - the only client the fixed policy lets reach the server.
+#   client-denied  - a stand-in for "some other compromised pod"; the fixed
+#                    policy must block it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: netpol-demo
+spec:
+  selector:
+    app: server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: netpol-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: httpd
+          image: busybox:1.37
+          command: ["httpd", "-f", "-p", "8080", "-h", "/www"]
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: www
+              mountPath: /www
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: www
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-allowed
+  namespace: netpol-demo
+  labels:
+    app: client-allowed
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: client
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-denied
+  namespace: netpol-demo
+  labels:
+    app: client-denied
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: client
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

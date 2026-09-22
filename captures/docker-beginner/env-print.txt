@@ -1,0 +1,6 @@
+$ docker run --rm -e GREETING=hello -e PGHOST=tasklane-db alpine:3.22 env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=d8f0c1e01c15
+GREETING=hello
+PGHOST=tasklane-db
+HOME=/root

@@ -1,0 +1,1 @@
+$ kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/tasklane/pods | head -c 2000

@@ -1,0 +1,35 @@
+# Kyverno. Requires Kyverno installed (kyverno.io CRDs + controller, v1.19.1).
+# Rule: no container may use the mutable ":latest" tag (or an untagged image,
+# which also resolves to latest). Enforce = reject at admission.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  labels:
+    app.kubernetes.io/part-of: tasklane
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-explicit-tag
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: "Using the :latest tag or an untagged image is not allowed."
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+    - name: require-tag-present
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: "An image tag (or digest) is required."
+        pattern:
+          spec:
+            containers:
+              - image: "*:*"

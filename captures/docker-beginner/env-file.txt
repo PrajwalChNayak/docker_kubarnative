@@ -1,0 +1,7 @@
+$ docker run --rm --env-file examples/compose/app.env alpine:3.22 env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=c7a67d53039a
+SHUTDOWN_DELAY_SECONDS=1
+WORK_DURATION_MS=1500
+POLL_INTERVAL_MS=1000
+HOME=/root

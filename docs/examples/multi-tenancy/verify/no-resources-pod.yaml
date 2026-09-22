@@ -1,0 +1,28 @@
+# Declares no resources at all. With a ResourceQuota on requests.cpu in the
+# namespace this would normally be rejected outright; the LimitRange mutates
+# it first, adding requests 100m/128Mi and limits 500m/512Mi, and it is
+# admitted. Apply with --dry-run=server -o yaml to see what the API server
+# stored.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-resources
+  namespace: team-a
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: sleep
+      image: busybox:1.37-musl@sha256:fc6dddc4c44b1bfe37f41cae8e67d1693828e8f42a91862816d7953e2c9d3f23
+      command: ["sleep", "600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]

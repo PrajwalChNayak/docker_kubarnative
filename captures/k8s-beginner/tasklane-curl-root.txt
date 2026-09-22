@@ -1,0 +1,2 @@
+$ curl -s http://localhost:8080/
+{"host":"tasklane-api-9dddb5cf6-98hls","service":"tasklane-api","version":"dev"}

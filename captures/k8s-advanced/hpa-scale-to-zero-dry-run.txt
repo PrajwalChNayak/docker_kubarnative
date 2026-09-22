@@ -1,0 +1,2 @@
+$ kubectl apply --dry-run=server -f examples/autoscaling/hpa-scale-to-zero.yaml
+horizontalpodautoscaler.autoscaling/tasklane-worker created (server dry run)

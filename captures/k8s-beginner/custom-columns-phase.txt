@@ -1,0 +1,24 @@
+$ kubectl -n tasklane get pods -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,NODE:.spec.nodeName,IP:.status.podIP,RESTARTS:.status.containerStatuses[0].restartCount
+NAME                                   PHASE     NODE               IP            RESTARTS
+postgres-0                             Running   tasklane-worker2   10.244.2.3    1
+sched-anti-affinity-868d6cb8cc-5g2s4   Pending   <none>             <none>        <none>
+sched-anti-affinity-868d6cb8cc-fmlg9   Running   tasklane-worker2   10.244.2.18   0
+sched-anti-affinity-868d6cb8cc-r24ns   Pending   <none>             <none>        <none>
+sched-batch-566df5c77b-6ztql           Running   tasklane-worker2   10.244.2.22   0
+sched-batch-566df5c77b-k9zc9           Running   tasklane-worker2   10.244.2.23   0
+sched-node-affinity-5bffb9f8fc-8tcmh   Running   tasklane-worker2   10.244.2.15   0
+sched-node-affinity-5bffb9f8fc-jtvpm   Running   tasklane-worker2   10.244.2.17   0
+sched-node-affinity-5bffb9f8fc-mb6c2   Running   tasklane-worker2   10.244.2.16   0
+sched-node-affinity-5bffb9f8fc-snjdx   Running   tasklane-worker2   10.244.2.14   0
+sched-spread-5467d59fb6-s77vk          Running   tasklane-worker2   10.244.2.21   0
+sched-spread-5467d59fb6-sfmln          Pending   <none>             <none>        <none>
+sched-spread-5467d59fb6-sv9nv          Pending   <none>             <none>        <none>
+sched-spread-5467d59fb6-t9n76          Pending   <none>             <none>        <none>
+sched-toleration-85f76767b-5psbl       Running   tasklane-worker2   10.244.2.20   0
+sched-toleration-85f76767b-p2knn       Running   tasklane-worker2   10.244.2.19   0
+tasklane-api-86876d58cf-4dp97          Running   tasklane-worker    10.244.1.8    0
+tasklane-api-86876d58cf-9jxxr          Running   tasklane-worker2   10.244.2.11   0
+tasklane-api-86876d58cf-vlxfp          Running   tasklane-worker2   10.244.2.7    0
+tasklane-worker-cc4f995df-8lbcl        Running   tasklane-worker2   10.244.2.4    1
+tasklane-worker-cc4f995df-c55hs        Running   tasklane-worker    10.244.1.7    1
+tasklane-worker-cc4f995df-rfjkc        Running   tasklane-worker2   10.244.2.9    0

@@ -1,0 +1,5 @@
+$ kubectl -n tasklane get endpoints
+NAME                      ENDPOINTS                           AGE
+postgres                  10.244.2.3:5432                     23h
+tasklane-api              10.244.2.37:8080,10.244.2.38:8080   23h
+tasklane-worker-metrics   10.244.2.4:9090,10.244.2.9:9090     23h

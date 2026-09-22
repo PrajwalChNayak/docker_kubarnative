@@ -1,0 +1,6 @@
+$ docker exec tasklane-control-plane sh -c 'ls -l /proc/1/ns/time /proc/1/ns/time_for_children; echo; cat /proc/1/timens_offsets 2>/dev/null || echo "no /proc/1/timens_offsets on this kernel"'
+lrwxrwxrwx 1 root root 0 Sep 22 07:10 /proc/1/ns/time -> time:[4026531834]
+lrwxrwxrwx 1 root root 0 Sep 22 07:10 /proc/1/ns/time_for_children -> time:[4026531834]
+
+monotonic           0         0
+boottime            0         0
