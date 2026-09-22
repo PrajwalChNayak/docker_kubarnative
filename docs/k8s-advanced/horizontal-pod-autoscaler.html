@@ -195,9 +195,9 @@ horizontalpodautoscalers   hpa          autoscaling/v2   true         Horizontal
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> apply <span class="tok-op">-f</span> examples/autoscaling/hpa.yaml
 <span class="tok-builtin">kubectl</span> <span class="tok-op">-n</span> tasklane get hpa</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/hpa-apply.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl apply -f examples/autoscaling/hpa.yaml &amp;&amp; kubectl -n tasklane get hpa
-horizontalpodautoscaler.autoscaling/tasklane-api created
+horizontalpodautoscaler.autoscaling/tasklane-api configured
 NAME           REFERENCE                 TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-tasklane-api   Deployment/tasklane-api   cpu: <span class="tok-number">1</span>%/<span class="tok-number">70</span>%   <span class="tok-number">2</span>         <span class="tok-number">10</span>        <span class="tok-number">2</span>          1s</code></pre></figure>
+tasklane-api   Deployment/tasklane-api   cpu: <span class="tok-number">1</span>%/<span class="tok-number">70</span>%   <span class="tok-number">2</span>         <span class="tok-number">10</span>        <span class="tok-number">2</span>          136m</code></pre></figure>
 <h2 id="explanation">Explanation<a class="anchor-link" href="#explanation" aria-label="Permalink">#</a></h2>
 <p><code>scaleTargetRef</code> names the Deployment, and <code>metrics</code> says what to keep at 70%. <code>averageUtilization</code> is a percentage of the container's CPU <strong>request</strong>, so the api container's <code>cpu: 100m</code> request makes the target 70m of CPU averaged over ready pods. A workload with no CPU request cannot use <code>Utilization</code> at all — the controller has nothing to divide by, and the HPA reports a failure instead.</p>
 <p>The <code>behavior</code> block is where production behaviour is decided. Scaling up here is immediate and aggressive: no stabilisation window and up to double the replicas, or four extra pods, per 30 seconds. Scaling down is slow on purpose: one pod per minute, and only if no higher recommendation appeared in the last five minutes. That asymmetry is the normal shape — being slow to shrink costs money, being slow to grow costs availability.</p>
@@ -285,7 +285,7 @@ horizontalpodautoscaler.autoscaling/tasklane-worker created (server dry run)</co
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> top pods <span class="tok-op">-n</span> tasklane</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/top-pods.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl top pods -n tasklane
 NAME                                   CPU(cores)   MEMORY(bytes)   
-postgres-<span class="tok-number">0</span>                             34m          51Mi            
+postgres-<span class="tok-number">0</span>                             42m          51Mi            
 sched-anti-affinity-868d6cb8cc-fmlg9   0m           0Mi             
 sched-batch-566df5c77b-6ztql           0m           0Mi             
 sched-batch-566df5c77b-k9zc9           0m           0Mi             
@@ -296,15 +296,17 @@ sched-node-affinity-5bffb9f8fc-snjdx   0m           0Mi
 sched-spread-5467d59fb6-s77vk          0m           0Mi             
 sched-toleration-85f76767b-5psbl       0m           0Mi             
 sched-toleration-85f76767b-p2knn       0m           0Mi             
-tasklane-api-86876d58cf-9jxxr          1m           3Mi             
-tasklane-api-86876d58cf-vlxfp          3m           9Mi             
-tasklane-worker-cc4f995df-8lbcl        3m           8Mi             
-tasklane-worker-cc4f995df-rfjkc        2m           4Mi</code></pre></figure>
+tasklane-api-8657c86899-2hcng          1m           4Mi             
+tasklane-api-8657c86899-r75wr          3m           4Mi             
+tasklane-api-canary-6f5fb6c977-2hgth   1m           9Mi             
+tasklane-worker-6f7f78f4b5-q47zc       2m           4Mi             
+tasklane-worker-6f7f78f4b5-q7lbl       2m           4Mi</code></pre></figure>
 <p>If that works, the same data is one HTTP call away, which is what the controller does:</p>
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> get <span class="tok-op">--raw</span> /apis/metrics.k8s.io/v1beta1/namespaces/tasklane/pods | head <span class="tok-op">-c</span> <span class="tok-number">600</span></code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/metrics-api-raw.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/tasklane/pods | head -c <span class="tok-number">600</span></code></pre></figure>
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> api-versions | grep metrics</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/api-versions-metrics.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl api-versions | grep metrics
+external.metrics.k8s.io/v1beta1
 metrics.k8s.io/v1beta1</code></pre></figure>
 <h2 id="production-considerations">Production considerations<a class="anchor-link" href="#production-considerations" aria-label="Permalink">#</a></h2>
 <p><strong>Requests are the scaling unit.</strong> <code>Utilization</code> is relative to requests, so a request that is far too high makes the HPA think the workload is idle, and one that is far too low makes it scale out constantly. Get requests roughly right first — with VPA recommendations in <code>Off</code> mode, if you like — then enable the HPA.</p>

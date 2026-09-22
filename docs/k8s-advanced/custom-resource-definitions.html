@@ -168,9 +168,9 @@ apiVersion</span><span class="tok-punct">:</span> apiextensions.k8s.io/v1
 <span class="tok-builtin">kubectl</span> <span class="tok-op">-n</span> tasklane get taskqueues</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/crd-printer-columns.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl apply -f examples/operator/config/crd &amp;&amp; kubectl apply -f examples/operator/config/samples/ &amp;&amp; kubectl -n tasklane get taskqueues
 customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com unchanged
-taskqueue.tasklane.example.com/tasklane-worker created
+taskqueue.tasklane.example.com/tasklane-worker unchanged
 NAME              WORKERS   READY   STATUS   AGE
-tasklane-worker   <span class="tok-number">2</span>                          2s</code></pre></figure>
+tasklane-worker   <span class="tok-number">2</span>         <span class="tok-number">2</span>       True     136m</code></pre></figure>
 <h2 id="explanation">Explanation<a class="anchor-link" href="#explanation" aria-label="Permalink">#</a></h2>
 <p>Note what the sample does <em>not</em> say: <code>deploymentName</code>. The CRD defaults it during admission, so the stored object has it set. That is worth proving rather than believing:</p>
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> <span class="tok-op">-n</span> tasklane get taskqueue tasklane-worker <span class="tok-op">-o</span> jsonpath=<span class="tok-string">'{.spec}'</span></code></pre></figure>

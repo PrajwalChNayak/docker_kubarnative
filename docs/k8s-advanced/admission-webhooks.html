@@ -142,11 +142,12 @@
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> get validatingwebhookconfigurations,mutatingwebhookconfigurations</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/admission-webhook-configs.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations
 NAME                                                                               WEBHOOKS   AGE
-validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook   <span class="tok-number">1</span>          23h
+validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook   <span class="tok-number">1</span>          25h
+validatingwebhookconfiguration.admissionregistration.k8s.io/keda-admission         <span class="tok-number">6</span>          6m30s
 
 NAME                                                                                                             WEBHOOKS   AGE
-mutatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook                                   <span class="tok-number">1</span>          23h
-mutatingwebhookconfiguration.admissionregistration.k8s.io/envoy-gateway-topology-injector.envoy-gateway-system   <span class="tok-number">1</span>          23h</code></pre></figure>
+mutatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook                                   <span class="tok-number">1</span>          25h
+mutatingwebhookconfiguration.admissionregistration.k8s.io/envoy-gateway-topology-injector.envoy-gateway-system   <span class="tok-number">1</span>          26h</code></pre></figure>
 <p>And the full set of admission kinds the 1.37 API server serves:</p>
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> api-resources <span class="tok-op">--api-group</span>=admissionregistration.k8s.io</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/admission-api-resources.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl api-resources --api-group=admissionregistration.k8s.io

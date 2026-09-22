@@ -149,11 +149,11 @@ drain</code> then deletes the pods, respecting <a href="../k8s-intermediate/pod-
 <span class="tok-builtin">kubectl</span> taint nodes tasklane-worker maintenance=true:NoSchedule-</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/taint-toleration-pods.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl taint nodes tasklane-worker maintenance=true:NoSchedule --overwrite &amp;&amp; kubectl apply -f examples/scheduling/taints-tolerations.yaml &amp;&amp; kubectl -n tasklane rollout status deployment/sched-toleration --timeout=120s &amp;&amp; kubectl -n tasklane get pods -o wide -l app.kubernetes.io/name=sched-toleration ; kubectl taint nodes tasklane-worker maintenance=true:NoSchedule-
 node/tasklane-worker modified
-deployment.apps/sched-toleration created
+deployment.apps/sched-toleration unchanged
 deployment <span class="tok-string">&quot;sched-toleration&quot;</span> successfully rolled out
-NAME                               READY   STATUS    RESTARTS   AGE   IP            NODE               NOMINATED NODE   READINESS GATES
-sched-toleration-85f76767b-5psbl   <span class="tok-number">1</span>/<span class="tok-number">1</span>     Running   <span class="tok-number">0</span>          3s    <span class="tok-number">10.244</span>.<span class="tok-number">2.20</span>   tasklane-worker2   &lt;none&gt;           &lt;none&gt;
-sched-toleration-85f76767b-p2knn   <span class="tok-number">1</span>/<span class="tok-number">1</span>     Running   <span class="tok-number">0</span>          3s    <span class="tok-number">10.244</span>.<span class="tok-number">2.19</span>   tasklane-worker2   &lt;none&gt;           &lt;none&gt;
+NAME                               READY   STATUS    RESTARTS      AGE    IP            NODE               NOMINATED NODE   READINESS GATES
+sched-toleration-85f76767b-5psbl   <span class="tok-number">1</span>/<span class="tok-number">1</span>     Running   <span class="tok-number">2</span> (17m ago)   137m   <span class="tok-number">10.244</span>.<span class="tok-number">2.20</span>   tasklane-worker2   &lt;none&gt;           &lt;none&gt;
+sched-toleration-85f76767b-p2knn   <span class="tok-number">1</span>/<span class="tok-number">1</span>     Running   <span class="tok-number">2</span> (17m ago)   137m   <span class="tok-number">10.244</span>.<span class="tok-number">2.19</span>   tasklane-worker2   &lt;none&gt;           &lt;none&gt;
 node/tasklane-worker untainted</code></pre></figure>
 <h2 id="explanation">Explanation<a class="anchor-link" href="#explanation" aria-label="Permalink">#</a></h2>
 <p>The first toleration matches the taint exactly: same key, same value, same effect, <code>operator: Equal</code> (the default). <code>operator: Exists</code> with no <code>value</code> matches any value for that key — useful when the value encodes something variable, such as a maintenance window ID.</p>

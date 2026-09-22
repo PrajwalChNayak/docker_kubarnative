@@ -1,6 +1,8 @@
 $ kubectl get validatingadmissionpolicies,validatingadmissionpolicybindings
-NAME                                                                                             VALIDATIONS   PARAMKIND   AGE
-validatingadmissionpolicy.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io   2             <unset>     23h
+NAME                                                                                                    VALIDATIONS   PARAMKIND   AGE
+validatingadmissionpolicy.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io          2             <unset>     25h
+validatingadmissionpolicy.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com   3             <unset>     136m
 
-NAME                                                                                                    POLICYNAME                                PARAMREF   AGE
-validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io   safe-upgrades.gateway.networking.k8s.io   <unset>    23h
+NAME                                                                                                           POLICYNAME                                       PARAMREF   AGE
+validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io          safe-upgrades.gateway.networking.k8s.io          <unset>    25h
+validatingadmissionpolicybinding.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com   tasklane-workload-hygiene.tasklane.example.com   <unset>    136m

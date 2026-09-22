@@ -7,7 +7,10 @@ certificaterequests.cert-manager.io                   Namespaced   v1(storage)  
 certificates.cert-manager.io                          Namespaced   v1(storage)                     2026-09-21T07:35:41Z
 challenges.acme.cert-manager.io                       Namespaced   v1(storage)                     2026-09-21T07:35:41Z
 clienttrafficpolicies.gateway.envoyproxy.io           Namespaced   v1alpha1(storage)               2026-09-21T07:35:15Z
+cloudeventsources.eventing.keda.sh                    Namespaced   v1alpha1(storage)               2026-09-22T09:28:52Z
+clustercloudeventsources.eventing.keda.sh             Cluster      v1alpha1(storage)               2026-09-22T09:28:52Z
 clusterissuers.cert-manager.io                        Cluster      v1(storage)                     2026-09-21T07:35:41Z
+clustertriggerauthentications.keda.sh                 Cluster      v1alpha1(storage)               2026-09-22T09:28:52Z
 envoyextensionpolicies.gateway.envoyproxy.io          Namespaced   v1alpha1(storage)               2026-09-21T07:35:15Z
 envoypatchpolicies.gateway.envoyproxy.io              Namespaced   v1alpha1(storage)               2026-09-21T07:35:15Z
 envoyproxies.gateway.envoyproxy.io                    Namespaced   v1alpha1(storage)               2026-09-21T07:35:15Z
@@ -20,9 +23,13 @@ issuers.cert-manager.io                               Namespaced   v1(storage)  
 listenersets.gateway.networking.k8s.io                Namespaced   v1(storage)                     2026-09-21T07:35:14Z
 orders.acme.cert-manager.io                           Namespaced   v1(storage)                     2026-09-21T07:35:41Z
 referencegrants.gateway.networking.k8s.io             Namespaced   v1,v1beta1(storage)             2026-09-21T07:35:14Z
+scaledjobs.keda.sh                                    Namespaced   v1alpha1(storage)               2026-09-22T09:28:53Z
+scaledobjects.keda.sh                                 Namespaced   v1alpha1(storage)               2026-09-22T09:28:52Z
 securitypolicies.gateway.envoyproxy.io                Namespaced   v1alpha1(storage)               2026-09-21T07:35:16Z
+taskqueues.tasklane.example.com                       Namespaced   v1alpha1(storage)               2026-09-22T07:18:41Z
 tcproutes.gateway.networking.k8s.io                   Namespaced   v1(storage),v1alpha2            2026-09-21T07:35:14Z
 tlsroutes.gateway.networking.k8s.io                   Namespaced   v1(storage),v1alpha2,v1alpha3   2026-09-21T07:35:14Z
+triggerauthentications.keda.sh                        Namespaced   v1alpha1(storage)               2026-09-22T09:28:52Z
 udproutes.gateway.networking.k8s.io                   Namespaced   v1(storage),v1alpha2            2026-09-21T07:35:14Z
 xbackends.gateway.networking.x-k8s.io                 Namespaced   v1alpha1(storage)               2026-09-21T07:35:14Z
 xbackendtrafficpolicies.gateway.networking.x-k8s.io   Namespaced   v1alpha1(storage)               2026-09-21T07:35:14Z

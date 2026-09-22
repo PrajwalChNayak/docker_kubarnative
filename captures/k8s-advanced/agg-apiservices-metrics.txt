@@ -1,2 +1,3 @@
 $ kubectl get apiservices | grep metrics
-v1beta1.metrics.k8s.io                 kube-system/metrics-server   True        23h
+v1beta1.external.metrics.k8s.io        keda/keda-operator-metrics-apiserver   True        6m34s
+v1beta1.metrics.k8s.io                 kube-system/metrics-server             True        25h

@@ -1,17 +1,17 @@
 $ kubectl apply -f examples/multi-tenancy/ && kubectl -n team-a describe resourcequota team-a-compute
 namespace/team-a unchanged
-resourcequota/team-a-compute created
-resourcequota/team-a-objects created
-resourcequota/team-a-high-priority created
-limitrange/team-a-limits created
-serviceaccount/team-a-deployer created
-role.rbac.authorization.k8s.io/team-a-deploy created
-rolebinding.rbac.authorization.k8s.io/team-a-deploy created
-rolebinding.rbac.authorization.k8s.io/team-a-view created
-networkpolicy.networking.k8s.io/default-deny created
-networkpolicy.networking.k8s.io/allow-dns-egress created
-networkpolicy.networking.k8s.io/allow-same-namespace created
-networkpolicy.networking.k8s.io/allow-external-egress created
+resourcequota/team-a-compute unchanged
+resourcequota/team-a-objects unchanged
+resourcequota/team-a-high-priority unchanged
+limitrange/team-a-limits unchanged
+serviceaccount/team-a-deployer unchanged
+role.rbac.authorization.k8s.io/team-a-deploy unchanged
+rolebinding.rbac.authorization.k8s.io/team-a-deploy unchanged
+rolebinding.rbac.authorization.k8s.io/team-a-view unchanged
+networkpolicy.networking.k8s.io/default-deny unchanged
+networkpolicy.networking.k8s.io/allow-dns-egress unchanged
+networkpolicy.networking.k8s.io/allow-same-namespace unchanged
+networkpolicy.networking.k8s.io/allow-external-egress unchanged
 Name:            team-a-compute
 Namespace:       team-a
 Resource         Used  Hard

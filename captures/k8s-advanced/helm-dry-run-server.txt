@@ -1,8 +1,8 @@
 $ kubectl create namespace tasklane-helm --dry-run=client -o yaml | kubectl apply -f - && kubectl label --overwrite namespace tasklane-helm pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted && helm install t examples/helm/tasklane -n tasklane-helm --dry-run=server 2>&1 | head -60
-namespace/tasklane-helm configured
-namespace/tasklane-helm labeled
+namespace/tasklane-helm unchanged
+namespace/tasklane-helm not labeled
 NAME: t
-LAST DEPLOYED: Tue Sep 22 12:48:27 2026
+LAST DEPLOYED: Tue Sep 22 15:04:36 2026
 NAMESPACE: tasklane-helm
 STATUS: pending-install
 REVISION: 1

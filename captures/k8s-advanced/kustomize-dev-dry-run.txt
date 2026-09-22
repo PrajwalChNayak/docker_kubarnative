@@ -1,6 +1,6 @@
 $ kubectl create namespace tasklane-dev --dry-run=client -o yaml | kubectl apply -f - && kubectl label --overwrite namespace tasklane-dev pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted && kubectl apply -k examples/kustomize/overlays/dev --dry-run=server 2>&1
-namespace/tasklane-dev configured
-namespace/tasklane-dev labeled
+namespace/tasklane-dev unchanged
+namespace/tasklane-dev not labeled
 namespace/tasklane-dev configured (server dry run)
 serviceaccount/tasklane-api created (server dry run)
 serviceaccount/tasklane-worker created (server dry run)

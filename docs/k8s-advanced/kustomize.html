@@ -307,8 +307,8 @@ Component</code>) is an opt-in slice of configuration. Unlike a base it is not r
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> create namespace tasklane-dev <span class="tok-op">--dry-run</span>=client <span class="tok-op">-o</span> yaml | kubectl apply <span class="tok-op">-f</span> -
 <span class="tok-builtin">kubectl</span> apply <span class="tok-op">-k</span> examples/kustomize/overlays/dev <span class="tok-op">--dry-run</span>=server</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/kustomize-dev-dry-run.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl create namespace tasklane-dev --dry-run=client -o yaml | kubectl apply -f - &amp;&amp; kubectl label --overwrite namespace tasklane-dev pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted &amp;&amp; kubectl apply -k examples/kustomize/overlays/dev --dry-run=server <span class="tok-number">2</span>&gt;&amp;<span class="tok-number">1</span>
-namespace/tasklane-dev configured
-namespace/tasklane-dev labeled
+namespace/tasklane-dev unchanged
+namespace/tasklane-dev not labeled
 namespace/tasklane-dev configured (server dry run)
 serviceaccount/tasklane-api created (server dry run)
 serviceaccount/tasklane-worker created (server dry run)

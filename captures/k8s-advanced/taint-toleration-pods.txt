@@ -2,7 +2,7 @@ $ kubectl taint nodes tasklane-worker maintenance=true:NoSchedule --overwrite &&
 node/tasklane-worker modified
 deployment.apps/sched-toleration unchanged
 deployment "sched-toleration" successfully rolled out
-NAME                               READY   STATUS    RESTARTS        AGE    IP            NODE               NOMINATED NODE   READINESS GATES
-sched-toleration-85f76767b-5psbl   1/1     Running   2 (8m13s ago)   128m   10.244.2.20   tasklane-worker2   <none>           <none>
-sched-toleration-85f76767b-p2knn   1/1     Running   2 (8m12s ago)   128m   10.244.2.19   tasklane-worker2   <none>           <none>
+NAME                               READY   STATUS    RESTARTS      AGE    IP            NODE               NOMINATED NODE   READINESS GATES
+sched-toleration-85f76767b-5psbl   1/1     Running   2 (17m ago)   137m   10.244.2.20   tasklane-worker2   <none>           <none>
+sched-toleration-85f76767b-p2knn   1/1     Running   2 (17m ago)   137m   10.244.2.19   tasklane-worker2   <none>           <none>
 node/tasklane-worker untainted

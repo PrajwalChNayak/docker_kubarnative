@@ -1,9 +1,9 @@
 $ kubectl apply -f examples/scheduling/priority-classes.yaml && kubectl get priorityclasses
-priorityclass.scheduling.k8s.io/tasklane-critical created
-priorityclass.scheduling.k8s.io/tasklane-batch created
-deployment.apps/sched-batch created
-NAME                      VALUE        GLOBAL-DEFAULT   AGE   PREEMPTIONPOLICY
-system-cluster-critical   2000000000   false            23h   PreemptLowerPriority
-system-node-critical      2000001000   false            23h   PreemptLowerPriority
-tasklane-batch            100          false            2s    Never
-tasklane-critical         1000000      false            2s    PreemptLowerPriority
+priorityclass.scheduling.k8s.io/tasklane-critical configured
+priorityclass.scheduling.k8s.io/tasklane-batch configured
+deployment.apps/sched-batch unchanged
+NAME                      VALUE        GLOBAL-DEFAULT   AGE    PREEMPTIONPOLICY
+system-cluster-critical   2000000000   false            25h    PreemptLowerPriority
+system-node-critical      2000001000   false            25h    PreemptLowerPriority
+tasklane-batch            100          false            136m   Never
+tasklane-critical         1000000      false            136m   PreemptLowerPriority

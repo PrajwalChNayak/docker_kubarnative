@@ -1,4 +1,4 @@
 $ kubectl apply -f examples/operator/config/crd && kubectl get crd taskqueues.tasklane.example.com
-customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com created
+customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com unchanged
 NAME                              SCOPE        VERSIONS            CREATED AT
 taskqueues.tasklane.example.com   Namespaced   v1alpha1(storage)   2026-09-22T07:18:41Z

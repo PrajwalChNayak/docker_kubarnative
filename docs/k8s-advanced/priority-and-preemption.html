@@ -136,14 +136,14 @@ apiVersion</span><span class="tok-punct">:</span> apps/v1
 <figure class="code-block" data-lang="bash"><figcaption class="code-head"><span class="code-file"></span><span class="code-tools"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code><span class="tok-builtin">kubectl</span> apply <span class="tok-op">-f</span> examples/scheduling/priority-classes.yaml
 <span class="tok-builtin">kubectl</span> get priorityclasses</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/priorityclasses.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl apply -f examples/scheduling/priority-classes.yaml &amp;&amp; kubectl get priorityclasses
-priorityclass.scheduling.k8s.io/tasklane-critical created
-priorityclass.scheduling.k8s.io/tasklane-batch created
-deployment.apps/sched-batch created
-NAME                      VALUE        GLOBAL-DEFAULT   AGE   PREEMPTIONPOLICY
-system-cluster-critical   <span class="tok-number">2000000000</span>   false            23h   PreemptLowerPriority
-system-node-critical      <span class="tok-number">2000001000</span>   false            23h   PreemptLowerPriority
-tasklane-batch            <span class="tok-number">100</span>          false            2s    Never
-tasklane-critical         <span class="tok-number">1000000</span>      false            2s    PreemptLowerPriority</code></pre></figure>
+priorityclass.scheduling.k8s.io/tasklane-critical configured
+priorityclass.scheduling.k8s.io/tasklane-batch configured
+deployment.apps/sched-batch unchanged
+NAME                      VALUE        GLOBAL-DEFAULT   AGE    PREEMPTIONPOLICY
+system-cluster-critical   <span class="tok-number">2000000000</span>   false            25h    PreemptLowerPriority
+system-node-critical      <span class="tok-number">2000001000</span>   false            25h    PreemptLowerPriority
+tasklane-batch            <span class="tok-number">100</span>          false            136m   Never
+tasklane-critical         <span class="tok-number">1000000</span>      false            136m   PreemptLowerPriority</code></pre></figure>
 <h2 id="explanation">Explanation<a class="anchor-link" href="#explanation" aria-label="Permalink">#</a></h2>
 <p><code>tasklane-critical</code> has value 1000000 and the default <code>preemptionPolicy: PreemptLowerPriority</code>: its pods may evict anything with a lower value, including <code>tasklane-batch</code> pods and every priority-0 pod.</p>
 <p><code>tasklane-batch</code> has value 100 and <code>preemptionPolicy: Never</code>. Its pods sit ahead of priority-0 pods in the queue, so they get first refusal on free capacity, but they never trigger preemption — they simply wait. This is the right setting for data-science and CI workloads that want to start soon without destroying someone else's in-flight work. Non-preempting pods are still subject to scheduler back-off, and they can still be preempted by higher-priority pods.</p>

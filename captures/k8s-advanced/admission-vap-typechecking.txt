@@ -1,4 +1,4 @@
 $ kubectl apply -f examples/admission/validatingadmissionpolicy.yaml && kubectl get validatingadmissionpolicy tasklane-workload-hygiene.tasklane.example.com -o jsonpath='{.status}{"\n"}'
-validatingadmissionpolicy.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com created
-validatingadmissionpolicybinding.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com created
+validatingadmissionpolicy.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com configured
+validatingadmissionpolicybinding.admissionregistration.k8s.io/tasklane-workload-hygiene.tasklane.example.com unchanged
 {"observedGeneration":1,"typeChecking":{}}

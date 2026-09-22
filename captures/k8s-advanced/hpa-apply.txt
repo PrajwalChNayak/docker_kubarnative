@@ -1,4 +1,4 @@
 $ kubectl apply -f examples/autoscaling/hpa.yaml && kubectl -n tasklane get hpa
-horizontalpodautoscaler.autoscaling/tasklane-api created
+horizontalpodautoscaler.autoscaling/tasklane-api configured
 NAME           REFERENCE                 TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-tasklane-api   Deployment/tasklane-api   cpu: 1%/70%   2         10        2          1s
+tasklane-api   Deployment/tasklane-api   cpu: 1%/70%   2         10        2          136m

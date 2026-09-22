@@ -1,5 +1,5 @@
 $ kubectl apply -f examples/operator/config/crd && kubectl apply -f examples/operator/config/samples/ && kubectl -n tasklane get taskqueues
 customresourcedefinition.apiextensions.k8s.io/taskqueues.tasklane.example.com unchanged
-taskqueue.tasklane.example.com/tasklane-worker created
+taskqueue.tasklane.example.com/tasklane-worker unchanged
 NAME              WORKERS   READY   STATUS   AGE
-tasklane-worker   2                          2s
+tasklane-worker   2         2       True     136m

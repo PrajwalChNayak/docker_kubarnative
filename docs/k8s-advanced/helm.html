@@ -70,10 +70,10 @@ version.BuildInfo{Version:<span class="tok-string">&quot;v4.3.0&quot;</span>, Gi
 <span class="tok-builtin">kubectl</span> label <span class="tok-op">--overwrite</span> namespace tasklane-helm pod-security.kubernetes.io/enforce=restricted
 <span class="tok-builtin">helm</span> install t examples/helm/tasklane <span class="tok-op">-n</span> tasklane-helm <span class="tok-op">--dry-run</span>=server</code></pre></figure>
 <figure class="code-block" data-lang="console"><figcaption class="code-head"><span class="code-file">captures/k8s-advanced/helm-dry-run-server.txt</span><span class="code-tools"><span class="code-lang">console</span><button type="button" class="copy-btn" aria-label="Copy code to clipboard">Copy</button></span></figcaption><pre class="code-pre"><code>$ kubectl create namespace tasklane-helm --dry-run=client -o yaml | kubectl apply -f - &amp;&amp; kubectl label --overwrite namespace tasklane-helm pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted pod-security.kubernetes.io/audit=restricted &amp;&amp; helm install t examples/helm/tasklane -n tasklane-helm --dry-run=server <span class="tok-number">2</span>&gt;&amp;<span class="tok-number">1</span> | head -<span class="tok-number">60</span>
-namespace/tasklane-helm configured
-namespace/tasklane-helm labeled
+namespace/tasklane-helm unchanged
+namespace/tasklane-helm not labeled
 NAME: t
-LAST DEPLOYED: Tue Sep <span class="tok-number">22</span> <span class="tok-number">12</span>:<span class="tok-number">48</span>:<span class="tok-number">27</span> <span class="tok-number">2026</span>
+LAST DEPLOYED: Tue Sep <span class="tok-number">22</span> <span class="tok-number">15</span>:<span class="tok-number">04</span>:<span class="tok-number">36</span> <span class="tok-number">2026</span>
 NAMESPACE: tasklane-helm
 STATUS: pending-install
 REVISION: <span class="tok-number">1</span>
